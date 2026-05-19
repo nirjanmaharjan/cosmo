@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SafeVoice</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --blue:#2563EB;--blue-d:#1D4ED8;--blue-l:#EFF6FF;--blue-m:#DBEAFE;
+  --text:#111827;--sub:#6B7280;--border:#E5E7EB;--bg:#F3F4F6;
+  --green:#059669;--green-bg:#ECFDF5;--yellow:#D97706;
+  --red:#DC2626;--orange:#EA580C;
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.page{display:none;min-height:100vh;flex-direction:column}
+.page.active{display:flex}
+#pg-login{flex-direction:row!important}
+
+/* LOGIN */
+.ll{width:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 80px;background:#fff}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:44px;align-self:flex-start}
+.brand-ico{width:42px;height:42px;border-radius:10px;background:var(--blue);display:flex;align-items:center;justify-content:center}
+.brand h2{font-size:17px;font-weight:700}
+.brand p{font-size:12px;color:var(--sub)}
+.form-box{width:100%;max-width:370px}
+.form-box h1{font-size:26px;font-weight:700;margin-bottom:6px}
+.form-box .sub{font-size:14px;color:var(--sub);margin-bottom:28px}
+.fg{margin-bottom:18px}
+.fg label{display:block;font-size:13px;font-weight:500;margin-bottom:6px}
+.iw{position:relative}
+.iw svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--sub)}
+.iw input{width:100%;padding:10px 12px 10px 36px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;outline:none;transition:border .2s}
+.iw input:focus{border-color:var(--blue)}
+.rrow{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
+.rrow label{font-size:13px;color:var(--sub);display:flex;align-items:center;gap:6px;cursor:pointer}
+.rrow a{font-size:13px;color:var(--blue);text-decoration:none;font-weight:500}
+.btn-blue{width:100%;padding:11px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .2s}
+.btn-blue:hover{background:var(--blue-d)}
+.btn-blue:disabled{opacity:.6;cursor:not-allowed}
+.sl{text-align:center;font-size:13px;color:var(--sub);margin-top:18px}
+.sl a{color:var(--blue);font-weight:600;text-decoration:none;cursor:pointer}
+.demo{margin-top:24px;background:var(--blue-l);border:1px solid var(--blue-m);border-radius:10px;padding:14px;font-size:13px}
+.demo strong{display:block;margin-bottom:5px}
+.demo span{color:var(--blue);display:block}
+.demo .pwd{color:var(--sub)}
+
+.lr{width:50%;background:linear-gradient(135deg,#2563EB,#7C3AED);display:flex;align-items:center;justify-content:center;padding:60px;position:relative;overflow:hidden}
+.lr::before{content:'';position:absolute;width:400px;height:400px;border-radius:50%;background:rgba(255,255,255,.05);top:-100px;right:-100px}
+.lr::after{content:'';position:absolute;width:280px;height:280px;border-radius:50%;background:rgba(255,255,255,.04);bottom:-80px;left:-60px}
+.rc{position:relative;z-index:1;color:#fff;max-width:400px}
+.rc h2{font-size:32px;font-weight:700;line-height:1.25;margin-bottom:12px}
+.rc .tag{font-size:14px;opacity:.85;margin-bottom:36px;line-height:1.6}
+.fl{display:flex;flex-direction:column;gap:18px;margin-bottom:36px}
+.fi{display:flex;align-items:flex-start;gap:14px}
+.fic{width:40px;height:40px;min-width:40px;border-radius:10px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center}
+.ft h4{font-size:14px;font-weight:600;margin-bottom:2px}
+.ft p{font-size:12px;opacity:.75;line-height:1.5}
+.sr{display:flex;gap:14px;margin-bottom:28px}
+.sb{flex:1;background:rgba(255,255,255,.15);border-radius:10px;padding:14px;text-align:center}
+.sb .v{font-size:24px;font-weight:700}
+.sb .l{font-size:11px;opacity:.75;margin-top:2px}
+.sc{background:#fff;border-radius:12px;padding:16px;color:var(--text)}
+.sc h4{font-size:13px;font-weight:600;margin-bottom:4px}
+.sc p{font-size:12px;color:var(--sub);margin-bottom:8px}
+.sc .tags{display:flex;gap:6px;margin-bottom:6px}
+.sc .tag2{font-size:11px;padding:3px 8px;border-radius:20px;font-weight:500}
+.t-rev{background:#EFF6FF;color:var(--blue)}
+.t-lib{background:#EDE9FE;color:#7C3AED}
+.sc .meta{font-size:11px;color:var(--sub)}
+
+/* NAVBAR */
+.nav{background:#fff;border-bottom:1px solid var(--border);padding:0 28px;height:58px;display:flex;align-items:center;position:sticky;top:0;z-index:100}
+.nb{display:flex;align-items:center;gap:9px;margin-right:auto}
+.nb .ni{width:34px;height:34px;border-radius:8px;background:var(--blue);display:flex;align-items:center;justify-content:center}
+.nb h3{font-size:15px;font-weight:700}
+.nb p{font-size:11px;color:var(--sub)}
+.nls{display:flex;align-items:center;gap:3px}
+.nl{padding:7px 14px;border-radius:8px;font-size:14px;font-weight:500;color:var(--sub);cursor:pointer;border:none;background:none;display:flex;align-items:center;gap:6px;transition:all .15s;font-family:inherit}
+.nl:hover{background:var(--bg);color:var(--text)}
+.nl.act{background:var(--blue-l);color:var(--blue)}
+.nl svg{width:15px;height:15px}
+.na{display:flex;align-items:center;gap:8px;margin-left:14px}
+.av-wrap{position:relative}
+.av{width:34px;height:34px;border-radius:50%;background:var(--blue);border:none;cursor:pointer;color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.profile-dd{display:none;position:absolute;top:calc(100% + 10px);right:0;background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.12);min-width:220px;z-index:300;overflow:hidden;animation:dd .15s ease}
+@keyframes dd{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.profile-dd.open{display:block}
+.dd-email{padding:14px 16px;font-size:13px;font-weight:600;color:var(--text);border-bottom:1px solid var(--border);word-break:break-all}
+.dd-item{display:flex;align-items:center;gap:10px;padding:12px 16px;font-size:14px;color:var(--text);cursor:pointer;transition:background .15s;border:none;background:none;width:100%;font-family:inherit;text-align:left}
+.dd-item:hover{background:var(--bg)}
+.dd-item svg{width:16px;height:16px;color:var(--sub)}
+
+/* HOME */
+.hc{max-width:740px;margin:0 auto;padding:28px 20px 80px}
+.inline-form{background:#fff;border-radius:14px;padding:32px 36px;width:100%;border:1px solid var(--border);box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:22px;display:none}
+.inline-form.open{display:block;animation:fd .2s ease}
+@keyframes fd{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
+.ifh{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
+.ifh h3{font-size:17px;font-weight:600}
+.ifc{background:none;border:none;cursor:pointer;color:var(--sub);font-size:22px;line-height:1;padding:0}
+.inline-form input,.inline-form textarea,.inline-form select{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;outline:none;transition:border .2s;margin-bottom:14px;background:#fff}
+.inline-form input:focus,.inline-form textarea:focus,.inline-form select:focus{border-color:var(--blue)}
+.inline-form textarea{resize:vertical;min-height:120px}
+.anote{background:var(--blue-l);border:1px solid var(--blue-m);border-radius:10px;padding:13px 15px;margin-bottom:20px;font-size:13px;color:#1e40af;line-height:1.55}
+.anote strong{color:var(--blue)}
+.mf{display:flex;justify-content:flex-end}
+.btn-sub{padding:11px 24px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:7px;transition:background .15s}
+.btn-sub:hover{background:var(--blue-d)}
+.btn-sub:disabled{opacity:.6;cursor:not-allowed}
+.inp-bar{background:#fff;border-radius:12px;padding:14px 18px;border:1.5px solid var(--border);margin-bottom:22px;cursor:pointer;transition:border .2s;display:flex;align-items:center;gap:10px}
+.inp-bar:hover{border-color:var(--blue)}
+.inp-bar span{color:var(--sub);font-size:14px}
+.fb{background:#fff;border-radius:10px;padding:11px 15px;border:1px solid var(--border);display:flex;align-items:center;gap:10px;margin-bottom:22px;flex-wrap:wrap}
+.flbl{font-size:13px;color:var(--sub);display:flex;align-items:center;gap:5px}
+select{padding:6px 9px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;font-family:inherit;color:var(--text);background:#fff;cursor:pointer;outline:none}
+select:focus{border-color:var(--blue)}
+.slbl{margin-left:auto;font-size:13px;color:var(--sub);display:flex;align-items:center;gap:5px}
+.fh{display:flex;flex-direction:column;gap:4px;margin-bottom:14px}
+.fh h2{font-size:19px;font-weight:700}
+.fh span{font-size:13px;color:var(--sub)}
+.cc{background:#fff;border-radius:12px;border:1px solid var(--border);padding:18px 22px;margin-bottom:14px;transition:box-shadow .2s}
+.cc:hover{box-shadow:0 4px 18px rgba(0,0,0,.08)}
+.ct{font-size:15px;font-weight:600;margin-bottom:5px}
+.cd{font-size:13px;color:var(--sub);line-height:1.55;margin-bottom:11px}
+.ctags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px}
+.pill{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;display:inline-flex;align-items:center;gap:3px}
+.p-pend{background:#FEF9C3;color:#A16207}
+.p-rev{background:#EFF6FF;color:var(--blue)}
+.p-res{background:var(--green-bg);color:var(--green)}
+.p-cat{background:#F3F4F6;color:#374151}
+.p-hi{background:#FEF2F2;color:var(--red)}
+.p-med{background:#FFF7ED;color:var(--orange)}
+.p-lo{background:var(--green-bg);color:var(--green)}
+.ca{font-size:12px;color:var(--sub);margin-bottom:11px}
+.ca span{font-weight:600;color:var(--text)}
+.cdiv{border:none;border-top:1px solid var(--border);margin-bottom:11px}
+.cf{display:flex;align-items:center;gap:9px}
+.vb{display:flex;align-items:center;gap:5px;padding:5px 11px;border:1.5px solid var(--border);border-radius:7px;background:none;font-size:13px;cursor:pointer;font-family:inherit;color:var(--sub);transition:all .15s}
+.vb:hover,.vb.voted{border-color:var(--blue);color:var(--blue);background:var(--blue-l)}
+.vb svg{width:13px;height:13px}
+.ta{font-size:14px;color:#6B7280}
+.loading{text-align:center;padding:40px;color:var(--sub)}
+
+/* TRACK */
+.tc{max-width:840px;margin:0 auto;padding:36px 20px}
+.tc h1{font-size:24px;font-weight:700;margin-bottom:4px}
+.tc .sub{font-size:14px;color:var(--sub);margin-bottom:22px}
+.sb2{display:flex;align-items:center;gap:9px;background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:10px 15px;margin-bottom:26px;transition:border .2s}
+.sb2:focus-within{border-color:var(--blue)}
+.sb2 svg{color:var(--sub);width:15px;height:15px;min-width:15px}
+.sb2 input{border:none;outline:none;font-size:14px;font-family:inherit;color:var(--text);width:100%;background:transparent}
+.scards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:26px}
+.scard{background:#fff;border-radius:12px;padding:18px 20px;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.scard.pend{border-color:#FDE68A;background:#FFFBEB}
+.scard.rev{border-color:#BFDBFE;background:#EFF6FF}
+.scard.reso{border-color:#A7F3D0;background:var(--green-bg)}
+.slb{font-size:12px;font-weight:500;margin-bottom:3px}
+.sn{font-size:26px;font-weight:700}
+.scard.pend .slb,.scard.pend .sn{color:var(--yellow)}
+.scard.rev .slb,.scard.rev .sn{color:var(--blue)}
+.scard.reso .slb,.scard.reso .sn{color:var(--green)}
+.sico{width:40px;height:40px;border-radius:50%;opacity:.6;display:flex;align-items:center;justify-content:center}
+.sico svg{width:20px;height:20px}
+.tcard{background:#fff;border-radius:12px;border:1px solid var(--border);padding:20px 24px;margin-bottom:14px}
+.tch{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:7px}
+.tch h3{font-size:15px;font-weight:600}
+.tdesc{font-size:13px;color:var(--sub);margin-bottom:14px;line-height:1.5}
+.pr{display:flex;justify-content:space-between;margin-bottom:5px}
+.pr span{font-size:12px;color:var(--sub)}
+.pbg{background:var(--border);border-radius:9999px;height:6px;margin-bottom:13px}
+.pf{height:100%;border-radius:9999px;transition:width .5s}
+.pb{background:var(--blue)}.py{background:#F59E0B}.pg{background:var(--green)}
+.tm{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--sub);justify-content:space-between}
+.tm .mi{display:flex;gap:3px}
+.tm .mi .mv{font-weight:600;color:var(--text)}
+.phi{color:var(--red)!important;font-weight:600}
+.pme{color:var(--orange)!important;font-weight:600}
+.plo{color:var(--green)!important;font-weight:600}
+
+/* ADMIN */
+.ac{max-width:1080px;margin:0 auto;padding:36px 20px}
+.ac h1{font-size:24px;font-weight:700;margin-bottom:4px}
+.ac .sub{font-size:14px;color:var(--sub);margin-bottom:26px}
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:26px}
+.stc{background:#fff;border-radius:12px;border:1px solid var(--border);padding:18px 20px;display:flex;justify-content:space-between;align-items:flex-start}
+.stc .sl2{font-size:13px;color:var(--sub);margin-bottom:5px}
+.stc .sn2{font-size:26px;font-weight:700}
+.si{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center}
+.si.bl{background:#EFF6FF;color:var(--blue)}
+.si.ye{background:#FFFBEB;color:var(--yellow)}
+.si.re{background:#FEF2F2;color:var(--red)}
+.si.gr{background:var(--green-bg);color:var(--green)}
+.si svg{width:19px;height:19px}
+.amid{display:grid;grid-template-columns:1fr 1.4fr;gap:18px;margin-bottom:26px}
+.ap{background:#fff;border-radius:12px;border:1px solid var(--border);padding:20px}
+.pt{font-size:15px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:7px}
+.pt svg{width:15px;height:15px;color:var(--sub)}
+.cr{display:flex;flex-direction:column;gap:10px}
+.ci{display:flex;align-items:center;gap:9px}
+.cn{font-size:13px;width:100px}
+.cbg{flex:1;background:var(--border);border-radius:9999px;height:6px}
+.cf2{height:100%;border-radius:9999px;background:var(--blue)}
+.cc2{font-size:12px;color:var(--sub);width:18px;text-align:right}
+.fp{display:flex;flex-direction:column;gap:11px}
+.fg2 label{font-size:12px;color:var(--sub);font-weight:500;display:block;margin-bottom:4px}
+.fg2 select{width:100%}
+.acs h2{font-size:17px;font-weight:700;margin-bottom:14px}
+.acard{background:#fff;border-radius:12px;border:1px solid var(--border);padding:18px 20px;margin-bottom:13px}
+.acard .at{font-size:15px;font-weight:600;margin-bottom:4px}
+.acard .ad{font-size:13px;color:var(--sub);margin-bottom:11px;line-height:1.5}
+.acard .atags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:7px}
+.acard .aa{font-size:12px;color:var(--sub);margin-bottom:11px}
+.acard .aa span{font-weight:600;color:var(--text)}
+.acard .aft{display:flex;justify-content:space-between;align-items:center}
+.afl{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--sub)}
+.ss{padding:6px 11px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;font-family:inherit;color:var(--text);background:#fff;cursor:pointer;outline:none}
+
+/* TOAST */
+.toast{position:fixed;bottom:28px;right:28px;z-index:999;background:#111;color:#fff;padding:13px 18px;border-radius:10px;font-size:14px;box-shadow:0 8px 28px rgba(0,0,0,.3);display:flex;align-items:center;gap:9px;transform:translateY(80px);opacity:0;transition:all .3s;pointer-events:none}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.ok{background:#166534}
+.toast svg{width:17px;height:17px;color:#86efac}
+
+@media(max-width:860px){
+  #pg-login{flex-direction:column!important}
+  .ll,.lr{width:100%}
+  .sg{grid-template-columns:repeat(2,1fr)}
+  .amid{grid-template-columns:1fr}
+  .scards{grid-template-columns:1fr}
+  .inline-form{padding:20px}
+}
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div id="pg-login" class="page active">
+  <div class="ll">
+    <div class="brand">
+      <div class="brand-ico">
+        <svg width="22" height="22" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+      </div>
+      <div><h2>SafeVoice</h2><p>College Complaint System</p></div>
+    </div>
+    <div class="form-box">
+      <h1>Welcome Back</h1>
+      <p class="sub">Sign in to submit and track complaints</p>
+      <div class="fg">
+        <label>Email Address</label>
+        <div class="iw">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+          <input type="email" id="em" placeholder="you@college.edu" value="student@college.edu">
+        </div>
+      </div>
+      <div class="fg">
+        <label>Password</label>
+        <div class="iw">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+          <input type="password" id="pw" placeholder="••••••••" value="password">
+        </div>
+      </div>
+      <div class="rrow">
+        <label><input type="checkbox"> Remember me</label>
+        <a href="#">Forgot password?</a>
+      </div>
+      <button class="btn-blue" id="login-btn" onclick="login()">Sign In</button>
+      <p class="sl">Don't have an account? <a onclick="showRegister()">Sign Up</a></p>
+      <div class="demo">
+        <strong>Demo Credentials:</strong>
+        <span>Student: student@college.edu</span>
+        <span>Admin: admin@college.edu</span>
+        <span class="pwd">Password: password</span>
+      </div>
+    </div>
+  </div>
+  <div class="lr">
+    <div class="rc">
+      <h2>Your Voice Matters on Campus</h2>
+      <p class="tag">Submit complaints anonymously, track their progress, and help improve your college experience.</p>
+      <div class="fl">
+        <div class="fi"><div class="fic"><svg fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24" width="18" height="18"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg></div><div class="ft"><h4>Anonymous Complaints</h4><p>Submit your concerns safely without revealing your identity</p></div></div>
+        <div class="fi"><div class="fic"><svg fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24" width="18" height="18"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div><div class="ft"><h4>AI-Powered Categorization</h4><p>Automatic routing to relevant departments for faster resolution</p></div></div>
+        <div class="fi"><div class="fic"><svg fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24" width="18" height="18"><path d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905A3.61 3.61 0 017 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/></svg></div><div class="ft"><h4>Community Voting</h4><p>Upvote important complaints to prioritize campus issues</p></div></div>
+        <div class="fi"><div class="fic"><svg fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24" width="18" height="18"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg></div><div class="ft"><h4>Real-Time Status Tracking</h4><p>Monitor your complaint's progress from submission to resolution</p></div></div>
+      </div>
+      <div class="sr">
+        <div class="sb"><div class="v">500+</div><div class="l">Complaints Resolved</div></div>
+        <div class="sb"><div class="v">1200+</div><div class="l">Active Students</div></div>
+        <div class="sb"><div class="v">24h</div><div class="l">Avg Response Time</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- HOME -->
+<div id="pg-home" class="page">
+  <nav class="nav">
+    <div class="nb"><div class="ni"><svg width="16" height="16" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg></div><div><h3>SafeVoice</h3><p>College Complaint System</p></div></div>
+    <div class="nls">
+      <button class="nl act" onclick="go('home')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home</button>
+      <button class="nl" onclick="go('track')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="12" y2="15"/></svg>Track Status</button>
+      <button class="nl" id="alink" onclick="go('admin')" style="display:none"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/></svg>Admin</button>
+    </div>
+    <div class="na">
+      <div class="av-wrap">
+        <button class="av" id="av1" onclick="toggleDD(event)">S</button>
+        <div class="profile-dd" id="dd1">
+          <div class="dd-email" id="dd-email1">student@college.edu</div>
+          <button class="dd-item" onclick="signOut()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <div class="hc">
+    <div class="inp-bar" id="inp-bar" onclick="openM()">
+      <svg width="14" height="14" fill="none" stroke="#9CA3AF" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <span>What's your complaint? Share it anonymously...</span>
+    </div>
+    <div class="inline-form" id="inline-form">
+      <div class="ifh">
+        <h3>Submit a Complaint</h3>
+        <button class="ifc" onclick="closeM()">&times;</button>
+      </div>
+      <input type="text" id="ct" placeholder="Complaint title...">
+      <textarea id="cd" placeholder="Describe your complaint in detail..."></textarea>
+      <select id="cc-cat">
+        <option value="">Category (auto-assigned if blank)</option>
+        <option>Food Services</option>
+        <option>Facilities</option>
+        <option>Library</option>
+        <option>Hostel</option>
+        <option>Security</option>
+      </select>
+      <select id="cc-pri">
+        <option value="Medium">Priority: Medium</option>
+        <option value="High">Priority: High</option>
+        <option value="Low">Priority: Low</option>
+      </select>
+      <div class="anote"><strong>Anonymous &amp; Secure:</strong> Your complaint will be automatically categorized and sent to the relevant department.</div>
+      <div class="mf">
+        <button class="btn-sub" id="submit-btn" onclick="submitComplaint()">
+          <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          Submit Complaint
+        </button>
+      </div>
+    </div>
+    <div class="fb">
+      <span class="flbl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="13" height="13"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>Filters:</span>
+      <select id="fs" onchange="rf()"><option value="">All Status</option><option>Pending</option><option>Under Review</option><option>Resolved</option></select>
+      <select id="fc" onchange="rf()"><option value="">All Categories</option><option>Food Services</option><option>Facilities</option><option>Library</option><option>Hostel</option><option>Security</option></select>
+      <span class="slbl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="13" height="13"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>Sort by:</span>
+      <select id="so" onchange="rf()"><option value="votes">Most Liked</option><option value="new">Newest</option><option value="old">Oldest</option></select>
+    </div>
+    <div class="fh"><h2>Campus Complaints Feed</h2><span id="cnt"></span></div>
+    <div id="feed"><div class="loading">Loading complaints…</div></div>
+  </div>
+</div>
+
+<!-- TRACK -->
+<div id="pg-track" class="page">
+  <nav class="nav">
+    <div class="nb"><div class="ni"><svg width="16" height="16" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg></div><div><h3>SafeVoice</h3><p>College Complaint System</p></div></div>
+    <div class="nls">
+      <button class="nl" onclick="go('home')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home</button>
+      <button class="nl act" onclick="go('track')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="12" y2="15"/></svg>Track Status</button>
+      <button class="nl" id="alink2" onclick="go('admin')" style="display:none"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/></svg>Admin</button>
+    </div>
+    <div class="na">
+      <div class="av-wrap">
+        <button class="av" id="av2" onclick="toggleDD(event)">S</button>
+        <div class="profile-dd" id="dd2">
+          <div class="dd-email" id="dd-email2">student@college.edu</div>
+          <button class="dd-item" onclick="signOut()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <div class="tc">
+    <h1>Track Your Complaints</h1>
+    <p class="sub">Monitor the status and progress of all submitted complaints</p>
+    <div class="sb2"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input type="text" id="ts" placeholder="Search complaints by title, description, or category..." oninput="rt()"></div>
+    <div class="scards">
+      <div class="scard pend"><div><div class="slb">Pending</div><div class="sn" id="tp">—</div></div><div class="sico" style="color:var(--yellow)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div></div>
+      <div class="scard rev"><div><div class="slb">Under Review</div><div class="sn" id="tr2">—</div></div><div class="sico" style="color:var(--blue)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div></div>
+      <div class="scard reso"><div><div class="slb">Resolved</div><div class="sn" id="tres">—</div></div><div class="sico" style="color:var(--green)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div></div>
+    </div>
+    <div id="tlist"></div>
+  </div>
+</div>
+
+<!-- ADMIN -->
+<div id="pg-admin" class="page">
+  <nav class="nav">
+    <div class="nb"><div class="ni"><svg width="16" height="16" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg></div><div><h3>SafeVoice</h3><p>College Complaint System</p></div></div>
+    <div class="nls">
+      <button class="nl" onclick="go('home')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home</button>
+      <button class="nl" onclick="go('track')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="12" y2="15"/></svg>Track Status</button>
+      <button class="nl act" onclick="go('admin')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/></svg>Admin</button>
+    </div>
+    <div class="na">
+      <div class="av-wrap">
+        <button class="av" id="av3" onclick="toggleDD(event)">A</button>
+        <div class="profile-dd" id="dd3">
+          <div class="dd-email" id="dd-email3">admin@college.edu</div>
+          <button class="dd-item" onclick="signOut()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <div class="ac">
+    <h1>Admin Dashboard</h1>
+    <p class="sub">Manage and monitor all campus complaints</p>
+    <div class="sg" id="astats"></div>
+    <div class="amid">
+      <div class="ap"><div class="pt"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Category Breakdown</div><div class="cr" id="catb"></div></div>
+      <div class="ap"><div class="pt"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>Filters</div>
+        <div class="fp">
+          <div class="fg2"><label>Priority</label><select id="ap2" onchange="ra()"><option value="">All Priorities</option><option>High</option><option>Medium</option><option>Low</option></select></div>
+          <div class="fg2"><label>Status</label><select id="as2" onchange="ra()"><option value="">All Status</option><option>Pending</option><option>Under Review</option><option>Resolved</option></select></div>
+          <div class="fg2"><label>Category</label><select id="at2" onchange="ra()"><option value="">All Complaints</option><option>Food Services</option><option>Facilities</option><option>Library</option><option>Hostel</option><option>Security</option></select></div>
+        </div>
+      </div>
+    </div>
+    <div class="acs"><h2 id="atitle">Complaints</h2><div id="alist"></div></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><span id="tmsg">Done!</span></div>
+
+<script>
+// ── Config ───────────────────────────────────────────────────────────────────
+const API = 'http://localhost:3001/api';
+
+// ── State ────────────────────────────────────────────────────────────────────
+let token    = sessionStorage.getItem('sv_token') || null;
+let currentUser = null;
+let allComplaints = []; // local cache
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+async function apiFetch(path, opts = {}) {
+  const headers = { 'Content-Type': 'application/json', ...(opts.headers || {}) };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  const res = await fetch(API + path, { ...opts, headers });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(json.error || 'Request failed');
+  return json;
+}
+
+function toast(msg, ok = true) {
+  const t = document.getElementById('toast');
+  document.getElementById('tmsg').textContent = msg;
+  t.className = 'toast ' + (ok ? 'ok' : '');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3200);
+}
+
+// ── Auth ─────────────────────────────────────────────────────────────────────
+async function login() {
+  const email = document.getElementById('em').value.trim();
+  const pw    = document.getElementById('pw').value;
+  if (!email) { toast('Please enter your email.', false); return; }
+
+  const btn = document.getElementById('login-btn');
+  btn.disabled = true; btn.textContent = 'Signing in…';
+
+  try {
+    const data = await apiFetch('/auth/login', {
+      method: 'POST',
+      body: JSON.stringify({ email, password: pw })
+    });
+    token       = data.token;
+    currentUser = data.user;
+    sessionStorage.setItem('sv_token', token);
+    afterLogin();
+    toast('Welcome back! Signed in successfully.');
+  } catch (e) {
+    toast(e.message, false);
+  } finally {
+    btn.disabled = false; btn.textContent = 'Sign In';
+  }
+}
+
+function afterLogin() {
+  const initials = currentUser.role === 'admin' ? 'A' : 'S';
+  ['av1','av2','av3'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.textContent = initials;
+  });
+  ['dd-email1','dd-email2','dd-email3'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.textContent = currentUser.email;
+  });
+  if (currentUser.role === 'admin') {
+    ['alink','alink2'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.style.display = 'flex';
+    });
+  }
+  go('home');
+}
+
+function signOut() {
+  token = null; currentUser = null; allComplaints = [];
+  sessionStorage.removeItem('sv_token');
+  document.querySelectorAll('.profile-dd').forEach(d => d.classList.remove('open'));
+  document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+  document.getElementById('pg-login').classList.add('active');
+  toast('Signed out successfully.');
+}
+
+function showRegister() {
+  // Simple prompt-based register (you can replace with a proper form)
+  const email    = prompt('Enter your email:');
+  if (!email) return;
+  const password = prompt('Choose a password (min 6 chars):');
+  if (!password) return;
+  apiFetch('/auth/register', { method: 'POST', body: JSON.stringify({ email, password }) })
+    .then(data => {
+      token = data.token; currentUser = data.user;
+      sessionStorage.setItem('sv_token', token);
+      afterLogin();
+      toast('Account created! Welcome to SafeVoice.');
+    })
+    .catch(e => toast(e.message, false));
+}
+
+// ── Navigation ───────────────────────────────────────────────────────────────
+function go(p) {
+  document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
+  document.getElementById('pg-' + p).classList.add('active');
+  if (p === 'home')  { closeM(); rf(); }
+  if (p === 'track') rt();
+  if (p === 'admin') ra();
+}
+
+function toggleDD(e) {
+  e.stopPropagation();
+  const wrap    = e.currentTarget.nextElementSibling;
+  const isOpen  = wrap.classList.contains('open');
+  document.querySelectorAll('.profile-dd').forEach(d => d.classList.remove('open'));
+  if (!isOpen) wrap.classList.add('open');
+}
+document.addEventListener('click', () => {
+  document.querySelectorAll('.profile-dd').forEach(d => d.classList.remove('open'));
+});
+
+// ── Complaint Form ───────────────────────────────────────────────────────────
+function openM() {
+  document.getElementById('inp-bar').style.display = 'none';
+  document.getElementById('inline-form').classList.add('open');
+}
+function closeM() {
+  document.getElementById('inline-form').classList.remove('open');
+  document.getElementById('inp-bar').style.display = 'flex';
+  ['ct','cd'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+}
+
+async function submitComplaint() {
+  const title       = document.getElementById('ct').value.trim();
+  const description = document.getElementById('cd').value.trim();
+  const category    = document.getElementById('cc-cat').value;
+  const priority    = document.getElementById('cc-pri').value;
+
+  if (!title)       { toast('Please enter a complaint title.', false); return; }
+  if (!description) { toast('Please describe your complaint.', false); return; }
+
+  const btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+
+  try {
+    const data = await apiFetch('/complaints', {
+      method: 'POST',
+      body: JSON.stringify({ title, description, category: category || undefined, priority })
+    });
+    allComplaints.unshift(data.complaint);
+    closeM(); rf(); rt();
+    toast('Complaint submitted successfully!');
+  } catch (e) {
+    toast(e.message, false);
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+// ── Feed (Home) ──────────────────────────────────────────────────────────────
+async function rf() {
+  const status   = document.getElementById('fs').value;
+  const category = document.getElementById('fc').value;
+  const sort     = document.getElementById('so').value;
+
+  try {
+    const params = new URLSearchParams();
+    if (status)   params.set('status', status);
+    if (category) params.set('category', category);
+    if (sort)     params.set('sort', sort);
+
+    const data = await apiFetch('/complaints?' + params);
+    allComplaints = data.complaints; // update cache
+
+    // Apply local filters for count display
+    const complaints = data.complaints;
+    document.getElementById('cnt').textContent =
+      complaints.length + ' complaint' + (complaints.length !== 1 ? 's' : '');
+
+    document.getElementById('feed').innerHTML = complaints.length
+      ? complaints.map(renderCard).join('')
+      : '<div class="loading">No complaints found.</div>';
+  } catch (e) {
+    document.getElementById('feed').innerHTML = `<div class="loading">Error: ${e.message}</div>`;
+  }
+}
+
+function renderCard(c) {
+  return `
+    <div class="cc">
+      <div class="ct">${esc(c.title)}</div>
+      <div class="cd">${esc(c.desc)}</div>
+      <div class="ctags">${sp(c.status)}<span class="pill p-cat">${esc(c.cat)}</span>${pp(c.pri)}</div>
+      <div class="ca">Assigned to: <span>${esc(c.dept)}</span></div>
+      <hr class="cdiv">
+      <div class="cf">
+        <button class="vb ${c.voted ? 'voted' : ''}" onclick="vote(${c.id})" id="vbtn-${c.id}">
+          <svg fill="${c.voted ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905A3.61 3.61 0 017 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/></svg>
+          <span id="vc-${c.id}">${c.votes}</span>
+        </button>
+        <span class="ta">${ta(c.days)}</span>
+      </div>
+    </div>`;
+}
+
+async function vote(id) {
+  try {
+    const data = await apiFetch(`/complaints/${id}/vote`, { method: 'POST' });
+    // Update the local cache entry
+    const c = allComplaints.find(x => x.id === id);
+    if (c) { c.votes = data.votes; c.voted = data.voted; }
+    // Update DOM without full re-render
+    const btn = document.getElementById(`vbtn-${id}`);
+    const vc  = document.getElementById(`vc-${id}`);
+    if (btn) btn.className = 'vb ' + (data.voted ? 'voted' : '');
+    if (vc)  vc.textContent = data.votes;
+  } catch (e) {
+    toast(e.message, false);
+  }
+}
+
+// ── Track ────────────────────────────────────────────────────────────────────
+async function rt() {
+  const q = (document.getElementById('ts')?.value || '').toLowerCase();
+
+  try {
+    const params = new URLSearchParams();
+    if (q) params.set('search', q);
+    const data = await apiFetch('/complaints?' + params);
+    const list = data.complaints;
+
+    document.getElementById('tp').textContent   = list.filter(c => c.status === 'Pending').length;
+    document.getElementById('tr2').textContent  = list.filter(c => c.status === 'Under Review').length;
+    document.getElementById('tres').textContent = list.filter(c => c.status === 'Resolved').length;
+
+    document.getElementById('tlist').innerHTML = list.length
+      ? list.map(c => `
+        <div class="tcard">
+          <div class="tch"><h3>${esc(c.title)}</h3>${sp(c.status)}</div>
+          <p class="tdesc">${esc(c.desc)}</p>
+          <div class="pr"><span>Progress</span><span>${c.progress}%</span></div>
+          <div class="pbg"><div class="pf ${pc(c.status)}" style="width:${c.progress}%"></div></div>
+          <div class="tm">
+            <span class="mi">Category: <span class="mv">${esc(c.cat)}</span></span>
+            <span class="mi">Priority: <span class="${priCls(c.pri)}">${esc(c.pri)}</span></span>
+            <span class="mi">${c.votes} upvotes</span>
+            <span class="mi">Updated ${ta(c.days)}</span>
+          </div>
+        </div>`).join('')
+      : '<div class="loading">No complaints found.</div>';
+  } catch (e) {
+    document.getElementById('tlist').innerHTML = `<div class="loading">Error: ${e.message}</div>`;
+  }
+}
+
+// ── Admin ────────────────────────────────────────────────────────────────────
+async function ra() {
+  const pri  = document.getElementById('ap2').value;
+  const stat = document.getElementById('as2').value;
+  const type = document.getElementById('at2').value;
+
+  try {
+    const [statsData, listData] = await Promise.all([
+      apiFetch('/complaints/stats'),
+      apiFetch('/complaints?' + new URLSearchParams(
+        Object.fromEntries(
+          [['priority', pri], ['status', stat], ['category', type]].filter(([, v]) => v)
+        )
+      ))
+    ]);
+
+    const s = statsData;
+    document.getElementById('astats').innerHTML = `
+      <div class="stc"><div><div class="sl2">Total Complaints</div><div class="sn2">${s.total}</div></div><div class="si bl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div></div>
+      <div class="stc"><div><div class="sl2">Pending</div><div class="sn2">${s.pending}</div></div><div class="si ye"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div></div>
+      <div class="stc"><div><div class="sl2" style="color:var(--red)">High Priority</div><div class="sn2" style="color:var(--red)">${s.highPri}</div></div><div class="si re"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div></div>
+      <div class="stc"><div><div class="sl2" style="color:var(--green)">Resolved</div><div class="sn2" style="color:var(--green)">${s.resolved}</div></div><div class="si gr"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div></div>`;
+
+    const cats = s.byCategory;
+    const mx   = Math.max(...cats.map(c => c.count), 1);
+    document.getElementById('catb').innerHTML = cats.map(c => `
+      <div class="ci">
+        <span class="cn">${esc(c.category)}</span>
+        <div class="cbg"><div class="cf2" style="width:${(c.count / mx) * 100}%"></div></div>
+        <span class="cc2">${c.count}</span>
+      </div>`).join('');
+
+    const list = listData.complaints;
+    document.getElementById('atitle').textContent = `Complaints (${list.length})`;
+    document.getElementById('alist').innerHTML = list.length
+      ? list.map(c => `
+        <div class="acard">
+          <div class="at">${esc(c.title)}</div>
+          <div class="ad">${esc(c.desc)}</div>
+          <div class="atags">${sp(c.status)}<span class="pill p-cat">${esc(c.cat)}</span>${pp(c.pri)}</div>
+          <div class="aa">Assigned to: <span>${esc(c.dept)}</span></div>
+          <div class="aft">
+            <div class="afl">${c.votes} upvotes &nbsp; ${ta(c.days)}</div>
+            <select class="ss" onchange="updStatus(${c.id}, this.value)">
+              <option ${c.status === 'Pending' ? 'selected' : ''}>Pending</option>
+              <option ${c.status === 'Under Review' ? 'selected' : ''}>Under Review</option>
+              <option ${c.status === 'Resolved' ? 'selected' : ''}>Resolved</option>
+            </select>
+          </div>
+        </div>`).join('')
+      : '<div class="loading">No complaints match the current filters.</div>';
+
+  } catch (e) {
+    toast(e.message, false);
+  }
+}
+
+async function updStatus(id, status) {
+  try {
+    await apiFetch(`/complaints/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status })
+    });
+    toast('Status updated to ' + status);
+    // Refresh admin view to reflect new progress bars
+    ra();
+  } catch (e) {
+    toast(e.message, false);
+  }
+}
+
+// ── Rendering helpers ────────────────────────────────────────────────────────
+function esc(s = '') {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function sp(s) {
+  if (s === 'Pending')      return `<span class="pill p-pend">Pending</span>`;
+  if (s === 'Under Review') return `<span class="pill p-rev">Under Review</span>`;
+  return `<span class="pill p-res">Resolved</span>`;
+}
+function pp(p) {
+  if (p === 'High')   return `<span class="pill p-hi">High Priority</span>`;
+  if (p === 'Medium') return `<span class="pill p-med">Medium Priority</span>`;
+  return `<span class="pill p-lo">Low Priority</span>`;
+}
+function pc(s) { return s === 'Resolved' ? 'pg' : s === 'Pending' ? 'py' : 'pb'; }
+function priCls(p) { return p === 'High' ? 'phi' : p === 'Medium' ? 'pme' : 'plo'; }
+function ta(d) { return d === 0 ? 'just now' : d + ' day' + (d !== 1 ? 's' : '') + ' ago'; }
+
+// ── Keyboard ─────────────────────────────────────────────────────────────────
+document.getElementById('pw').addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
+
+// ── Auto-login if token in session ──────────────────────────────────────────
+(async function init() {
+  if (!token) return;
+  try {
+    const data = await apiFetch('/auth/me');
+    currentUser = data.user;
+    afterLogin();
+  } catch {
+    token = null;
+    sessionStorage.removeItem('sv_token');
+  }
+})();
+</script>
+</body>
+</html>
