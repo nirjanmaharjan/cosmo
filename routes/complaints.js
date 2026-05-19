@@ -7,15 +7,17 @@ const { categorizeComplaint } = require('../utils/aiCategorizer');
 const router = express.Router();
 
 const VALID_CATEGORIES = ['Food Services', 'Facilities', 'Library', 'Hostel', 'Security'];
+const VALID_FACULTIES  = ['Food', 'Library', 'Hostel', 'Infrastructure', 'Staff', 'Others'];
 const VALID_STATUSES   = ['Pending', 'Under Review', 'Resolved'];
 const VALID_PRIORITIES = ['High', 'Medium', 'Low'];
 
 const DEPT_MAP = {
-  'Food Services': 'Dining Services',
-  'Facilities':    'Facilities Management',
-  'Library':       'Library Services',
-  'Hostel':        'Hostel Management',
-  'Security':      'Campus Security',
+  'Food':           'Dining Services',
+  'Library':        'Library Services',
+  'Hostel':         'Hostel Management',
+  'Infrastructure': 'Facilities Management',
+  'Staff':          'HR Services',
+  'Others':         'Administration',
 };
 
 // Helper: days since created_at
@@ -27,19 +29,21 @@ function daysSince(createdAt) {
 // Helper: format a raw db row for the frontend
 function format(row, votedSet = new Set()) {
   return {
-    id:          row.id,
-    title:       row.title,
-    desc:        row.description,
-    status:      row.status,
-    cat:         row.category,
-    pri:         row.priority,
-    dept:        row.department,
-    votes:       row.votes,
-    progress:    row.progress,
-    days:        daysSince(row.created_at),
-    voted:       votedSet.has(row.id),
-    created_at:  row.created_at,
-    updated_at:  row.updated_at,
+    id:           row.id,
+    title:        row.title,
+    desc:         row.description,
+    status:       row.status,
+    cat:          row.category,
+    faculty:      row.faculty,
+    pri:          row.priority,
+    is_sensitive: row.is_sensitive,
+    dept:         row.department,
+    votes:        row.votes,
+    progress:     row.progress,
+    days:         daysSince(row.created_at),
+    voted:        votedSet.has(row.id),
+    created_at:   row.created_at,
+    updated_at:   row.updated_at,
   };
 }
 
@@ -54,9 +58,12 @@ router.get('/:id', requireAuth, async (req, res) => {
     });
     if (!row) return res.status(404).json({ error: 'Complaint not found.' });
 
-    // Restrict access to owner or admin
+    // Restrict access: only owner or admin can view; non-admin can't view sensitive complaints
     if (req.user?.role !== 'admin' && row.submitter_id !== req.user.id) {
       return res.status(403).json({ error: 'Access denied.' });
+    }
+    if (req.user?.role !== 'admin' && row.is_sensitive) {
+      return res.status(403).json({ error: 'Sensitive complaints are for admin only.' });
     }
 
     const voted = await new Promise((resolve, reject) => {
@@ -71,13 +78,55 @@ router.get('/:id', requireAuth, async (req, res) => {
     res.status(500).json({ error: 'Internal server error.' });
   }
 });
+
+// ── GET /api/complaints/admin/sensitive ───────────────────────────────────────
+// Admin only — view all sensitive complaints
+router.get('/admin/sensitive', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const { faculty, sort = 'votes', search } = req.query;
+
+    let sql = 'SELECT * FROM complaints WHERE is_sensitive = 1';
+    const params = [];
+
+    if (faculty && VALID_FACULTIES.includes(faculty)) {
+      sql += ' AND faculty = ?'; params.push(faculty);
+    }
+    if (search) {
+      const like = `%${search}%`;
+      sql += ' AND (title LIKE ? OR description LIKE ?)';
+      params.push(like, like);
+    }
+
+    const orderMap = { votes: 'votes DESC', new: 'created_at DESC', old: 'created_at ASC' };
+    sql += ` ORDER BY ${orderMap[sort] || orderMap.votes}`;
+
+    const rows = await new Promise((resolve, reject) => {
+      db.all(sql, params, (err, rows) => {
+        if (err) reject(err);
+        else resolve(rows || []);
+      });
+    });
+
+    const userVotes = await new Promise((resolve, reject) => {
+      db.all('SELECT complaint_id FROM votes WHERE user_id = ?', [req.user.id], (err, rows) => {
+        if (err) reject(err);
+        else resolve(rows || []);
+      });
+    });
+    const votedSet = new Set(userVotes.map(v => v.complaint_id));
+
+    res.json({ complaints: rows.map(r => format(r, votedSet)) });
+  } catch (err) {
+    console.error('Get sensitive complaints error:', err);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
 });
 
 // ── GET /api/complaints/stats ─────────────────────────────────────────────────
 // Summary counts for admin dashboard
 router.get('/stats', requireAuth, requireAdmin, async (req, res) => {
   try {
-    const [total, pending, review, resolved, highPri, byCategory] = await Promise.all([
+    const [total, pending, review, resolved, highPri, byCategory, bySensitivity] = await Promise.all([
       new Promise((resolve, reject) => {
         db.get("SELECT COUNT(*) AS c FROM complaints", (err, row) => {
           if (err) reject(err);
@@ -110,8 +159,17 @@ router.get('/stats', requireAuth, requireAdmin, async (req, res) => {
       }),
       new Promise((resolve, reject) => {
         db.all(`
-          SELECT category, COUNT(*) AS count
-          FROM complaints GROUP BY category ORDER BY count DESC
+          SELECT faculty, COUNT(*) AS count
+          FROM complaints GROUP BY faculty ORDER BY count DESC
+        `, (err, rows) => {
+          if (err) reject(err);
+          else resolve(rows || []);
+        });
+      }),
+      new Promise((resolve, reject) => {
+        db.all(`
+          SELECT is_sensitive, COUNT(*) AS count
+          FROM complaints GROUP BY is_sensitive
         `, (err, rows) => {
           if (err) reject(err);
           else resolve(rows || []);
@@ -119,7 +177,7 @@ router.get('/stats', requireAuth, requireAdmin, async (req, res) => {
       })
     ]);
 
-    res.json({ total, pending, review, resolved, highPri, byCategory });
+    res.json({ total, pending, review, resolved, highPri, byFaculty: byCategory, bySensitivity });
   } catch (err) {
     console.error('Get stats error:', err);
     res.status(500).json({ error: 'Internal server error.' });
@@ -127,24 +185,30 @@ router.get('/stats', requireAuth, requireAdmin, async (req, res) => {
 });
 
 // ── GET /api/complaints ───────────────────────────────────────────────────────
-// Query params: status, category, sort (votes|new|old), search
+// Query params: status, faculty, sort (votes|new|old), search
+// Non-admins see only public (non-sensitive) complaints
 router.get('/', requireAuth, async (req, res) => {
   try {
-    const { status, category, sort = 'votes', search } = req.query;
+    const { status, faculty, sort = 'votes', search } = req.query;
 
     let sql = 'SELECT * FROM complaints WHERE 1=1';
     const params = [];
 
+    // Non-admins see only public complaints
+    if (req.user?.role !== 'admin') {
+      sql += ' AND is_sensitive = 0';
+    }
+
     if (status && VALID_STATUSES.includes(status)) {
       sql += ' AND status = ?'; params.push(status);
     }
-    if (category && VALID_CATEGORIES.includes(category)) {
-      sql += ' AND category = ?'; params.push(category);
+    if (faculty && VALID_FACULTIES.includes(faculty)) {
+      sql += ' AND faculty = ?'; params.push(faculty);
     }
     if (search) {
       const like = `%${search}%`;
-      sql += ' AND (title LIKE ? OR description LIKE ? OR category LIKE ?)';
-      params.push(like, like, like);
+      sql += ' AND (title LIKE ? OR description LIKE ?)';
+      params.push(like, like);
     }
 
     // Restrict to user's own complaints unless admin
@@ -176,40 +240,44 @@ router.get('/', requireAuth, async (req, res) => {
     console.error('Get complaints error:', err);
     res.status(500).json({ error: 'Internal server error.' });
   }
+});
 
 // ── POST /api/complaints ──────────────────────────────────────────────────────
 router.post('/', requireAuth, async (req, res) => {
   try {
-    const { title, description, category, priority } = req.body;
+    const { title, description, faculty, priority } = req.body;
 
     if (!title?.trim())       return res.status(400).json({ error: 'Title is required.' });
     if (!description?.trim()) return res.status(400).json({ error: 'Description is required.' });
 
-    let cat = category;
+    let fac = faculty;
     let pri = priority;
+    let sens = false;
 
     // Use AI to categorize if not provided
-    if (!cat || !pri) {
+    if (!fac || !pri) {
       const aiResult = await categorizeComplaint(title, description);
-      cat = cat || aiResult.category;
+      fac = fac || aiResult.faculty;
       pri = pri || aiResult.priority;
+      sens = aiResult.is_sensitive;
     }
 
-    // Validate category and priority
-    if (!VALID_CATEGORIES.includes(cat)) {
-      cat = VALID_CATEGORIES[Math.floor(Math.random() * VALID_CATEGORIES.length)];
+    // Validate faculty and priority
+    if (!VALID_FACULTIES.includes(fac)) {
+      fac = 'Others';
     }
     if (!VALID_PRIORITIES.includes(pri)) {
       pri = 'Medium';
     }
 
-    const dept = DEPT_MAP[cat] || 'Administration';
+    const dept = DEPT_MAP[fac] || 'Administration';
+    const cat = VALID_CATEGORIES[Math.floor(Math.random() * VALID_CATEGORIES.length)]; // Legacy category
 
     const info = await new Promise((resolve, reject) => {
       db.run(`
-        INSERT INTO complaints (title, description, status, category, priority, department, submitter_id)
-        VALUES (?, ?, 'Pending', ?, ?, ?, ?)
-      `, [title.trim(), description.trim(), cat, pri, dept, req.user.id], function (err) {
+        INSERT INTO complaints (title, description, status, category, faculty, priority, is_sensitive, department, submitter_id)
+        VALUES (?, ?, 'Pending', ?, ?, ?, ?, ?, ?)
+      `, [title.trim(), description.trim(), cat, fac, pri, sens ? 1 : 0, dept, req.user.id], function (err) {
         if (err) reject(err);
         else resolve(this);
       });
@@ -278,6 +346,11 @@ router.post('/:id/vote', requireAuth, async (req, res) => {
       });
     });
     if (!complaint) return res.status(404).json({ error: 'Complaint not found.' });
+
+    // Non-admins can't vote on sensitive complaints
+    if (req.user?.role !== 'admin' && complaint.is_sensitive) {
+      return res.status(403).json({ error: 'Cannot vote on sensitive complaints.' });
+    }
 
     const existing = await new Promise((resolve, reject) => {
       db.get('SELECT 1 FROM votes WHERE user_id = ? AND complaint_id = ?', [userId, complaintId], (err, row) => {

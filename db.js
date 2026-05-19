@@ -57,8 +57,11 @@ async function init() {
       status TEXT NOT NULL DEFAULT 'Pending'
         CHECK(status IN ('Pending','Under Review','Resolved')),
       category TEXT NOT NULL,
+      faculty TEXT NOT NULL DEFAULT 'Others'
+        CHECK(faculty IN ('Food','Library','Hostel','Infrastructure','Staff','Others')),
       priority TEXT NOT NULL DEFAULT 'Medium'
         CHECK(priority IN ('High','Medium','Low')),
+      is_sensitive BOOLEAN NOT NULL DEFAULT 0,
       department TEXT NOT NULL,
       votes INTEGER NOT NULL DEFAULT 0,
       progress INTEGER NOT NULL DEFAULT 10,
@@ -108,19 +111,19 @@ async function seed() {
   );
 
   const complaints = [
-    ['Mess food quality has deteriorated', 'Food quality issue', 'Under Review', 'Food Services', 'High', 'Dining Services', 67, 66],
-    ['AC not working in Block A classrooms', 'AC issue', 'Under Review', 'Facilities', 'High', 'Facilities Management', 45, 66],
-    ['Library closes too early on weekends', 'Timing issue', 'Pending', 'Library', 'Medium', 'Library Services', 32, 33],
-    ['Parking lot lighting issues', 'Safety issue', 'Pending', 'Security', 'High', 'Campus Security', 19, 20],
-    ['Hostel hot water not working', 'Water issue', 'Pending', 'Hostel', 'Medium', 'Hostel Management', 28, 25],
-    ['Wi-Fi in library reading room', 'Network issue', 'Resolved', 'Library', 'Low', 'IT Services', 41, 100]
+    ['Mess food quality has deteriorated', 'Food quality issue', 'Under Review', 'Food', 'Food Services', 'High', 0, 67, 66],
+    ['AC not working in Block A classrooms', 'AC issue', 'Under Review', 'Infrastructure', 'Facilities Management', 'High', 0, 45, 66],
+    ['Library closes too early on weekends', 'Timing issue', 'Pending', 'Library', 'Library Services', 'Medium', 0, 32, 33],
+    ['Parking lot lighting issues', 'Safety issue', 'Pending', 'Infrastructure', 'Campus Security', 'High', 0, 19, 20],
+    ['Hostel hot water not working', 'Water issue', 'Pending', 'Hostel', 'Hostel Management', 'Medium', 0, 28, 25],
+    ['Wi-Fi in library reading room', 'Network issue', 'Resolved', 'Library', 'IT Services', 'Low', 0, 41, 100]
   ];
 
   for (const c of complaints) {
     await run(
       `INSERT INTO complaints 
-      (title, description, status, category, priority, department, votes, progress, submitter_id, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
+      (title, description, status, faculty, category, priority, is_sensitive, department, votes, progress, submitter_id, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
       [...c, student.id]
     );
   }

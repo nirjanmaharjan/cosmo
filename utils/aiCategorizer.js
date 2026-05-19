@@ -1,18 +1,18 @@
-// utils/aiCategorizer.js — AI-powered complaint categorization
+// utils/aiCategorizer.js — AI-powered complaint categorization & sensitivity detection
 'use strict';
 
-const OpenAI = require('openai').default;
+const Groq = require('@groq/sdk').default;
 
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+const client = new Groq({
+  apiKey: process.env.GROQ_API_KEY,
 });
 
-const VALID_CATEGORIES = ['Food Services', 'Facilities', 'Library', 'Hostel', 'Security'];
+const VALID_FACULTIES = ['Food', 'Library', 'Hostel', 'Infrastructure', 'Staff', 'Others'];
 const VALID_PRIORITIES = ['High', 'Medium', 'Low'];
 
 /**
- * Categorize a complaint using OpenAI's GPT
- * Returns { category, priority }
+ * Categorize a complaint using Groq API
+ * Returns { is_sensitive, faculty, priority }
  */
 async function categorizeComplaint(title, description) {
   try {
@@ -23,20 +23,20 @@ Description: "${description}"
 
 You MUST respond with ONLY a JSON object (no markdown, no code blocks, just raw JSON):
 {
-  "category": "one of: Food Services, Facilities, Library, Hostel, Security",
+  "is_sensitive": true or false,
+  "faculty": "one of: Food, Library, Hostel, Infrastructure, Staff, Others",
   "priority": "one of: High, Medium, Low"
 }
 
-Reasoning:
-- Categorize based on which department handles it (Food Services, Facilities, Library, Hostel, or Security)
-- High priority: urgent safety/health issues, widespread impact
-- Medium priority: standard complaints with moderate impact
-- Low priority: minor inconveniences, single person affected
+Guidelines:
+- is_sensitive: true if complaint contains: harassment, discrimination, abuse, safety threats, mental health crisis, sexual misconduct, substance abuse, health violations, or any concerning personal issues
+- faculty: categorize based on department (Food for dining, Library for library services, Hostel for hostel issues, Infrastructure for building/facilities, Staff for staff-related issues, Others as default)
+- priority: High for urgent/health/safety issues, Medium for standard complaints, Low for minor issues
 
 Respond with ONLY the JSON object.`;
 
     const response = await client.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model: 'mixtral-8x7b-32768',
       max_tokens: 100,
       messages: [
         {
@@ -52,19 +52,19 @@ Respond with ONLY the JSON object.`;
     try {
       result = JSON.parse(text);
     } catch (e) {
-      // Fallback if JSON parsing fails
       console.warn('Failed to parse AI response:', text);
-      return { category: 'Facilities', priority: 'Medium' };
+      return { is_sensitive: false, faculty: 'Others', priority: 'Medium' };
     }
 
     // Validate and sanitize response
-    const category = VALID_CATEGORIES.includes(result.category) ? result.category : 'Facilities';
+    const is_sensitive = typeof result.is_sensitive === 'boolean' ? result.is_sensitive : false;
+    const faculty = VALID_FACULTIES.includes(result.faculty) ? result.faculty : 'Others';
     const priority = VALID_PRIORITIES.includes(result.priority) ? result.priority : 'Medium';
 
-    return { category, priority };
+    return { is_sensitive, faculty, priority };
   } catch (err) {
     console.error('AI categorization error:', err);
-    return { category: 'Facilities', priority: 'Medium' };
+    return { is_sensitive: false, faculty: 'Others', priority: 'Medium' };
   }
 }
 
