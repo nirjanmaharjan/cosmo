@@ -417,9 +417,9 @@ select:focus{border-color:var(--blue)}
       <div class="ap"><div class="pt"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Category Breakdown</div><div class="cr" id="catb"></div></div>
       <div class="ap"><div class="pt"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>Filters</div>
         <div class="fp">
-          <div class="fg2"><label>Priority</label><select id="ap2" onchange="ra()"><option value="">All Priorities</option><option>High</option><option>Medium</option><option>Low</option></select></div>
+          <div class="fg2"><label>Faculty</label><select id="at2" onchange="ra()"><option value="">All Faculties</option><option>Food</option><option>Library</option><option>Hostel</option><option>Infrastructure</option><option>Staff</option><option>Others</option></select></div>
           <div class="fg2"><label>Status</label><select id="as2" onchange="ra()"><option value="">All Status</option><option>Pending</option><option>Under Review</option><option>Resolved</option></select></div>
-          <div class="fg2"><label>Category</label><select id="at2" onchange="ra()"><option value="">All Complaints</option><option>Food Services</option><option>Facilities</option><option>Library</option><option>Hostel</option><option>Security</option></select></div>
+          <div class="fg2"><label>Sort</label><select id="ap2" onchange="ra()"><option value="votes">Most Upvoted</option><option value="new">Newest</option><option value="old">Oldest</option></select></div>
         </div>
       </div>
     </div>
@@ -680,16 +680,16 @@ async function rt() {
 
 // ── Admin ────────────────────────────────────────────────────────────────────
 async function ra() {
-  const pri  = document.getElementById('ap2').value;
+  const fac  = document.getElementById('at2').value;
   const stat = document.getElementById('as2').value;
-  const type = document.getElementById('at2').value;
+  const sort = document.getElementById('ap2').value || 'votes';
 
   try {
     const [statsData, listData] = await Promise.all([
       apiFetch('/complaints/stats'),
       apiFetch('/complaints?' + new URLSearchParams(
         Object.fromEntries(
-          [['priority', pri], ['status', stat], ['category', type]].filter(([, v]) => v)
+          [['faculty', fac], ['status', stat], ['sort', sort]].filter(([, v]) => v)
         )
       ))
     ]);
@@ -701,11 +701,11 @@ async function ra() {
       <div class="stc"><div><div class="sl2" style="color:var(--red)">High Priority</div><div class="sn2" style="color:var(--red)">${s.highPri}</div></div><div class="si re"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div></div>
       <div class="stc"><div><div class="sl2" style="color:var(--green)">Resolved</div><div class="sn2" style="color:var(--green)">${s.resolved}</div></div><div class="si gr"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div></div>`;
 
-    const cats = s.byCategory;
+    const cats = s.byFaculty;
     const mx   = Math.max(...cats.map(c => c.count), 1);
     document.getElementById('catb').innerHTML = cats.map(c => `
       <div class="ci">
-        <span class="cn">${esc(c.category)}</span>
+        <span class="cn">${esc(c.faculty)}</span>
         <div class="cbg"><div class="cf2" style="width:${(c.count / mx) * 100}%"></div></div>
         <span class="cc2">${c.count}</span>
       </div>`).join('');
@@ -717,7 +717,7 @@ async function ra() {
         <div class="acard">
           <div class="at">${esc(c.title)}</div>
           <div class="ad">${esc(c.desc)}</div>
-          <div class="atags">${sp(c.status)}<span class="pill p-cat">${esc(c.cat)}</span>${pp(c.pri)}</div>
+          <div class="atags">${sp(c.status)}<span class="pill p-cat">${esc(c.faculty)}</span>${pp(c.pri)}</div>
           <div class="aa">Assigned to: <span>${esc(c.dept)}</span></div>
           <div class="aft">
             <div class="afl">${c.votes} upvotes &nbsp; ${ta(c.days)}</div>

@@ -21,6 +21,9 @@ app.use(cors({ origin: CORS_ORIGIN, credentials: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
+// Serve uploaded files as static content
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
+
 // Serve the frontend HTML as a static file (optional convenience)
 app.use(express.static(path.join(__dirname, 'public')));
 

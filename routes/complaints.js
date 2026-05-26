@@ -1,7 +1,10 @@
 // routes/complaints.js
 const express = require('express');
+const path = require('path');
+const fs = require('fs');
 const db      = require('../db');
 const { requireAuth, requireAdmin } = require('../middleware/auth');
+const upload = require('../middleware/upload');
 const { categorizeComplaint } = require('../utils/aiCategorizer');
 
 const router = express.Router();
@@ -26,8 +29,31 @@ function daysSince(createdAt) {
   return Math.floor(ms / 86_400_000);
 }
 
+// Helper: fetch attachments for a complaint
+function fetchAttachments(complaintId) {
+  return new Promise((resolve, reject) => {
+    db.all(
+      'SELECT id, filename, original_name, file_type, file_size, created_at FROM attachments WHERE complaint_id = ? ORDER BY created_at ASC',
+      [complaintId],
+      (err, rows) => {
+        if (err) reject(err);
+        else {
+          resolve((rows || []).map(row => ({
+            id: row.id,
+            name: row.original_name,
+            type: row.file_type,
+            size: row.file_size,
+            url: `/uploads/complaints/${row.filename}`,
+            created_at: row.created_at,
+          })));
+        }
+      }
+    );
+  });
+}
+
 // Helper: format a raw db row for the frontend
-function format(row, votedSet = new Set()) {
+function format(row, votedSet = new Set(), attachments = []) {
   return {
     id:           row.id,
     title:        row.title,
@@ -44,40 +70,10 @@ function format(row, votedSet = new Set()) {
     voted:        votedSet.has(row.id),
     created_at:   row.created_at,
     updated_at:   row.updated_at,
+    attachments:  attachments,
   };
 }
 
-// ── GET /api/complaints/:id ───────────────────────────────────────────────────
-router.get('/:id', requireAuth, async (req, res) => {
-  try {
-    const row = await new Promise((resolve, reject) => {
-      db.get('SELECT * FROM complaints WHERE id = ?', [req.params.id], (err, row) => {
-        if (err) reject(err);
-        else resolve(row);
-      });
-    });
-    if (!row) return res.status(404).json({ error: 'Complaint not found.' });
-
-    // Restrict access: only owner or admin can view; non-admin can't view sensitive complaints
-    if (req.user?.role !== 'admin' && row.submitter_id !== req.user.id) {
-      return res.status(403).json({ error: 'Access denied.' });
-    }
-    if (req.user?.role !== 'admin' && row.is_sensitive) {
-      return res.status(403).json({ error: 'Sensitive complaints are for admin only.' });
-    }
-
-    const voted = await new Promise((resolve, reject) => {
-      db.get('SELECT 1 FROM votes WHERE user_id = ? AND complaint_id = ?', [req.user.id, row.id], (err, row) => {
-        if (err) reject(err);
-        else resolve(!!row);
-      });
-    });
-    res.json({ complaint: format(row, voted ? new Set([row.id]) : new Set()) });
-  } catch (err) {
-    console.error('Get complaint error:', err);
-    res.status(500).json({ error: 'Internal server error.' });
-  }
-});
 
 // ── GET /api/complaints/admin/sensitive ───────────────────────────────────────
 // Admin only — view all sensitive complaints
@@ -115,12 +111,19 @@ router.get('/admin/sensitive', requireAuth, requireAdmin, async (req, res) => {
     });
     const votedSet = new Set(userVotes.map(v => v.complaint_id));
 
-    res.json({ complaints: rows.map(r => format(r, votedSet)) });
+    // Fetch attachments for each complaint
+    const complaints = await Promise.all(rows.map(async (r) => {
+      const attachments = await fetchAttachments(r.id);
+      return format(r, votedSet, attachments);
+    }));
+
+    res.json({ complaints });
   } catch (err) {
     console.error('Get sensitive complaints error:', err);
     res.status(500).json({ error: 'Internal server error.' });
   }
 });
+
 
 // ── GET /api/complaints/stats ─────────────────────────────────────────────────
 // Summary counts for admin dashboard
@@ -184,20 +187,16 @@ router.get('/stats', requireAuth, requireAdmin, async (req, res) => {
   }
 });
 
-// ── GET /api/complaints ───────────────────────────────────────────────────────
+
+// ── GET /api/complaints/my ─────────────────────────────────────────────────────
+// TRACK STATUS PAGE: Show only the authenticated user's own complaints
 // Query params: status, faculty, sort (votes|new|old), search
-// Non-admins see only public (non-sensitive) complaints
-router.get('/', requireAuth, async (req, res) => {
+router.get('/my', requireAuth, async (req, res) => {
   try {
     const { status, faculty, sort = 'votes', search } = req.query;
 
-    let sql = 'SELECT * FROM complaints WHERE 1=1';
-    const params = [];
-
-    // Non-admins see only public complaints
-    if (req.user?.role !== 'admin') {
-      sql += ' AND is_sensitive = 0';
-    }
+    let sql = 'SELECT * FROM complaints WHERE submitter_id = ?';
+    const params = [req.user.id];
 
     if (status && VALID_STATUSES.includes(status)) {
       sql += ' AND status = ?'; params.push(status);
@@ -209,11 +208,6 @@ router.get('/', requireAuth, async (req, res) => {
       const like = `%${search}%`;
       sql += ' AND (title LIKE ? OR description LIKE ?)';
       params.push(like, like);
-    }
-
-    // Restrict to user's own complaints unless admin
-    if (req.user?.role !== 'admin') {
-      sql += ' AND submitter_id = ?'; params.push(req.user.id);
     }
 
     const orderMap = { votes: 'votes DESC', new: 'created_at DESC', old: 'created_at ASC' };
@@ -235,12 +229,116 @@ router.get('/', requireAuth, async (req, res) => {
     });
     const votedSet  = new Set(userVotes.map(v => v.complaint_id));
 
-    res.json({ complaints: rows.map(r => format(r, votedSet)) });
+    // Fetch attachments for each complaint
+    const complaints = await Promise.all(rows.map(async (r) => {
+      const attachments = await fetchAttachments(r.id);
+      return format(r, votedSet, attachments);
+    }));
+
+    res.json({ complaints });
+  } catch (err) {
+    console.error('Get my complaints error:', err);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+});
+
+
+// ── GET /api/complaints ───────────────────────────────────────────────────────
+// HOME PAGE: Show all public complaints to everyone (non-sensitive only)
+// Admins see all complaints. Query params: status, faculty, sort (votes|new|old), search
+router.get('/', requireAuth, async (req, res) => {
+  try {
+    const { status, faculty, sort = 'votes', search } = req.query;
+
+    let sql = 'SELECT * FROM complaints WHERE 1=1';
+    const params = [];
+
+    // Non-admins see only public complaints; admins see all
+    if (req.user?.role !== 'admin') {
+      sql += ' AND is_sensitive = 0';
+    }
+
+    if (status && VALID_STATUSES.includes(status)) {
+      sql += ' AND status = ?'; params.push(status);
+    }
+    if (faculty && VALID_FACULTIES.includes(faculty)) {
+      sql += ' AND faculty = ?'; params.push(faculty);
+    }
+    if (search) {
+      const like = `%${search}%`;
+      sql += ' AND (title LIKE ? OR description LIKE ?)';
+      params.push(like, like);
+    }
+
+    const orderMap = { votes: 'votes DESC', new: 'created_at DESC', old: 'created_at ASC' };
+    sql += ` ORDER BY ${orderMap[sort] || orderMap.votes}`;
+
+    const rows = await new Promise((resolve, reject) => {
+      db.all(sql, params, (err, rows) => {
+        if (err) reject(err);
+        else resolve(rows || []);
+      });
+    });
+
+    // Fetch which complaints this user has voted on
+    const userVotes = await new Promise((resolve, reject) => {
+      db.all('SELECT complaint_id FROM votes WHERE user_id = ?', [req.user.id], (err, rows) => {
+        if (err) reject(err);
+        else resolve(rows || []);
+      });
+    });
+    const votedSet  = new Set(userVotes.map(v => v.complaint_id));
+
+    // Fetch attachments for each complaint
+    const complaints = await Promise.all(rows.map(async (r) => {
+      const attachments = await fetchAttachments(r.id);
+      return format(r, votedSet, attachments);
+    }));
+
+    res.json({ complaints });
   } catch (err) {
     console.error('Get complaints error:', err);
     res.status(500).json({ error: 'Internal server error.' });
   }
 });
+
+
+// ── GET /api/complaints/:id ───────────────────────────────────────────────────
+router.get('/:id', requireAuth, async (req, res) => {
+  try {
+    const row = await new Promise((resolve, reject) => {
+      db.get('SELECT * FROM complaints WHERE id = ?', [req.params.id], (err, row) => {
+        if (err) reject(err);
+        else resolve(row);
+      });
+    });
+    if (!row) return res.status(404).json({ error: 'Complaint not found.' });
+
+    // Restrict access: only owner or admin can view; non-admin can't view sensitive complaints
+    if (req.user?.role !== 'admin' && row.submitter_id !== req.user.id) {
+      return res.status(403).json({ error: 'Access denied.' });
+    }
+    if (req.user?.role !== 'admin' && row.is_sensitive) {
+      return res.status(403).json({ error: 'Sensitive complaints are for admin only.' });
+    }
+
+    const voted = await new Promise((resolve, reject) => {
+      db.get('SELECT 1 FROM votes WHERE user_id = ? AND complaint_id = ?', [req.user.id, row.id], (err, row) => {
+        if (err) reject(err);
+        else resolve(!!row);
+      });
+    });
+
+    // Fetch attachments
+    const attachments = await fetchAttachments(row.id);
+
+    res.json({ complaint: format(row, voted ? new Set([row.id]) : new Set(), attachments) });
+  } catch (err) {
+    console.error('Get complaint error:', err);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+});
+
 
 // ── POST /api/complaints ──────────────────────────────────────────────────────
 router.post('/', requireAuth, async (req, res) => {
@@ -254,15 +352,15 @@ router.post('/', requireAuth, async (req, res) => {
     let pri = priority;
     let sens = false;
 
-    // Use AI to categorize if not provided
-    if (!fac || !pri) {
-      const aiResult = await categorizeComplaint(title, description);
-      fac = fac || aiResult.faculty;
-      pri = pri || aiResult.priority;
-      sens = aiResult.is_sensitive;
-    }
+    // Always use AI to categorize complaints for consistent priority and sensitivity detection
+    const aiResult = await categorizeComplaint(title, description);
+    
+    // Use provided faculty/priority if valid, otherwise use AI categorization
+    fac = (faculty && VALID_FACULTIES.includes(faculty)) ? faculty : aiResult.faculty;
+    pri = (priority && VALID_PRIORITIES.includes(priority)) ? priority : aiResult.priority;
+    sens = aiResult.is_sensitive;
 
-    // Validate faculty and priority
+    // Validate faculty and priority (redundant but safe)
     if (!VALID_FACULTIES.includes(fac)) {
       fac = 'Others';
     }
@@ -289,7 +387,7 @@ router.post('/', requireAuth, async (req, res) => {
         else resolve(row);
       });
     });
-    res.status(201).json({ complaint: format(row) });
+    res.status(201).json({ complaint: format(row, new Set(), []) });
   } catch (err) {
     console.error('Create complaint error:', err);
     res.status(500).json({ error: 'Internal server error.' });
@@ -408,6 +506,25 @@ router.post('/:id/vote', requireAuth, async (req, res) => {
 // Admin only
 router.delete('/:id', requireAuth, requireAdmin, async (req, res) => {
   try {
+    // First, get all attachments and delete files
+    const attachments = await new Promise((resolve, reject) => {
+      db.all('SELECT filename FROM attachments WHERE complaint_id = ?', [req.params.id], (err, rows) => {
+        if (err) reject(err);
+        else resolve(rows || []);
+      });
+    });
+
+    // Delete files from filesystem
+    const uploadsDir = path.join(__dirname, '../public/uploads/complaints');
+    for (const att of attachments) {
+      try {
+        fs.unlinkSync(path.join(uploadsDir, att.filename));
+      } catch (err) {
+        console.warn(`Failed to delete file ${att.filename}:`, err.message);
+      }
+    }
+
+    // Delete from database (attachments cascade delete, votes cascade delete)
     const info = await new Promise((resolve, reject) => {
       db.run('DELETE FROM complaints WHERE id = ?', [req.params.id], function (err) {
         if (err) reject(err);
@@ -418,6 +535,137 @@ router.delete('/:id', requireAuth, requireAdmin, async (req, res) => {
     res.json({ message: 'Complaint deleted.' });
   } catch (err) {
     console.error('Delete complaint error:', err);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+});
+
+// ── POST /api/complaints/:id/attachments ──────────────────────────────────────
+// Upload attachment to a complaint
+router.post('/:id/attachments', requireAuth, upload.single('file'), async (req, res) => {
+  try {
+    const complaintId = parseInt(req.params.id, 10);
+
+    // Check if complaint exists and user has permission
+    const complaint = await new Promise((resolve, reject) => {
+      db.get('SELECT * FROM complaints WHERE id = ?', [complaintId], (err, row) => {
+        if (err) reject(err);
+        else resolve(row);
+      });
+    });
+    if (!complaint) return res.status(404).json({ error: 'Complaint not found.' });
+
+    // Only owner and admin can upload
+    if (req.user?.role !== 'admin' && complaint.submitter_id !== req.user.id) {
+      return res.status(403).json({ error: 'Access denied.' });
+    }
+
+    // File must be present
+    if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded.' });
+    }
+
+    // Check total file size for complaint (200MB limit)
+    const totalSize = await new Promise((resolve, reject) => {
+      db.get(
+        'SELECT SUM(file_size) as total FROM attachments WHERE complaint_id = ?',
+        [complaintId],
+        (err, row) => {
+          if (err) reject(err);
+          else resolve((row?.total || 0) + req.file.size);
+        }
+      );
+    });
+
+    if (totalSize > 200 * 1024 * 1024) {
+      // Delete uploaded file and respond with error
+      fs.unlinkSync(req.file.path);
+      return res.status(400).json({ error: 'Total attachment size exceeds 200MB limit.' });
+    }
+
+    // Insert attachment record
+    const attachResult = await new Promise((resolve, reject) => {
+      db.run(
+        'INSERT INTO attachments (complaint_id, filename, original_name, file_type, file_size) VALUES (?, ?, ?, ?, ?)',
+        [complaintId, req.file.filename, req.file.originalname, req.file.mimetype, req.file.size],
+        function (err) {
+          if (err) reject(err);
+          else resolve(this);
+        }
+      );
+    });
+
+    res.status(201).json({
+      attachment: {
+        id: attachResult.lastID,
+        name: req.file.originalname,
+        type: req.file.mimetype,
+        size: req.file.size,
+        url: `/uploads/complaints/${req.file.filename}`,
+      }
+    });
+  } catch (err) {
+    // Clean up uploaded file on error
+    if (req.file) {
+      try {
+        fs.unlinkSync(req.file.path);
+      } catch (e) {
+        console.warn('Failed to cleanup file:', e.message);
+      }
+    }
+    console.error('Upload attachment error:', err);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+});
+
+// ── DELETE /api/complaints/:id/attachments/:attachmentId ───────────────────────
+// Delete specific attachment
+router.delete('/:id/attachments/:attachmentId', requireAuth, async (req, res) => {
+  try {
+    const complaintId = parseInt(req.params.id, 10);
+    const attachmentId = parseInt(req.params.attachmentId, 10);
+
+    // Check if complaint exists and user has permission
+    const complaint = await new Promise((resolve, reject) => {
+      db.get('SELECT * FROM complaints WHERE id = ?', [complaintId], (err, row) => {
+        if (err) reject(err);
+        else resolve(row);
+      });
+    });
+    if (!complaint) return res.status(404).json({ error: 'Complaint not found.' });
+
+    // Only owner and admin can delete
+    if (req.user?.role !== 'admin' && complaint.submitter_id !== req.user.id) {
+      return res.status(403).json({ error: 'Access denied.' });
+    }
+
+    // Get attachment
+    const attachment = await new Promise((resolve, reject) => {
+      db.get('SELECT * FROM attachments WHERE id = ? AND complaint_id = ?', [attachmentId, complaintId], (err, row) => {
+        if (err) reject(err);
+        else resolve(row);
+      });
+    });
+    if (!attachment) return res.status(404).json({ error: 'Attachment not found.' });
+
+    // Delete file from filesystem
+    const filePath = path.join(__dirname, '../public/uploads/complaints', attachment.filename);
+    try {
+      fs.unlinkSync(filePath);
+    } catch (err) {
+      console.warn(`Failed to delete file ${attachment.filename}:`, err.message);
+    }
+
+    // Delete from database
+    await new Promise((resolve, reject) => {
+      db.run('DELETE FROM attachments WHERE id = ?', [attachmentId], (err) => {
+        if (err) reject(err);
+        else resolve();
+      });
+    });
+
+    res.json({ message: 'Attachment deleted.' });
+  } catch (err) {
+    console.error('Delete attachment error:', err);
     res.status(500).json({ error: 'Internal server error.' });
   }
 });

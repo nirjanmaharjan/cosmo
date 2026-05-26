@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SafeVoice - Signup</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 450px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 20px;
+            text-align: center;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .form-container {
+            padding: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .password-requirements {
+            background: #f5f5f5;
+            border-left: 4px solid #667eea;
+            padding: 12px;
+            margin-top: 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .password-requirements ul {
+            margin: 8px 0 0 20px;
+            list-style: none;
+        }
+
+        .password-requirements li {
+            margin: 4px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .password-requirements li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #667eea;
+        }
+
+        .form-group.checkbox {
+            display: flex;
+            align-items: center;
+            margin-top: 20px;
+        }
+
+        .form-group.checkbox input {
+            width: auto;
+            margin-right: 10px;
+            cursor: pointer;
+        }
+
+        .form-group.checkbox label {
+            margin: 0;
+            cursor: pointer;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 30px;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+            border: 2px solid #e0e0e0;
+        }
+
+        .btn-secondary:hover {
+            background: #e8e8e8;
+        }
+
+        .login-link {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .login-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .login-link a:hover {
+            text-decoration: underline;
+        }
+
+        .error-message {
+            background: #fee;
+            border: 1px solid #fcc;
+            color: #c33;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 13px;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        .success-message {
+            background: #efe;
+            border: 1px solid #cfc;
+            color: #3c3;
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 13px;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        @media (max-width: 480px) {
+            .form-container {
+                padding: 30px 20px;
+            }
+
+            .button-group {
+                flex-direction: column;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>SafeVoice</h1>
+            <p>Create Your Account</p>
+        </div>
+
+        <div class="form-container">
+            <div class="error-message" id="errorMessage"></div>
+            <div class="success-message" id="successMessage"></div>
+
+            <form id="signupForm">
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email" 
+                        placeholder="you@college.edu" 
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password" 
+                        placeholder="Enter a strong password" 
+                        required
+                    >
+                    <div class="password-requirements">
+                        <strong>Password Requirements:</strong>
+                        <ul>
+                            <li>At least 8 characters long</li>
+                            <li>One uppercase letter (A-Z)</li>
+                            <li>One lowercase letter (a-z)</li>
+                            <li>One number (0-9)</li>
+                            <li>One special character (@, #, $, %, etc.)</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">Confirm Password</label>
+                    <input 
+                        type="password" 
+                        id="confirmPassword" 
+                        name="confirmPassword" 
+                        placeholder="Confirm your password" 
+                        required
+                    >
+                </div>
+
+                <div class="form-group checkbox">
+                    <input 
+                        type="checkbox" 
+                        id="agreeTerms" 
+                        name="agreeTerms" 
+                        required
+                    >
+                    <label for="agreeTerms">
+                        I agree to the Terms of Service and Privacy Policy
+                    </label>
+                </div>
+
+                <div class="button-group">
+                    <button type="reset" class="btn btn-secondary">Clear</button>
+                    <button type="submit" class="btn btn-primary">Create Account</button>
+                </div>
+            </form>
+
+            <div class="login-link">
+                Already have an account? <a href="login.html">Login here</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('signupForm');
+        const errorMessage = document.getElementById('errorMessage');
+        const successMessage = document.getElementById('successMessage');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const confirmPasswordInput = document.getElementById('confirmPassword');
+
+        function validatePassword(password) {
+            const requirements = {
+                length: password.length >= 8,
+                uppercase: /[A-Z]/.test(password),
+                lowercase: /[a-z]/.test(password),
+                number: /[0-9]/.test(password),
+                special: /[@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(password)
+            };
+            return Object.values(requirements).every(v => v);
+        }
+
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.classList.add('show');
+            successMessage.classList.remove('show');
+        }
+
+        function showSuccess(message) {
+            successMessage.textContent = message;
+            successMessage.classList.add('show');
+            errorMessage.classList.remove('show');
+        }
+
+        function clearMessages() {
+            errorMessage.classList.remove('show');
+            successMessage.classList.remove('show');
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            clearMessages();
+
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+            const confirmPassword = confirmPasswordInput.value;
+
+            if (!email) {
+                showError('Email is required');
+                return;
+            }
+
+            if (!password) {
+                showError('Password is required');
+                return;
+            }
+
+            if (!validatePassword(password)) {
+                showError('Password does not meet the requirements');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showError('Passwords do not match');
+                return;
+            }
+
+            if (!document.getElementById('agreeTerms').checked) {
+                showError('You must agree to the Terms of Service');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/auth/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showSuccess('Account created successfully! Redirecting to login...');
+                    form.reset();
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 1500);
+                } else {
+                    showError(data.error || 'Signup failed. Please try again.');
+                }
+            } catch (error) {
+                showError('An error occurred. Please check your connection and try again.');
+                console.error('Signup error:', error);
+            }
+        });
+
+        passwordInput.addEventListener('input', () => {
+            if (passwordInput.value && !validatePassword(passwordInput.value)) {
+                passwordInput.style.borderColor = '#ff6b6b';
+            } else if (passwordInput.value) {
+                passwordInput.style.borderColor = '#51cf66';
+            } else {
+                passwordInput.style.borderColor = '#e0e0e0';
+            }
+        });
+
+        confirmPasswordInput.addEventListener('input', () => {
+            if (confirmPasswordInput.value && passwordInput.value !== confirmPasswordInput.value) {
+                confirmPasswordInput.style.borderColor = '#ff6b6b';
+            } else if (confirmPasswordInput.value && passwordInput.value === confirmPasswordInput.value) {
+                confirmPasswordInput.style.borderColor = '#51cf66';
+            } else {
+                confirmPasswordInput.style.borderColor = '#e0e0e0';
+            }
+        });
+    </script>
+</body>
+</html>

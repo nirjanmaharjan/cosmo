@@ -1,7 +1,7 @@
 // utils/aiCategorizer.js — AI-powered complaint categorization & sensitivity detection
 'use strict';
 
-const Groq = require('@groq/sdk').default;
+const Groq = require('groq-sdk').default;
 
 const client = new Groq({
   apiKey: process.env.GROQ_API_KEY,
@@ -29,9 +29,9 @@ You MUST respond with ONLY a JSON object (no markdown, no code blocks, just raw 
 }
 
 Guidelines:
-- is_sensitive: true if complaint contains: harassment, discrimination, abuse, safety threats, mental health crisis, sexual misconduct, substance abuse, health violations, or any concerning personal issues
+- is_sensitive: true if complaint contains: harassment, sexual harassment, discrimination, abuse, safety threats, mental health crisis, sexual misconduct, substance abuse, health violations, bullying, violence, assault, or any concerning personal issues
 - faculty: categorize based on department (Food for dining, Library for library services, Hostel for hostel issues, Infrastructure for building/facilities, Staff for staff-related issues, Others as default)
-- priority: High for urgent/health/safety issues, Medium for standard complaints, Low for minor issues
+- priority: High for urgent/health/safety issues, sexual harassment, harassment, abuse, discrimination, security threats; Medium for standard complaints; Low for minor issues
 
 Respond with ONLY the JSON object.`;
 
