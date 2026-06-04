@@ -3,9 +3,9 @@
 
 const Groq = require('groq-sdk').default;
 
-const client = new Groq({
-  apiKey: process.env.GROQ_API_KEY,
-});
+const client = process.env.GROQ_API_KEY
+  ? new Groq({ apiKey: process.env.GROQ_API_KEY })
+  : null;
 
 const VALID_FACULTIES = ['Food', 'Library', 'Hostel', 'Infrastructure', 'Staff', 'Others'];
 const VALID_PRIORITIES = ['High', 'Medium', 'Low'];
@@ -15,6 +15,11 @@ const VALID_PRIORITIES = ['High', 'Medium', 'Low'];
  * Returns { is_sensitive, faculty, priority }
  */
 async function categorizeComplaint(title, description) {
+  if (!client) {
+    // Groq not configured; fall back to safe defaults.
+    return { is_sensitive: false, faculty: 'Others', priority: 'Medium' };
+  }
+
   try {
     const prompt = `Analyze this college complaint and categorize it.
 
@@ -36,7 +41,12 @@ Guidelines:
 Respond with ONLY the JSON object.`;
 
     const response = await client.chat.completions.create({
-      model: 'mixtral-8x7b-32768',
+      // Try a model likely to be supported; if Groq decommissions it again,
+      // update the model string.
+      // Model choice changes frequently. You should set GROQ_MODEL in `.env`.
+      // If GROQ_MODEL is empty, we still want the app to work (handled earlier),
+      // but keep a benign placeholder here.
+      model: process.env.GROQ_MODEL || 'llama3-70b-8192',
       max_tokens: 100,
       messages: [
         {

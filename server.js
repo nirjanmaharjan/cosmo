@@ -13,6 +13,9 @@ require('./db');
 
 const authRouter       = require('./routes/auth');
 const complaintsRouter = require('./routes/complaints');
+const notificationsRouter = require('./routes/notifications');
+
+
 
 const app = express();
 
@@ -30,6 +33,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 // ── Routes ────────────────────────────────────────────────────────────────────
 app.use('/api/auth',       authRouter);
 app.use('/api/complaints', complaintsRouter);
+app.use('/api/notifications', notificationsRouter);
+
 
 // Health check
 app.get('/api/health', (_req, res) => res.json({ status: 'ok', time: new Date().toISOString() }));

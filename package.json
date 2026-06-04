@@ -1,5 +1,5 @@
 {
-  "name": "safevoice-backend",
+  "name": "safevoice",
   "version": "1.0.0",
   "description": "Node.js backend for SafeVoice College Complaint System",
   "main": "server.js",

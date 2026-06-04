@@ -18,13 +18,30 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .page.active{display:flex}
 #pg-login{flex-direction:row!important}
 
+/* Notifications */
+.notifDot{position:absolute;right:4px;top:4px;width:8px;height:8px;border-radius:9999;background:var(--red);display:none}
+
+#notifPanel{position:absolute;top:calc(100% + 10px);right:0;background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.12);min-width:320px;z-index:300;overflow:hidden;animation:dd .15s ease;display:none}
+#notifPanel.open{display:block}
+#notifList{max-height:340px;overflow:auto}
+.notifItem{padding:12px 16px;border-bottom:1px solid var(--border)}
+.notifItem:last-child{border-bottom:none}
+.notifItem.unread{background:var(--blue-l)}
+.notifTitle{font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px}
+.notifMeta{font-size:11px;color:var(--sub);margin-bottom:8px}
+.notifSummary{font-size:12px;color:var(--sub);line-height:1.5;white-space:pre-wrap}
+
+
 /* LOGIN */
-.ll{width:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 80px;background:#fff}
+.ll{width:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:76px 80px;background:#fff;position:relative}
 .brand{display:flex;align-items:center;gap:12px;margin-bottom:44px;align-self:flex-start}
-.brand-ico{width:42px;height:42px;border-radius:10px;background:var(--blue);display:flex;align-items:center;justify-content:center}
-.brand h2{font-size:17px;font-weight:700}
-.brand p{font-size:12px;color:var(--sub)}
+.brand-ico{width:46px;height:46px;border-radius:12px;background:var(--blue);display:flex;align-items:center;justify-content:center}
+.brand-ico svg{width:24px;height:24px}
+.brand h2{font-size:22px;font-weight:900;letter-spacing:-0.02em}
+.brand p{font-size:14px;color:var(--sub);margin-top:2px}
 .form-box{width:100%;max-width:370px}
+
+
 .form-box h1{font-size:26px;font-weight:700;margin-bottom:6px}
 .form-box .sub{font-size:14px;color:var(--sub);margin-bottom:28px}
 .fg{margin-bottom:18px}
@@ -169,8 +186,7 @@ select:focus{border-color:var(--blue)}
 .tdesc{font-size:13px;color:var(--sub);margin-bottom:14px;line-height:1.5}
 .pr{display:flex;justify-content:space-between;margin-bottom:5px}
 .pr span{font-size:12px;color:var(--sub)}
-.pbg{background:var(--border);border-radius:9999px;height:6px;margin-bottom:13px}
-.pf{height:100%;border-radius:9999px;transition:width .5s}
+
 .pb{background:var(--blue)}.py{background:#F59E0B}.pg{background:var(--green)}
 .tm{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--sub);justify-content:space-between}
 .tm .mi{display:flex;gap:3px}
@@ -225,20 +241,51 @@ select:focus{border-color:var(--blue)}
 
 @media(max-width:860px){
   #pg-login{flex-direction:column!important}
+  #pg-register{flex-direction:column!important}
   .ll,.lr{width:100%}
+  .rl{width:100%}
   .sg{grid-template-columns:repeat(2,1fr)}
   .amid{grid-template-columns:1fr}
   .scards{grid-template-columns:1fr}
   .inline-form{padding:20px}
 }
+
+/* REGISTER */
+#pg-register{flex-direction:row!important}
+.rl{width:50%;background:#fff;display:flex;align-items:center;justify-content:center;padding:60px;}
+.rbox{width:100%;max-width:420px}
+.rbox h1{font-size:26px;font-weight:700;margin-bottom:6px}
+.rsub{font-size:14px;color:var(--sub);margin-bottom:28px}
+.sep{display:flex;align-items:center;gap:12px;margin:16px 0 18px}
+.sep:before,.sep:after{content:'';height:1px;background:var(--border);flex:1}
+.sep span{font-size:12px;color:var(--sub);font-weight:600}
+.btn-google{width:100%;padding:11px 24px;background:#fff;color:#111827;border:1.5px solid #E5E7EB;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .15s}
+.btn-google:hover{background:#F9FAFB}
+.btn-google svg{width:18px;height:18px}
+.a-link{font-size:13px;color:var(--blue);font-weight:600;text-decoration:none;cursor:pointer}
+.small-note{font-size:12px;color:var(--sub);margin-top:12px;line-height:1.5}
+
 </style>
 </head>
 <body>
 
 <!-- LOGIN -->
 <div id="pg-login" class="page active">
+
   <div class="ll">
-    <div class="brand">
+    <div class="brand" style="position:absolute;top:26px;left:34px;margin:0">
+      <div class="brand-ico">
+        <svg width="22" height="22" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+      </div>
+      <div>
+        <h2 style="margin:0">SafeVoice</h2>
+        <p style="margin:0">College Complaint System</p>
+      </div>
+    </div>
+
+
+    <!-- brand duplicated in top-left; hide original -->
+    <div class="brand" style="display:none">
       <div class="brand-ico">
         <svg width="22" height="22" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
       </div>
@@ -294,6 +341,62 @@ select:focus{border-color:var(--blue)}
   </div>
 </div>
 
+<!-- REGISTER -->
+<div id="pg-register" class="page">
+  <div class="rl">
+    <div class="rbox">
+      <div class="brand" style="margin-bottom:22px;align-self:flex-start">
+        <div class="brand-ico">
+          <svg width="22" height="22" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+        </div>
+        <div><h2>SafeVoice</h2><p>College Complaint System</p></div>
+      </div>
+
+      <h1>Create your account</h1>
+      <p class="rsub">Use your student email to sign up</p>
+
+      <div class="fg">
+        <label>Email Address</label>
+        <div class="iw">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+          <input type="email" id="reg-email" placeholder="you@college.edu">
+        </div>
+      </div>
+
+      <div class="fg">
+        <label>Password</label>
+        <div class="iw">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+          <input type="password" id="reg-pw" placeholder="Create a password">
+        </div>
+      </div>
+
+      <div class="fg">
+        <label>Confirm Password</label>
+        <div class="iw">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+          <input type="password" id="reg-pw2" placeholder="Repeat password">
+        </div>
+      </div>
+
+      <button class="btn-blue" id="reg-btn" onclick="register()">Create account</button>
+
+      <div class="sep">
+        <span>or continue with</span>
+      </div>
+
+      <button class="btn-google" onclick="toast('Google sign-in is UI-only in this demo. Use email signup instead.', true)">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#EA4335" d="M12 10.2v3.6h5.2c-.2 1.2-1.4 3.6-5.2 3.6-3.1 0-5.6-2.6-5.6-5.8s2.5-5.8 5.6-5.8c1.8 0 3 .7 3.7 1.4l2.5-2.4C18.4 3.8 16.2 2.6 12 2.6 6.7 2.6 2.5 6.9 2.5 12.8S6.7 23 12 23c5.8 0 9.6-4.1 9.6-9.9 0-.7-.1-1.3-.2-1.9H12z"/><path fill="#4285F4" d="M3.1 8.9l3 2.3c.8-2 2.9-3.4 5.9-3.4 1.8 0 3 .7 3.7 1.4l2.5-2.4c-1.4-1.4-3.6-2.6-6.2-2.6-3 0-5.8 1.2-7.9 3.2z"/><path fill="#FBBC05" d="M21.6 13.1c.1-.6.2-1.2.2-1.8 0-.6-.1-1.2-.2-1.8H12V12.2h9.6z"/><path fill="#34A853" d="M12 22.9c4.5 0 8.2-2.1 9.4-6.3l-3.1-2.4c-.6 2-2.4 4.1-6.3 4.1-2.9 0-5.4-1.7-6.3-4l-3.1 2.4c1.2 4.1 5 6.2 8.4 6.2z"/></svg>
+        Continue with Google
+      </button>
+
+      <p class="small-note">
+        Already have an account? <a class="a-link" onclick="go('login')">Sign in</a>
+      </p>
+    </div>
+  </div>
+</div>
+
 <!-- HOME -->
 <div id="pg-home" class="page">
   <nav class="nav">
@@ -304,6 +407,23 @@ select:focus{border-color:var(--blue)}
       <button class="nl" id="alink" onclick="go('admin')" style="display:none"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/></svg>Admin</button>
     </div>
     <div class="na">
+      <div class="av-wrap" style="margin-right:10px;">
+        <button class="av" id="bellBtn" style="background:transparent;color:var(--sub)" onclick="toggleNotif(event)" aria-label="Notifications">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="18" height="18">
+            <path d="M18 8a6 6 0 10-12 0c0 7-3 7-3 7h18s-3 0-3-7"/>
+            <path d="M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+          <span id="notifDot" class="notifDot"></span>
+        </button>
+        <div class="profile-dd" id="notifPanel" style="display:none;min-width:320px;right:0;left:auto;animation:none">
+          <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;">
+            <span style="font-size:13px;font-weight:700;color:var(--text);">Notifications</span>
+            <button style="background:none;border:none;color:var(--blue);font-weight:700;cursor:pointer;font-size:13px" onclick="markAllRead()">Mark all read</button>
+          </div>
+          <div id="notifList" style="max-height:340px;overflow:auto"></div>
+        </div>
+      </div>
+
       <div class="av-wrap">
         <button class="av" id="av1" onclick="toggleDD(event)">S</button>
         <div class="profile-dd" id="dd1">
@@ -312,6 +432,7 @@ select:focus{border-color:var(--blue)}
         </div>
       </div>
     </div>
+
   </nav>
   <div class="hc">
     <div class="inp-bar" id="inp-bar" onclick="openM()">
@@ -325,7 +446,9 @@ select:focus{border-color:var(--blue)}
       </div>
       <input type="text" id="ct" placeholder="Complaint title...">
       <textarea id="cd" placeholder="Describe your complaint in detail..."></textarea>
+      <input type="file" id="cp-photo" accept="image/*,video/*" style="width:100%;">
       <select id="cc-cat">
+
         <option value="">Category (auto-assigned if blank)</option>
         <option>Food Services</option>
         <option>Facilities</option>
@@ -368,6 +491,23 @@ select:focus{border-color:var(--blue)}
       <button class="nl" id="alink2" onclick="go('admin')" style="display:none"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/></svg>Admin</button>
     </div>
     <div class="na">
+      <div class="av-wrap" style="margin-right:10px;">
+        <button class="av" id="bellBtn" style="background:transparent;color:var(--sub)" onclick="toggleNotif(event)" aria-label="Notifications">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="18" height="18">
+            <path d="M18 8a6 6 0 10-12 0c0 7-3 7-3 7h18s-3 0-3-7"/>
+            <path d="M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+          <span id="notifDot" class="notifDot"></span>
+        </button>
+        <div class="profile-dd" id="notifPanel" style="display:none;min-width:320px;right:0;left:auto;animation:none;position:absolute;top:calc(100% + 10px);">
+          <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;">
+            <span style="font-size:13px;font-weight:700;color:var(--text);">Notifications</span>
+            <button style="background:none;border:none;color:var(--blue);font-weight:700;cursor:pointer;font-size:13px" onclick="markAllRead()">Mark all read</button>
+          </div>
+          <div id="notifList" style="max-height:340px;overflow:auto"></div>
+        </div>
+      </div>
+
       <div class="av-wrap">
         <button class="av" id="av2" onclick="toggleDD(event)">S</button>
         <div class="profile-dd" id="dd2">
@@ -400,6 +540,23 @@ select:focus{border-color:var(--blue)}
       <button class="nl act" onclick="go('admin')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/></svg>Admin</button>
     </div>
     <div class="na">
+      <div class="av-wrap" style="margin-right:10px;">
+        <button class="av" id="bellBtn" style="background:transparent;color:var(--sub)" onclick="toggleNotif(event)" aria-label="Notifications">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="18" height="18">
+            <path d="M18 8a6 6 0 10-12 0c0 7-3 7-3 7h18s-3 0-3-7"/>
+            <path d="M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+          <span id="notifDot" class="notifDot"></span>
+        </button>
+        <div class="profile-dd" id="notifPanel" style="display:none;min-width:320px;right:0;left:auto;animation:none;position:absolute;top:calc(100% + 10px);">
+          <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;">
+            <span style="font-size:13px;font-weight:700;color:var(--text);">Notifications</span>
+            <button style="background:none;border:none;color:var(--blue);font-weight:700;cursor:pointer;font-size:13px" onclick="markAllRead()">Mark all read</button>
+          </div>
+          <div id="notifList" style="max-height:340px;overflow:auto"></div>
+        </div>
+      </div>
+
       <div class="av-wrap">
         <button class="av" id="av3" onclick="toggleDD(event)">A</button>
         <div class="profile-dd" id="dd3">
@@ -432,7 +589,8 @@ select:focus{border-color:var(--blue)}
 
 <script>
 // ── Config ───────────────────────────────────────────────────────────────────
-const API = 'http://localhost:3001/api';
+// Use same-origin API (works regardless of port / deployment)
+const API = '/api';
 
 // ── State ────────────────────────────────────────────────────────────────────
 let token    = sessionStorage.getItem('sv_token') || null;
@@ -441,9 +599,12 @@ let allComplaints = []; // local cache
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 async function apiFetch(path, opts = {}) {
-  const headers = { 'Content-Type': 'application/json', ...(opts.headers || {}) };
+  const isFormData = typeof opts.body !== 'undefined' && opts.body instanceof FormData;
+  const headers = { ...(opts.headers || {}) };
+  if (!isFormData) headers['Content-Type'] = 'application/json';
   if (token) headers['Authorization'] = `Bearer ${token}`;
   const res = await fetch(API + path, { ...opts, headers });
+
   const json = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(json.error || 'Request failed');
   return json;
@@ -491,11 +652,21 @@ function afterLogin() {
   ['dd-email1','dd-email2','dd-email3'].forEach(id => {
     const el = document.getElementById(id); if (el) el.textContent = currentUser.email;
   });
-  if (currentUser.role === 'admin') {
-    ['alink','alink2'].forEach(id => {
-      const el = document.getElementById(id); if (el) el.style.display = 'flex';
-    });
-  }
+
+  const isAdmin = currentUser.role === 'admin';
+
+  // Show Admin navigation only for admins
+  ['alink','alink2'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.display = isAdmin ? 'flex' : 'none';
+  });
+
+  // Remove/hide the admin page entirely for non-admins
+  const adminPage = document.getElementById('pg-admin');
+  if (adminPage && !isAdmin) adminPage.style.display = 'none';
+  if (adminPage && isAdmin) adminPage.style.display = 'flex';
+
+  // Keep users on Home for non-admins
   go('home');
 }
 
@@ -509,20 +680,46 @@ function signOut() {
 }
 
 function showRegister() {
-  // Simple prompt-based register (you can replace with a proper form)
-  const email    = prompt('Enter your email:');
-  if (!email) return;
-  const password = prompt('Choose a password (min 6 chars):');
-  if (!password) return;
-  apiFetch('/auth/register', { method: 'POST', body: JSON.stringify({ email, password }) })
-    .then(data => {
-      token = data.token; currentUser = data.user;
-      sessionStorage.setItem('sv_token', token);
-      afterLogin();
-      toast('Account created! Welcome to SafeVoice.');
-    })
-    .catch(e => toast(e.message, false));
+  go('register');
+  setTimeout(() => {
+    const el = document.getElementById('reg-email');
+    if (el) el.focus();
+  }, 50);
 }
+
+async function register() {
+  const email = document.getElementById('reg-email').value.trim();
+  const pw1   = document.getElementById('reg-pw').value;
+  const pw2   = document.getElementById('reg-pw2').value;
+
+  if (!email) { toast('Please enter your email.', false); return; }
+  if (pw1.length < 6) { toast('Password must be at least 6 characters.', false); return; }
+  if (pw1 !== pw2) { toast('Passwords do not match.', false); return; }
+
+  const btn = document.getElementById('reg-btn');
+  btn.disabled = true;
+  const prev = btn.textContent;
+  btn.textContent = 'Creating account…';
+
+  try {
+    const data = await apiFetch('/auth/register', {
+      method: 'POST',
+      body: JSON.stringify({ email, password: pw1 })
+    });
+
+    token = data.token;
+    currentUser = data.user;
+    sessionStorage.setItem('sv_token', token);
+    afterLogin();
+    toast('Account created! Welcome to SafeVoice.');
+  } catch (e) {
+    toast(e.message, false);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = prev;
+  }
+}
+
 
 // ── Navigation ───────────────────────────────────────────────────────────────
 function go(p) {
@@ -531,7 +728,17 @@ function go(p) {
   if (p === 'home')  { closeM(); rf(); }
   if (p === 'track') rt();
   if (p === 'admin') ra();
+  if (p === 'register') {
+    const e = document.getElementById('reg-email');
+    const p1 = document.getElementById('reg-pw');
+    const p2 = document.getElementById('reg-pw2');
+    if (e) e.value = '';
+    if (p1) p1.value = '';
+    if (p2) p2.value = '';
+  }
 }
+
+
 
 function toggleDD(e) {
   e.stopPropagation();
@@ -542,9 +749,79 @@ function toggleDD(e) {
 }
 document.addEventListener('click', () => {
   document.querySelectorAll('.profile-dd').forEach(d => d.classList.remove('open'));
+  const panel = document.getElementById('notifPanel');
+  if (panel) panel.style.display = 'none';
 });
 
+function toggleNotif(e) {
+  e.stopPropagation();
+  const panel = document.getElementById('notifPanel');
+  if (!panel) return;
+  const isOpen = panel.style.display === 'block';
+  panel.style.display = isOpen ? 'none' : 'block';
+  if (!isOpen) fetchNotifications();
+}
+
+let notifCache = [];
+
+async function fetchNotifications() {
+  try {
+    const data = await apiFetch('/notifications/me');
+    notifCache = data.notifications || [];
+    renderNotifications();
+  } catch (e) {
+    const list = document.getElementById('notifList');
+    if (list) list.innerHTML = `<div style="padding:12px 16px;color:var(--sub);font-size:13px;">Error: ${esc(e.message)}</div>`;
+  }
+}
+
+function renderNotifications() {
+  const list = document.getElementById('notifList');
+  if (!list) return;
+
+  const unread = notifCache.filter(n => !n.is_read).length;
+  const dot = document.getElementById('notifDot');
+  if (dot) dot.style.display = unread > 0 ? 'block' : 'none';
+
+  if (!notifCache.length) {
+    list.innerHTML = `<div style="padding:14px 16px;color:var(--sub);font-size:13px;">No notifications yet.</div>`;
+    return;
+  }
+
+  list.innerHTML = notifCache
+    .slice(0, 50)
+    .map(n => `
+      <div class="notifItem${n.is_read ? '' : ' unread'}" style="cursor:pointer" onclick="markRead(${n.id})">
+        <div class="notifTitle">${esc(n.title || 'Update')}</div>
+        <div class="notifMeta">${esc(n.created_at || '')}</div>
+        <div class="notifSummary">${esc(n.message || '')}${n.summary ? `\n\nAdmin summary:\n${esc(n.summary)}` : ''}</div>
+      </div>
+    `)
+    .join('');
+}
+
+async function markRead(id) {
+  try {
+    await apiFetch(`/notifications/${id}/read`, { method: 'PATCH' });
+    notifCache = notifCache.map(n => (n.id === id ? { ...n, is_read: 1 } : n));
+    renderNotifications();
+  } catch (e) {
+    toast(e.message, false);
+  }
+}
+
+async function markAllRead() {
+  try {
+    await apiFetch('/notifications/readAll', { method: 'PATCH' });
+    notifCache = notifCache.map(n => ({ ...n, is_read: 1 }));
+    renderNotifications();
+  } catch (e) {
+    toast(e.message, false);
+  }
+}
+
 // ── Complaint Form ───────────────────────────────────────────────────────────
+
 function openM() {
   document.getElementById('inp-bar').style.display = 'none';
   document.getElementById('inline-form').classList.add('open');
@@ -560,6 +837,8 @@ async function submitComplaint() {
   const description = document.getElementById('cd').value.trim();
   const category    = document.getElementById('cc-cat').value;
   const priority    = document.getElementById('cc-pri').value;
+  const fileInput   = document.getElementById('cp-photo');
+  const file        = fileInput?.files?.[0] || null;
 
   if (!title)       { toast('Please enter a complaint title.', false); return; }
   if (!description) { toast('Please describe your complaint.', false); return; }
@@ -572,15 +851,27 @@ async function submitComplaint() {
       method: 'POST',
       body: JSON.stringify({ title, description, category: category || undefined, priority })
     });
+
+    // If a photo/video was attached, upload it to the created complaint
+    if (file) {
+      const form = new FormData();
+      form.append('file', file);
+      await apiFetch(`/complaints/${data.complaint.id}/attachments`, {
+        method: 'POST',
+        body: form
+      });
+    }
+
     allComplaints.unshift(data.complaint);
     closeM(); rf(); rt();
-    toast('Complaint submitted successfully!');
+    toast(file ? 'Complaint submitted with photo/video!' : 'Complaint submitted successfully!');
   } catch (e) {
     toast(e.message, false);
   } finally {
     btn.disabled = false;
   }
 }
+
 
 // ── Feed (Home) ──────────────────────────────────────────────────────────────
 async function rf() {
@@ -663,8 +954,12 @@ async function rt() {
         <div class="tcard">
           <div class="tch"><h3>${esc(c.title)}</h3>${sp(c.status)}</div>
           <p class="tdesc">${esc(c.desc)}</p>
-          <div class="pr"><span>Progress</span><span>${c.progress}%</span></div>
-          <div class="pbg"><div class="pf ${pc(c.status)}" style="width:${c.progress}%"></div></div>
+          <div class="pr"><span>Status</span><span>${c.status}</span></div>
+          
+
+
+
+          
           <div class="tm">
             <span class="mi">Category: <span class="mv">${esc(c.cat)}</span></span>
             <span class="mi">Priority: <span class="${priCls(c.pri)}">${esc(c.pri)}</span></span>
@@ -763,12 +1058,19 @@ function pp(p) {
   if (p === 'Medium') return `<span class="pill p-med">Medium Priority</span>`;
   return `<span class="pill p-lo">Low Priority</span>`;
 }
-function pc(s) { return s === 'Resolved' ? 'pg' : s === 'Pending' ? 'py' : 'pb'; }
+
 function priCls(p) { return p === 'High' ? 'phi' : p === 'Medium' ? 'pme' : 'plo'; }
 function ta(d) { return d === 0 ? 'just now' : d + ' day' + (d !== 1 ? 's' : '') + ' ago'; }
 
 // ── Keyboard ─────────────────────────────────────────────────────────────────
-document.getElementById('pw').addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
+const loginPw = document.getElementById('pw');
+if (loginPw) loginPw.addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
+
+
+const regPw2 = document.getElementById('reg-pw2');
+if (regPw2) regPw2.addEventListener('keydown', e => { if (e.key === 'Enter') register(); });
+
+
 
 // ── Auto-login if token in session ──────────────────────────────────────────
 (async function init() {

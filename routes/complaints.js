@@ -343,22 +343,41 @@ router.get('/:id', requireAuth, async (req, res) => {
 // ── POST /api/complaints ──────────────────────────────────────────────────────
 router.post('/', requireAuth, async (req, res) => {
   try {
-    const { title, description, faculty, priority } = req.body;
+    // Frontend currently sends `category` (Food Services/Facilities/...) not `faculty`.
+    // Accept both, and map category -> faculty when faculty isn't provided.
+    const { title, description, faculty, category, priority } = req.body;
+
 
     if (!title?.trim())       return res.status(400).json({ error: 'Title is required.' });
     if (!description?.trim()) return res.status(400).json({ error: 'Description is required.' });
 
+    // Map category->faculty if only category is provided
+    const catToFaculty = {
+      'Food Services': 'Food',
+      'Facilities': 'Infrastructure',
+      'Library': 'Library',
+      'Hostel': 'Hostel',
+      'Security': 'Staff',
+    };
+
     let fac = faculty;
+    if ((!fac || !VALID_FACULTIES.includes(fac)) && category && catToFaculty[category]) {
+      fac = catToFaculty[category];
+    }
+
     let pri = priority;
     let sens = false;
+
 
     // Always use AI to categorize complaints for consistent priority and sensitivity detection
     const aiResult = await categorizeComplaint(title, description);
     
-    // Use provided faculty/priority if valid, otherwise use AI categorization
-    fac = (faculty && VALID_FACULTIES.includes(faculty)) ? faculty : aiResult.faculty;
+    // Preserve mapped faculty (from request category) when present.
+    // Use AI for sensitivity detection, and only override priority when caller didn't provide a valid one.
+    fac = fac && VALID_FACULTIES.includes(fac) ? fac : aiResult.faculty;
     pri = (priority && VALID_PRIORITIES.includes(priority)) ? priority : aiResult.priority;
     sens = aiResult.is_sensitive;
+
 
     // Validate faculty and priority (redundant but safe)
     if (!VALID_FACULTIES.includes(fac)) {
@@ -398,34 +417,60 @@ router.post('/', requireAuth, async (req, res) => {
 // Admin only — update status (and auto-adjust progress)
 router.patch('/:id/status', requireAuth, requireAdmin, async (req, res) => {
   try {
-    const { status } = req.body;
+    const id = Number(req.params.id);
+    const { status } = req.body || {};
+
+    if (!Number.isInteger(id) || id <= 0) {
+      return res.status(400).json({ error: 'Invalid complaint id.' });
+    }
+
+    if (!status) {
+      return res.status(400).json({ error: 'Missing required field: status.' });
+    }
 
     if (!VALID_STATUSES.includes(status)) {
       return res.status(400).json({ error: `Status must be one of: ${VALID_STATUSES.join(', ')}.` });
     }
 
     const progressMap = { 'Pending': 20, 'Under Review': 66, 'Resolved': 100 };
+    if (typeof progressMap[status] !== 'number') {
+      return res.status(400).json({ error: 'Invalid status progress mapping.' });
+    }
 
     const info = await new Promise((resolve, reject) => {
-      db.run(`
+      db.run(
+        `
         UPDATE complaints SET status = ?, progress = ? WHERE id = ?
-      `, [status, progressMap[status], req.params.id], function (err) {
-        if (err) reject(err);
-        else resolve(this);
-      });
+      `,
+        [status, progressMap[status], id],
+        function (err) {
+          if (err) reject(err);
+          else resolve(this);
+        }
+      );
     });
+
+
+
+
+
 
     if (info.changes === 0) return res.status(404).json({ error: 'Complaint not found.' });
 
     const row = await new Promise((resolve, reject) => {
-      db.get('SELECT * FROM complaints WHERE id = ?', [req.params.id], (err, row) => {
+      db.get('SELECT * FROM complaints WHERE id = ?', [id], (err, row) => {
         if (err) reject(err);
         else resolve(row);
       });
     });
     res.json({ complaint: format(row) });
   } catch (err) {
-    console.error('Update status error:', err);
+    console.error('Update status error:', {
+      id: req.params?.id,
+      status: req.body?.status,
+      err: err?.message,
+      stack: err?.stack,
+    });
     res.status(500).json({ error: 'Internal server error.' });
   }
 });

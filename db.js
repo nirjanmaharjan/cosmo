@@ -85,6 +85,32 @@ async function init() {
       file_size INTEGER NOT NULL,
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
+
+    CREATE TABLE IF NOT EXISTS admin_summaries (
+      complaint_id INTEGER PRIMARY KEY REFERENCES complaints(id) ON DELETE CASCADE,
+      summary_text TEXT NOT NULL,
+      created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now')),
+      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
+    CREATE TRIGGER IF NOT EXISTS admin_summaries_updated_at
+    AFTER UPDATE ON admin_summaries
+    FOR EACH ROW
+    BEGIN
+      UPDATE admin_summaries SET updated_at = datetime('now') WHERE complaint_id = OLD.complaint_id;
+    END;
+
+    CREATE TABLE IF NOT EXISTS notifications (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      complaint_id INTEGER NOT NULL REFERENCES complaints(id) ON DELETE CASCADE,
+      title TEXT NOT NULL DEFAULT 'Update',
+      message TEXT NOT NULL,
+      type TEXT NOT NULL DEFAULT 'status',
+      is_read INTEGER NOT NULL DEFAULT 0,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
   `);
 
   await exec(`
@@ -95,6 +121,45 @@ async function init() {
       UPDATE complaints SET updated_at = datetime('now') WHERE id = OLD.id;
     END;
   `);
+
+  // Auto-create notifications and admin summary on status changes
+  await exec(`
+    CREATE TRIGGER IF NOT EXISTS complaints_status_resolved_notify
+    AFTER UPDATE OF status ON complaints
+    FOR EACH ROW
+    WHEN NEW.status = 'Resolved'
+    BEGIN
+      -- notify the submitter if present
+      INSERT INTO notifications (user_id, complaint_id, title, message, type, is_read, created_at)
+      SELECT NEW.submitter_id,
+             NEW.id,
+             'Complaint resolved',
+             'Your complaint has been resolved.',
+             'status',
+             0,
+             datetime('now')
+      WHERE NEW.submitter_id IS NOT NULL
+        AND NOT EXISTS (
+          SELECT 1 FROM notifications n
+          WHERE n.complaint_id = NEW.id
+            AND n.user_id = NEW.submitter_id
+            AND n.type = 'status'
+            AND n.message = 'Your complaint has been resolved.'
+        );
+
+      -- ensure there is an admin summary row (use INSERT OR IGNORE to avoid UNIQUE constraint failures)
+      INSERT OR IGNORE INTO admin_summaries (complaint_id, summary_text, created_by, created_at, updated_at)
+      VALUES (
+        NEW.id,
+        'Resolved by admin.',
+        NULL,
+        datetime('now'),
+        datetime('now')
+      );
+    END;
+  `);
+
+
 
   await seed();
 }
