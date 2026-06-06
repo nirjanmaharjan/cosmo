@@ -104,5 +104,32 @@ router.patch('/readAll', requireAuth, async (req, res) => {
   }
 });
 
+// GET /api/notifications/admin/unread-count?type=escalation|status|admin_note
+router.get('/admin/unread-count', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const type = (req.query.type || '').trim();
+    const params = [];
+    let sql = 'SELECT COUNT(*) AS c FROM notifications n WHERE n.is_read = 0';
+
+    if (type) {
+      sql += ' AND n.type = ?';
+      params.push(type);
+    }
+
+    const row = await new Promise((resolve, reject) => {
+      db.get(sql, params, (err, row) => {
+        if (err) reject(err);
+        else resolve(row);
+      });
+    });
+
+    res.json({ unreadCount: row?.c || 0 });
+  } catch (err) {
+    console.error('Admin unread count error:', err);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+});
+
 module.exports = router;
+
 

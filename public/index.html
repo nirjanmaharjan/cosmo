@@ -434,7 +434,7 @@ select:focus{border-color:var(--blue)}
       </div>
       <input type="text" id="ct" placeholder="Complaint title...">
       <textarea id="cd" placeholder="Describe your complaint in detail..."></textarea>
-      <input type="file" id="cp-photo" accept="image/*,video/*" style="width:100%;">
+
       <select id="cc-cat">
         <option value="">Category (auto-assigned if blank)</option>
         <option>Food Services</option>
@@ -793,8 +793,7 @@ async function submitComplaint() {
   const description = document.getElementById('cd').value.trim();
   const category    = document.getElementById('cc-cat').value;
   const priority    = document.getElementById('cc-pri').value;
-  const fileInput   = document.getElementById('cp-photo');
-  const file        = fileInput?.files?.[0] || null;
+
   if (!title)       { toast('Please enter a complaint title.', false); return; }
   if (!description) { toast('Please describe your complaint.', false); return; }
   const btn = document.getElementById('submit-btn');
@@ -804,15 +803,7 @@ async function submitComplaint() {
       method: 'POST',
       body: JSON.stringify({ title, description, category: category || undefined, priority })
     });
-    // If a photo/video was attached, upload it to the created complaint
-    if (file) {
-      const form = new FormData();
-      form.append('file', file);
-      await apiFetch(`/complaints/${data.complaint.id}/attachments`, {
-        method: 'POST',
-        body: form
-      });
-    }
+
     allComplaints.unshift(data.complaint);
     closeM(); rf(); rt();
     toast(file ? 'Complaint submitted with photo/video!' : 'Complaint submitted successfully!');
@@ -847,14 +838,14 @@ async function rf() {
 }
 function renderCard(c) {
   return `
-    <div class="cc">
+    <div class="cc" style="cursor:pointer" onclick="openComplaintDetail(${c.id})">
       <div class="ct">${esc(c.title)}</div>
       <div class="cd">${esc(c.desc)}</div>
       <div class="ctags">${sp(c.status)}<span class="pill p-cat">${esc(c.cat)}</span>${pp(c.pri)}</div>
       <div class="ca">Assigned to: <span>${esc(c.dept)}</span></div>
       <hr class="cdiv">
       <div class="cf">
-        <button class="vb ${c.voted ? 'voted' : ''}" onclick="vote(${c.id})" id="vbtn-${c.id}">
+        <button class="vb ${c.voted ? 'voted' : ''}" onclick="event.stopPropagation();vote(${c.id})" id="vbtn-${c.id}">
           <svg fill="${c.voted ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905A3.61 3.61 0 017 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/></svg>
           <span id="vc-${c.id}">${c.votes}</span>
         </button>
@@ -862,9 +853,260 @@ function renderCard(c) {
       </div>
     </div>`;
 }
+
+function openComplaintDetail(id) {
+  // Foundation modal: loads timeline/admin notes/staff/escalation + basic info
+  // Backend will provide endpoints; for now this prevents blank click handling.
+  // When backend endpoints are added, this will populate all sections.
+  const existing = document.getElementById('compDetailModal');
+  if (existing) existing.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'compDetailModal';
+  modal.style.position = 'fixed';
+  modal.style.inset = '0';
+  modal.style.background = 'rgba(0,0,0,.45)';
+  modal.style.zIndex = '2000';
+  modal.style.display = 'flex';
+  modal.style.alignItems = 'flex-start';
+  modal.style.justifyContent = 'center';
+  modal.style.paddingTop = '72px';
+
+  const card = document.createElement('div');
+  card.style.width = '100%';
+  card.style.maxWidth = '860px';
+  card.style.background = '#fff';
+  card.style.borderRadius = '16px';
+  card.style.border = '1px solid var(--border)';
+  card.style.boxShadow = '0 16px 60px rgba(0,0,0,.25)';
+  card.style.overflow = 'hidden';
+
+  card.innerHTML = `
+    <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;">
+      <div>
+        <div style="font-size:13px;font-weight:800;color:var(--text);">Complaint Details</div>
+        <div style="font-size:11px;color:var(--sub);">#${id}</div>
+      </div>
+      <button onclick="closeComplaintDetail()" style="background:none;border:none;color:var(--blue);font-weight:800;cursor:pointer;font-size:13px;">Close</button>
+    </div>
+
+    <div style="padding:16px;max-height:72vh;overflow:auto;">
+      <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start;">
+        <div style="flex:1;min-width:320px;background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px;">
+          <div id="cd_basic_title" style="font-size:16px;font-weight:800;margin-bottom:6px;color:var(--text);">Loading…</div>
+          <div id="cd_basic_desc" style="font-size:13px;color:var(--sub);line-height:1.5;margin-bottom:10px;white-space:pre-wrap;">—</div>
+          <div id="cd_basic_tags" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;"> </div>
+          <div id="cd_basic_staff" style="font-size:13px;color:var(--sub);margin-bottom:8px;"></div>
+          <div id="cd_basic_badge" style="margin-bottom:8px;"></div>
+          <div style="margin-top:10px;">
+            <div style="font-size:12px;color:var(--sub);font-weight:700;margin-bottom:6px;">Status Update</div>
+            <div style="display:flex;gap:10px;align-items:center;">
+              <select id="cd_status" class="ss" style="flex:1;">
+                <option value="Pending">Pending</option>
+                <option value="Under Review">Under Review</option>
+                <option value="Resolved">Resolved</option>
+              </select>
+              <button onclick="cdUpdateStatus()" class="btn-sub" style="padding:11px 16px;white-space:nowrap;">Update</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="flex:1;min-width:320px;background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px;">
+          <div style="font-size:12px;color:var(--sub);font-weight:800;margin-bottom:10px;">Timeline</div>
+          <div id="cd_timeline" style="font-size:13px;color:var(--sub);line-height:1.6;white-space:pre-wrap;">
+            Loading timeline…
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:14px;background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
+          <div>
+            <div style="font-size:12px;color:var(--sub);font-weight:800;margin-bottom:4px;">Internal Admin Notes</div>
+            <div style="font-size:12px;color:var(--sub);">Admin-only. Stored as notification events.</div>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;">
+            <input id="cd_note_text" type="text" placeholder="Add admin note…" style="flex:1;min-width:220px;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;outline:none;" />
+            <button onclick="cdAddNote()" class="btn-sub" style="padding:11px 16px;">Add</button>
+          </div>
+        </div>
+          <div id="cd_notes" style="margin-top:10px;font-size:13px;color:var(--sub);line-height:1.6;white-space:pre-wrap;">
+          Loading notes…
+        </div>
+        <div id="cd_notes_gated" style="display:none;margin-top:10px;font-size:13px;color:var(--sub);line-height:1.6;">
+          Admin-only notes.
+        </div>
+      </div>
+    </div>
+  `;
+
+  modal.appendChild(card);
+  document.body.appendChild(modal);
+
+  // Store current complaint id for other handlers
+  window.__cd_id = id;
+
+    // Gate admin-only UI: hide note input and status update if not admin
+  const isAdmin = currentUser && currentUser.role === 'admin';
+
+  if (!isAdmin) {
+    // Hide admin note input + add button
+    const noteInput = card.querySelector('#cd_note_text');
+    if (noteInput) noteInput.style.display = 'none';
+    card.querySelectorAll('button').forEach(b => {
+      if ((b.getAttribute('onclick') || '').includes('cdAddNote')) b.style.display = 'none';
+    });
+
+    // Hide status update section
+    const statusBlock = card.querySelector('#cd_basic_title')?.closest('div');
+    // Fallback: find the select + Update button and hide their row.
+    const cdStatus = card.querySelector('#cd_status');
+    const updateBtn = Array.from(card.querySelectorAll('button')).find(b => (b.getAttribute('onclick') || '').includes('cdUpdateStatus'));
+    if (cdStatus) {
+      const row = cdStatus.closest('div');
+      if (row) row.style.display = 'none';
+      else cdStatus.style.display = 'none';
+    }
+    if (updateBtn) updateBtn.style.display = 'none';
+
+    // statusBlock variable kept for readability; nothing else required.
+    void statusBlock;
+  }
+
+  // Load details
+  cdLoadDetail(id);
+}
+
+async function cdLoadDetail(id) {
+  const basicTitle = document.getElementById('cd_basic_title');
+  const basicDesc  = document.getElementById('cd_basic_desc');
+  const basicTags  = document.getElementById('cd_basic_tags');
+  const timelineEl = document.getElementById('cd_timeline');
+  const notesEl    = document.getElementById('cd_notes');
+  const notesGatedEl = document.getElementById('cd_notes_gated');
+  const staffEl    = document.getElementById('cd_basic_staff');
+  const badgeEl    = document.getElementById('cd_basic_badge');
+
+  const isAdmin = currentUser && currentUser.role === 'admin';
+
+  try {
+    // Avoid failing the whole modal for students when admin notes are blocked.
+    const [detailData, timelineData] = await Promise.all([
+      apiFetch(`/complaints/${id}`),
+      apiFetch(`/complaints/${id}/timeline`),
+    ]);
+
+    let notesData = { notes: [] };
+    if (isAdmin) {
+      notesData = await apiFetch(`/complaints/${id}/admin/notes`).catch(() => ({ notes: [] }));
+    }
+
+    const c = detailData.complaint;
+
+    basicTitle.textContent = c.title;
+    basicDesc.textContent  = c.desc;
+    basicTags.innerHTML = `${sp(c.status)}<span class="pill p-cat">${esc(c.cat)}</span>${pp(c.pri)}<span class="pill" style="background:var(--blue-l;color:var(--blue);">${esc(c.faculty||'')}</span>`;
+
+    staffEl.textContent = c.staff ? `Assigned to: ${c.staff}` : '';
+    badgeEl.innerHTML = c.escalated ? '<span class="pill p-hi">Escalated</span>' : '';
+
+    // Render timeline
+    const timeline = timelineData.timeline || [];
+    timelineEl.innerHTML = timeline.length
+      ? timeline.map(ev => {
+          const ts = ev.created_at ? esc(ev.created_at) : '';
+          const title = ev.title ? esc(ev.title) : esc(ev.type || 'Update');
+          const msg = ev.message ? esc(ev.message) : '';
+          return `
+            <div style="display:flex;flex-direction:column;gap:4px;padding:10px 0;border-bottom:1px solid var(--border);">
+              <div style="font-size:12px;color:var(--sub);font-weight:700;display:flex;justify-content:space-between;gap:10px;">
+                <span>${title}</span>
+                <span style="font-weight:600;opacity:.9">${ts}</span>
+              </div>
+              <div style="font-size:13px;color:var(--sub);line-height:1.6;white-space:pre-wrap;">${msg}</div>
+            </div>
+          `;
+        }).join('')
+      : '<div style="color:var(--sub)">No timeline events yet.</div>';
+
+    // Render admin notes
+    if (!isAdmin) {
+      if (notesEl) notesEl.style.display = 'none';
+      if (notesGatedEl) notesGatedEl.style.display = 'block';
+    } else {
+      if (notesEl) notesEl.style.display = 'block';
+      if (notesGatedEl) notesGatedEl.style.display = 'none';
+
+      const notes = notesData.notes || [];
+      notesEl.innerHTML = notes.length
+        ? notes.map(n => {
+            const ts = n.created_at ? esc(n.created_at) : '';
+            return `
+              <div style="padding:10px 0;border-bottom:1px solid var(--border);">
+                <div style="font-size:11px;color:var(--sub);font-weight:800;margin-bottom:4px;display:flex;justify-content:space-between;gap:10px;">
+                  <span>Admin note</span>
+                  <span style="font-weight:600;opacity:.9">${ts}</span>
+                </div>
+                <div style="font-size:13px;color:var(--sub);white-space:pre-wrap;line-height:1.6">${esc(n.text)}</div>
+              </div>
+            `;
+          }).join('')
+        : '<div style="color:var(--sub)">No admin notes yet.</div>';
+    }
+
+  } catch (e) {
+    basicTitle.textContent = 'Error loading complaint';
+    basicDesc.textContent = e.message;
+    timelineEl.textContent = '—';
+    notesEl.textContent = '—';
+  }
+}
+
+function closeComplaintDetail() {
+  const existing = document.getElementById('compDetailModal');
+  if (existing) existing.remove();
+}
+
+async function cdUpdateStatus() {
+  const id = window.__cd_id;
+  const sel = document.getElementById('cd_status');
+  if (!id || !sel) return;
+  try {
+    await apiFetch(`/complaints/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify({ status: sel.value })
+    });
+    toast('Status updated');
+    // refresh lists depending on current page
+    if (document.getElementById('pg-admin')?.style.display !== 'none') ra(); else rf();
+  } catch (e) {
+    toast(e.message, false);
+  }
+}
+
+async function cdAddNote() {
+  const id = window.__cd_id;
+  const input = document.getElementById('cd_note_text');
+  const txt = input?.value?.trim();
+  if (!id || !txt) return;
+  try {
+    await apiFetch(`/complaints/${id}/admin/notes`, {
+      method: 'POST',
+      body: JSON.stringify({ note: txt })
+    });
+    input.value = '';
+    toast('Admin note added');
+    // reload
+    cdLoadDetail(id);
+  } catch (e) {
+    toast(e.message, false);
+  }
+}
+
 async function vote(id) {
   try {
     const data = await apiFetch(`/complaints/${id}/vote`, { method: 'POST' });
+
     // Update the local cache entry
     const c = allComplaints.find(x => x.id === id);
     if (c) { c.votes = data.votes; c.voted = data.voted; }
@@ -883,7 +1125,7 @@ async function rt() {
   try {
     const params = new URLSearchParams();
     if (q) params.set('search', q);
-    const data = await apiFetch('/complaints?' + params);
+    const data = await apiFetch('/complaints/my?' + params);
     const list = data.complaints;
     document.getElementById('tp').textContent   = list.filter(c => c.status === 'Pending').length;
     document.getElementById('tr2').textContent  = list.filter(c => c.status === 'Under Review').length;
@@ -936,15 +1178,19 @@ async function ra() {
         <div class="cbg"><div class="cf2" style="width:${(c.count / mx) * 100}%"></div></div>
         <span class="cc2">${c.count}</span>
       </div>`).join('');
+
     const list = listData.complaints;
     document.getElementById('atitle').textContent = `Complaints (${list.length})`;
+
+    // Render cards first, then enrich with admin-note counts (light extra calls)
     document.getElementById('alist').innerHTML = list.length
       ? list.map(c => `
-        <div class="acard">
-          <div class="at">${esc(c.title)}</div>
-          <div class="ad">${esc(c.desc)}</div>
+        <div class="acard" data-cid="${c.id}">
+          <div class="at" style="cursor:pointer" onclick="openComplaintDetail(${c.id})">${esc(c.title)}</div>
+          <div class="ad" style="cursor:pointer" onclick="openComplaintDetail(${c.id})">${esc(c.desc)}</div>
           <div class="atags">${sp(c.status)}<span class="pill p-cat">${esc(c.faculty)}</span>${pp(c.pri)}</div>
           <div class="aa">Assigned to: <span>${esc(c.dept)}</span></div>
+          <div class="aa" style="margin-top:-4px">Admin notes: <span id="an-${c.id}">—</span></div>
           <div class="aft">
             <div class="afl">${c.votes} upvotes &nbsp; ${ta(c.days)}</div>
             <select class="ss" onchange="updStatus(${c.id}, this.value)">
@@ -955,6 +1201,20 @@ async function ra() {
           </div>
         </div>`).join('')
       : '<div class="loading">No complaints match the current filters.</div>';
+
+    // Fetch admin notes for each complaint and show the count in the card.
+    // (Keeps the list readable; the full note text is available in the modal.)
+    await Promise.all(list.map(async (c) => {
+      try {
+        const notes = await apiFetch(`/complaints/${c.id}/admin/notes`);
+        const count = notes?.notes?.length ?? 0;
+        const el = document.getElementById(`an-${c.id}`);
+        if (el) el.textContent = String(count);
+      } catch {
+        const el = document.getElementById(`an-${c.id}`);
+        if (el) el.textContent = '—';
+      }
+    }));
   } catch (e) {
     toast(e.message, false);
   }

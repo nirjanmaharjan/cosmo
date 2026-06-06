@@ -1,11 +1,16 @@
 // utils/aiCategorizer.js — AI-powered complaint categorization & sensitivity detection
 'use strict';
 
-const Groq = require('groq-sdk').default;
+// groq-sdk export style may differ between versions (default vs named export)
+const GroqImport = require('groq-sdk');
+const Groq = GroqImport?.default || GroqImport;
 
-const client = process.env.GROQ_API_KEY
-  ? new Groq({ apiKey: process.env.GROQ_API_KEY })
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
+
+const client = GROQ_API_KEY
+  ? new Groq({ apiKey: GROQ_API_KEY })
   : null;
+
 
 const VALID_FACULTIES = ['Food', 'Library', 'Hostel', 'Infrastructure', 'Staff', 'Others'];
 const VALID_PRIORITIES = ['High', 'Medium', 'Low'];
@@ -17,8 +22,11 @@ const VALID_PRIORITIES = ['High', 'Medium', 'Low'];
 async function categorizeComplaint(title, description) {
   if (!client) {
     // Groq not configured; fall back to safe defaults.
+    // Keep this explicit so you notice missing env/config during development.
+    console.warn('[aiCategorizer] GROQ_API_KEY not set; using fallback categorization.');
     return { is_sensitive: false, faculty: 'Others', priority: 'Medium' };
   }
+
 
   try {
     const prompt = `Analyze this college complaint and categorize it.
@@ -40,31 +48,68 @@ Guidelines:
 
 Respond with ONLY the JSON object.`;
 
-    const response = await client.chat.completions.create({
-      // Try a model likely to be supported; if Groq decommissions it again,
-      // update the model string.
-      // Model choice changes frequently. You should set GROQ_MODEL in `.env`.
-      // If GROQ_MODEL is empty, we still want the app to work (handled earlier),
-      // but keep a benign placeholder here.
-      model: process.env.GROQ_MODEL || 'llama3-70b-8192',
-      max_tokens: 100,
-      messages: [
-        {
-          role: 'user',
-          content: prompt,
-        },
-      ],
-    });
+    // Try a small list of candidate models because Groq frequently deprecates models.
+    const candidateModels = [
+      process.env.GROQ_MODEL,
+      'llama-3.1-70b-versatile',
+      'llama3-70b-8192',
+      'llama3-8b-8192',
+      'mixtral-8x7b-32768',
+      'gemma2-9b-it',
+      'llama2-70b-4096',
+    ].filter(Boolean);
 
-    const text = response.choices[0].message.content;
-    let result;
-    
-    try {
-      result = JSON.parse(text);
-    } catch (e) {
-      console.warn('Failed to parse AI response:', text);
+    let lastErr;
+    let response = null;
+
+    for (const model of candidateModels) {
+      try {
+        response = await client.chat.completions.create({
+          model,
+          temperature: 0,
+          max_completion_tokens: 200,
+          max_tokens: 200,
+          messages: [
+            {
+              role: 'user',
+              content: prompt,
+            },
+          ],
+        });
+        break;
+      } catch (err) {
+        lastErr = err;
+      }
+    }
+
+    if (!response) {
+      console.error('[aiCategorizer] Groq call failed for all candidate models:', {
+        message: lastErr?.message,
+      });
       return { is_sensitive: false, faculty: 'Others', priority: 'Medium' };
     }
+
+    const text =
+      response?.choices?.[0]?.message?.content ??
+      response?.choices?.[0]?.delta?.content ??
+      '';
+
+
+    // Robust JSON extraction: grab the first {...} block.
+    const match = String(text).match(/\{[\s\S]*\}/);
+    const jsonText = match ? match[0] : text;
+
+    let result;
+    try {
+      result = JSON.parse(jsonText);
+    } catch (e) {
+      console.warn('Failed to parse AI response JSON.', {
+        raw: String(text).slice(0, 500),
+        error: e?.message,
+      });
+      return { is_sensitive: false, faculty: 'Others', priority: 'Medium' };
+    }
+
 
     // Validate and sanitize response
     const is_sensitive = typeof result.is_sensitive === 'boolean' ? result.is_sensitive : false;

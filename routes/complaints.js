@@ -1,10 +1,10 @@
 // routes/complaints.js
 const express = require('express');
 const path = require('path');
-const fs = require('fs');
+
 const db      = require('../db');
 const { requireAuth, requireAdmin } = require('../middleware/auth');
-const upload = require('../middleware/upload');
+
 const { categorizeComplaint } = require('../utils/aiCategorizer');
 
 const router = express.Router();
@@ -248,7 +248,7 @@ router.get('/my', requireAuth, async (req, res) => {
 // Admins see all complaints. Query params: status, faculty, sort (votes|new|old), search
 router.get('/', requireAuth, async (req, res) => {
   try {
-    const { status, faculty, sort = 'votes', search } = req.query;
+    const { status, faculty, category, sort = 'votes', search } = req.query;
 
     let sql = 'SELECT * FROM complaints WHERE 1=1';
     const params = [];
@@ -332,12 +332,43 @@ router.get('/:id', requireAuth, async (req, res) => {
     // Fetch attachments
     const attachments = await fetchAttachments(row.id);
 
-    res.json({ complaint: format(row, voted ? new Set([row.id]) : new Set(), attachments) });
+    // Enrich with staff/escalation flags derived from notifications (no schema changes)
+    const staffRow = await new Promise((resolve, reject) => {
+      db.get(
+        `SELECT message
+         FROM notifications
+         WHERE complaint_id = ? AND type = 'staff_assignment'
+         ORDER BY created_at DESC
+         LIMIT 1`,
+        [row.id],
+        (err, r) => (err ? reject(err) : resolve(r))
+      );
+    });
+
+    const escalatedRow = await new Promise((resolve, reject) => {
+      db.get(
+        `SELECT 1 as ok
+         FROM notifications
+         WHERE complaint_id = ? AND type = 'escalation'
+         ORDER BY created_at DESC
+         LIMIT 1`,
+        [row.id],
+        (err, r) => (err ? reject(err) : resolve(r))
+      );
+    });
+
+    const formatted = format(row, voted ? new Set([row.id]) : new Set(), attachments);
+    formatted.staff = staffRow?.message || null;
+    formatted.escalated = !!escalatedRow;
+
+    res.json({ complaint: formatted });
   } catch (err) {
     console.error('Get complaint error:', err);
     res.status(500).json({ error: 'Internal server error.' });
   }
 });
+
+
 
 
 // ── POST /api/complaints ──────────────────────────────────────────────────────
@@ -374,9 +405,16 @@ router.post('/', requireAuth, async (req, res) => {
     
     // Preserve mapped faculty (from request category) when present.
     // Use AI for sensitivity detection, and only override priority when caller didn't provide a valid one.
-    fac = fac && VALID_FACULTIES.includes(fac) ? fac : aiResult.faculty;
+    // If AI fails or returns something unexpected, keep/make a best-effort faculty.
+    const aiFac = aiResult.faculty;
+    const finalFac = (fac && VALID_FACULTIES.includes(fac))
+      ? fac
+      : (VALID_FACULTIES.includes(aiFac) ? aiFac : 'Others');
+
+    fac = finalFac;
     pri = (priority && VALID_PRIORITIES.includes(priority)) ? priority : aiResult.priority;
     sens = aiResult.is_sensitive;
+
 
 
     // Validate faculty and priority (redundant but safe)
@@ -388,7 +426,20 @@ router.post('/', requireAuth, async (req, res) => {
     }
 
     const dept = DEPT_MAP[fac] || 'Administration';
-    const cat = VALID_CATEGORIES[Math.floor(Math.random() * VALID_CATEGORIES.length)]; // Legacy category
+
+    // Store a stable `category` value in DB so frontend category filters match AI output.
+    // Frontend expects: Food Services | Facilities | Library | Hostel | Security
+    const facultyToCategory = {
+      Food: 'Food Services',
+      Infrastructure: 'Facilities',
+      Library: 'Library',
+      Hostel: 'Hostel',
+      Staff: 'Security',
+      Others: 'Facilities',
+    };
+
+    const cat = facultyToCategory[fac] || 'Facilities';
+
 
     const info = await new Promise((resolve, reject) => {
       db.run(`
@@ -584,135 +635,213 @@ router.delete('/:id', requireAuth, requireAdmin, async (req, res) => {
   }
 });
 
-// ── POST /api/complaints/:id/attachments ──────────────────────────────────────
-// Upload attachment to a complaint
-router.post('/:id/attachments', requireAuth, upload.single('file'), async (req, res) => {
+// (Attachments feature removed: no endpoints for listing/uploading/deleting files.)
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Admin Notes + Complaint Timeline + Staff Assignment + Escalation badge
+// Implemented using existing `notifications` table only (no schema changes).
+// Notification `type` conventions:
+// - admin_note: internal admin notes (message contains note text)
+// - timeline_event: generic timeline events (message contains event text)
+// - staff_assignment: staff assignment events (message contains staff identifier/name)
+// - escalation: escalation events (message contains reason/text)
+//
+// Admin Notes
+
+router.get('/:id/admin/notes', requireAuth, requireAdmin, async (req, res) => {
   try {
-    const complaintId = parseInt(req.params.id, 10);
-
-    // Check if complaint exists and user has permission
-    const complaint = await new Promise((resolve, reject) => {
-      db.get('SELECT * FROM complaints WHERE id = ?', [complaintId], (err, row) => {
-        if (err) reject(err);
-        else resolve(row);
-      });
-    });
-    if (!complaint) return res.status(404).json({ error: 'Complaint not found.' });
-
-    // Only owner and admin can upload
-    if (req.user?.role !== 'admin' && complaint.submitter_id !== req.user.id) {
-      return res.status(403).json({ error: 'Access denied.' });
-    }
-
-    // File must be present
-    if (!req.file) {
-      return res.status(400).json({ error: 'No file uploaded.' });
-    }
-
-    // Check total file size for complaint (200MB limit)
-    const totalSize = await new Promise((resolve, reject) => {
-      db.get(
-        'SELECT SUM(file_size) as total FROM attachments WHERE complaint_id = ?',
-        [complaintId],
-        (err, row) => {
-          if (err) reject(err);
-          else resolve((row?.total || 0) + req.file.size);
-        }
+    const id = Number(req.params.id);
+    const rows = await new Promise((resolve, reject) => {
+      db.all(
+        `SELECT id, message, created_at, title, type, is_read
+         FROM notifications
+         WHERE complaint_id = ? AND type = 'admin_note'
+         ORDER BY created_at ASC`,
+        [id],
+        (err, rows) => (err ? reject(err) : resolve(rows || []))
       );
     });
 
-    if (totalSize > 200 * 1024 * 1024) {
-      // Delete uploaded file and respond with error
-      fs.unlinkSync(req.file.path);
-      return res.status(400).json({ error: 'Total attachment size exceeds 200MB limit.' });
-    }
-
-    // Insert attachment record
-    const attachResult = await new Promise((resolve, reject) => {
-      db.run(
-        'INSERT INTO attachments (complaint_id, filename, original_name, file_type, file_size) VALUES (?, ?, ?, ?, ?)',
-        [complaintId, req.file.filename, req.file.originalname, req.file.mimetype, req.file.size],
-        function (err) {
-          if (err) reject(err);
-          else resolve(this);
-        }
-      );
-    });
-
-    res.status(201).json({
-      attachment: {
-        id: attachResult.lastID,
-        name: req.file.originalname,
-        type: req.file.mimetype,
-        size: req.file.size,
-        url: `/uploads/complaints/${req.file.filename}`,
-      }
-    });
+    res.json({ notes: rows.map(r => ({ id: r.id, text: r.message, created_at: r.created_at })) });
   } catch (err) {
-    // Clean up uploaded file on error
-    if (req.file) {
-      try {
-        fs.unlinkSync(req.file.path);
-      } catch (e) {
-        console.warn('Failed to cleanup file:', e.message);
-      }
-    }
-    console.error('Upload attachment error:', err);
+    console.error('Get admin notes error:', err);
     res.status(500).json({ error: 'Internal server error.' });
   }
 });
 
-// ── DELETE /api/complaints/:id/attachments/:attachmentId ───────────────────────
-// Delete specific attachment
-router.delete('/:id/attachments/:attachmentId', requireAuth, async (req, res) => {
+router.post('/:id/admin/notes', requireAuth, requireAdmin, async (req, res) => {
   try {
-    const complaintId = parseInt(req.params.id, 10);
-    const attachmentId = parseInt(req.params.attachmentId, 10);
+    const id = Number(req.params.id);
+    const { note } = req.body || {};
+    if (!note?.trim()) return res.status(400).json({ error: 'Missing note.' });
 
-    // Check if complaint exists and user has permission
+    // Validate complaint exists
     const complaint = await new Promise((resolve, reject) => {
-      db.get('SELECT * FROM complaints WHERE id = ?', [complaintId], (err, row) => {
-        if (err) reject(err);
-        else resolve(row);
-      });
+      db.get('SELECT id FROM complaints WHERE id = ?', [id], (err, row) => (err ? reject(err) : resolve(row)));
     });
     if (!complaint) return res.status(404).json({ error: 'Complaint not found.' });
 
-    // Only owner and admin can delete
+    // Store note as notification event for the admin (user_id = admin)
+    await new Promise((resolve, reject) => {
+      db.run(
+        `INSERT INTO notifications (user_id, complaint_id, title, message, type, is_read)
+         VALUES (?, ?, ?, ?, 'admin_note', 0)`,
+        [req.user.id, id, 'Admin note', note.trim()],
+        (err) => (err ? reject(err) : resolve())
+      );
+    });
+
+    res.status(201).json({ message: 'Admin note added.' });
+  } catch (err) {
+    console.error('Add admin note error:', err);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+});
+
+// Timeline (admin + owner)
+router.get('/:id/timeline', requireAuth, async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+
+    const complaint = await new Promise((resolve, reject) => {
+      db.get('SELECT * FROM complaints WHERE id = ?', [id], (err, row) => (err ? reject(err) : resolve(row)));
+    });
+    if (!complaint) return res.status(404).json({ error: 'Complaint not found.' });
+
+    if (req.user?.role !== 'admin' && complaint.submitter_id !== req.user.id) {
+      return res.status(403).json({ error: 'Access denied.' });
+    }
+    if (req.user?.role !== 'admin' && complaint.is_sensitive) {
+      return res.status(403).json({ error: 'Sensitive complaints are for admin only.' });
+    }
+
+    const rows = await new Promise((resolve, reject) => {
+      db.all(
+        `SELECT id, title, message, type, created_at, user_id
+         FROM notifications
+         WHERE complaint_id = ?
+           AND type IN ('status_event','timeline_event','admin_note','staff_assignment','escalation','status')
+         ORDER BY created_at ASC`,
+        [id],
+        (err, rows) => (err ? reject(err) : resolve(rows || []))
+      );
+    });
+
+    res.json({ timeline: rows.map(r => ({ id: r.id, type: r.type, title: r.title, message: r.message, created_at: r.created_at })) });
+  } catch (err) {
+    console.error('Get timeline error:', err);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+});
+
+// Staff assignment display
+router.get('/:id/staff', requireAuth, async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+
+    const complaint = await new Promise((resolve, reject) => {
+      db.get('SELECT * FROM complaints WHERE id = ?', [id], (err, row) => (err ? reject(err) : resolve(row)));
+    });
+    if (!complaint) return res.status(404).json({ error: 'Complaint not found.' });
+
     if (req.user?.role !== 'admin' && complaint.submitter_id !== req.user.id) {
       return res.status(403).json({ error: 'Access denied.' });
     }
 
-    // Get attachment
-    const attachment = await new Promise((resolve, reject) => {
-      db.get('SELECT * FROM attachments WHERE id = ? AND complaint_id = ?', [attachmentId, complaintId], (err, row) => {
-        if (err) reject(err);
-        else resolve(row);
-      });
-    });
-    if (!attachment) return res.status(404).json({ error: 'Attachment not found.' });
-
-    // Delete file from filesystem
-    const filePath = path.join(__dirname, '../public/uploads/complaints', attachment.filename);
-    try {
-      fs.unlinkSync(filePath);
-    } catch (err) {
-      console.warn(`Failed to delete file ${attachment.filename}:`, err.message);
-    }
-
-    // Delete from database
-    await new Promise((resolve, reject) => {
-      db.run('DELETE FROM attachments WHERE id = ?', [attachmentId], (err) => {
-        if (err) reject(err);
-        else resolve();
-      });
+    const row = await new Promise((resolve, reject) => {
+      db.get(
+        `SELECT message, created_at
+         FROM notifications
+         WHERE complaint_id = ? AND type = 'staff_assignment'
+         ORDER BY created_at DESC
+         LIMIT 1`,
+        [id],
+        (err, row) => (err ? reject(err) : resolve(row))
+      );
     });
 
-    res.json({ message: 'Attachment deleted.' });
+    res.json({ staff: row?.message || null });
   } catch (err) {
-    console.error('Delete attachment error:', err);
+    console.error('Get staff error:', err);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+});
+
+router.post('/:id/staff', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const { staff } = req.body || {};
+    if (!staff?.trim()) return res.status(400).json({ error: 'Missing staff.' });
+
+    const complaint = await new Promise((resolve, reject) => {
+      db.get('SELECT id FROM complaints WHERE id = ?', [id], (err, row) => (err ? reject(err) : resolve(row)));
+    });
+    if (!complaint) return res.status(404).json({ error: 'Complaint not found.' });
+
+    await new Promise((resolve, reject) => {
+      db.run(
+        `INSERT INTO notifications (user_id, complaint_id, title, message, type, is_read)
+         VALUES (?, ?, 'Staff assignment', ?, 'staff_assignment', 0)`,
+        [req.user.id, id, staff.trim()],
+        (err) => (err ? reject(err) : resolve())
+      );
+    });
+
+    res.status(201).json({ message: 'Staff assigned.' });
+  } catch (err) {
+    console.error('Assign staff error:', err);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+});
+
+// Escalation badge
+router.get('/:id/escalated', requireAuth, async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const row = await new Promise((resolve, reject) => {
+      db.get(
+        `SELECT 1 as ok
+         FROM notifications
+         WHERE complaint_id = ? AND type = 'escalation'
+         ORDER BY created_at DESC
+         LIMIT 1`,
+        [id],
+        (err, row) => (err ? reject(err) : resolve(row))
+      );
+    });
+    res.json({ escalated: !!row });
+  } catch (err) {
+    console.error('Get escalated error:', err);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+});
+
+router.post('/:id/escalation', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const { reason } = req.body || {};
+    if (!reason?.trim()) return res.status(400).json({ error: 'Missing reason.' });
+
+    const complaint = await new Promise((resolve, reject) => {
+      db.get('SELECT id FROM complaints WHERE id = ?', [id], (err, row) => (err ? reject(err) : resolve(row)));
+    });
+    if (!complaint) return res.status(404).json({ error: 'Complaint not found.' });
+
+    await new Promise((resolve, reject) => {
+      db.run(
+        `INSERT INTO notifications (user_id, complaint_id, title, message, type, is_read)
+         VALUES (?, ?, 'Escalation', ?, 'escalation', 0)`,
+        [req.user.id, id, reason.trim()],
+        (err) => (err ? reject(err) : resolve())
+      );
+    });
+
+    res.status(201).json({ message: 'Complaint escalated.' });
+  } catch (err) {
+    console.error('Escalation error:', err);
     res.status(500).json({ error: 'Internal server error.' });
   }
 });
 
 module.exports = router;
+
