@@ -17,21 +17,27 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .page{display:none;min-height:100vh;flex-direction:column}
 .page.active{display:flex}
 #pg-login{flex-direction:row!important}
-
 /* Notifications */
 .notifDot{position:absolute;right:4px;top:4px;width:8px;height:8px;border-radius:9999;background:var(--red);display:none}
-
-#notifPanel{position:absolute;top:calc(100% + 10px);right:0;background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.12);min-width:320px;z-index:300;overflow:hidden;animation:dd .15s ease;display:none}
-#notifPanel.open{display:block}
-#notifList{max-height:340px;overflow:auto}
+/* Overlay notification page */
+#notifOverlay{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:1000;display:none;align-items:flex-start;justify-content:center;padding-top:70px;}
+#notifOverlay.open{display:flex;}
+/* Prevent UI layering issues */
+#notifPanel{z-index:950;}
+/* Ensure body click doesn't keep overlays stuck */
+#notifOverlay{pointer-events:auto;}
+#notifPanel{pointer-events:auto;}
+#notifOverlayCard{width:100%;max-width:520px;background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:0 16px 60px rgba(0,0,0,.22);overflow:hidden;animation:dd .15s ease;}
+#notifOverlayHeader{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;}
+#notifOverlayHeader .title{font-size:13px;font-weight:700;color:var(--text);}
+#notifOverlayHeader button{background:none;border:none;color:var(--blue);font-weight:700;cursor:pointer;font-size:13px;}
+#notifListOverlay{max-height:420px;overflow:auto;}
 .notifItem{padding:12px 16px;border-bottom:1px solid var(--border)}
 .notifItem:last-child{border-bottom:none}
 .notifItem.unread{background:var(--blue-l)}
 .notifTitle{font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px}
 .notifMeta{font-size:11px;color:var(--sub);margin-bottom:8px}
 .notifSummary{font-size:12px;color:var(--sub);line-height:1.5;white-space:pre-wrap}
-
-
 /* LOGIN */
 .ll{width:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:76px 80px;background:#fff;position:relative}
 .brand{display:flex;align-items:center;gap:12px;margin-bottom:44px;align-self:flex-start}
@@ -40,8 +46,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .brand h2{font-size:22px;font-weight:900;letter-spacing:-0.02em}
 .brand p{font-size:14px;color:var(--sub);margin-top:2px}
 .form-box{width:100%;max-width:370px}
-
-
 .form-box h1{font-size:26px;font-weight:700;margin-bottom:6px}
 .form-box .sub{font-size:14px;color:var(--sub);margin-bottom:28px}
 .fg{margin-bottom:18px}
@@ -62,7 +66,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .demo strong{display:block;margin-bottom:5px}
 .demo span{color:var(--blue);display:block}
 .demo .pwd{color:var(--sub)}
-
 .lr{width:50%;background:linear-gradient(135deg,#2563EB,#7C3AED);display:flex;align-items:center;justify-content:center;padding:60px;position:relative;overflow:hidden}
 .lr::before{content:'';position:absolute;width:400px;height:400px;border-radius:50%;background:rgba(255,255,255,.05);top:-100px;right:-100px}
 .lr::after{content:'';position:absolute;width:280px;height:280px;border-radius:50%;background:rgba(255,255,255,.04);bottom:-80px;left:-60px}
@@ -86,7 +89,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .t-rev{background:#EFF6FF;color:var(--blue)}
 .t-lib{background:#EDE9FE;color:#7C3AED}
 .sc .meta{font-size:11px;color:var(--sub)}
-
 /* NAVBAR */
 .nav{background:#fff;border-bottom:1px solid var(--border);padding:0 28px;height:58px;display:flex;align-items:center;position:sticky;top:0;z-index:100}
 .nb{display:flex;align-items:center;gap:9px;margin-right:auto}
@@ -108,7 +110,6 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .dd-item{display:flex;align-items:center;gap:10px;padding:12px 16px;font-size:14px;color:var(--text);cursor:pointer;transition:background .15s;border:none;background:none;width:100%;font-family:inherit;text-align:left}
 .dd-item:hover{background:var(--bg)}
 .dd-item svg{width:16px;height:16px;color:var(--sub)}
-
 /* HOME */
 .hc{max-width:740px;margin:0 auto;padding:28px 20px 80px}
 .inline-form{background:#fff;border-radius:14px;padding:32px 36px;width:100%;border:1px solid var(--border);box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:22px;display:none}
@@ -159,7 +160,6 @@ select:focus{border-color:var(--blue)}
 .vb svg{width:13px;height:13px}
 .ta{font-size:14px;color:#6B7280}
 .loading{text-align:center;padding:40px;color:var(--sub)}
-
 /* TRACK */
 .tc{max-width:840px;margin:0 auto;padding:36px 20px}
 .tc h1{font-size:24px;font-weight:700;margin-bottom:4px}
@@ -186,7 +186,6 @@ select:focus{border-color:var(--blue)}
 .tdesc{font-size:13px;color:var(--sub);margin-bottom:14px;line-height:1.5}
 .pr{display:flex;justify-content:space-between;margin-bottom:5px}
 .pr span{font-size:12px;color:var(--sub)}
-
 .pb{background:var(--blue)}.py{background:#F59E0B}.pg{background:var(--green)}
 .tm{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--sub);justify-content:space-between}
 .tm .mi{display:flex;gap:3px}
@@ -194,7 +193,6 @@ select:focus{border-color:var(--blue)}
 .phi{color:var(--red)!important;font-weight:600}
 .pme{color:var(--orange)!important;font-weight:600}
 .plo{color:var(--green)!important;font-weight:600}
-
 /* ADMIN */
 .ac{max-width:1080px;margin:0 auto;padding:36px 20px}
 .ac h1{font-size:24px;font-weight:700;margin-bottom:4px}
@@ -232,13 +230,11 @@ select:focus{border-color:var(--blue)}
 .acard .aft{display:flex;justify-content:space-between;align-items:center}
 .afl{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--sub)}
 .ss{padding:6px 11px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;font-family:inherit;color:var(--text);background:#fff;cursor:pointer;outline:none}
-
 /* TOAST */
 .toast{position:fixed;bottom:28px;right:28px;z-index:999;background:#111;color:#fff;padding:13px 18px;border-radius:10px;font-size:14px;box-shadow:0 8px 28px rgba(0,0,0,.3);display:flex;align-items:center;gap:9px;transform:translateY(80px);opacity:0;transition:all .3s;pointer-events:none}
 .toast.show{transform:translateY(0);opacity:1}
 .toast.ok{background:#166534}
 .toast svg{width:17px;height:17px;color:#86efac}
-
 @media(max-width:860px){
   #pg-login{flex-direction:column!important}
   #pg-register{flex-direction:column!important}
@@ -249,7 +245,6 @@ select:focus{border-color:var(--blue)}
   .scards{grid-template-columns:1fr}
   .inline-form{padding:20px}
 }
-
 /* REGISTER */
 #pg-register{flex-direction:row!important}
 .rl{width:50%;background:#fff;display:flex;align-items:center;justify-content:center;padding:60px;}
@@ -264,14 +259,11 @@ select:focus{border-color:var(--blue)}
 .btn-google svg{width:18px;height:18px}
 .a-link{font-size:13px;color:var(--blue);font-weight:600;text-decoration:none;cursor:pointer}
 .small-note{font-size:12px;color:var(--sub);margin-top:12px;line-height:1.5}
-
 </style>
 </head>
 <body>
-
 <!-- LOGIN -->
 <div id="pg-login" class="page active">
-
   <div class="ll">
     <div class="brand" style="position:absolute;top:26px;left:34px;margin:0">
       <div class="brand-ico">
@@ -282,8 +274,6 @@ select:focus{border-color:var(--blue)}
         <p style="margin:0">College Complaint System</p>
       </div>
     </div>
-
-
     <!-- brand duplicated in top-left; hide original -->
     <div class="brand" style="display:none">
       <div class="brand-ico">
@@ -340,7 +330,6 @@ select:focus{border-color:var(--blue)}
     </div>
   </div>
 </div>
-
 <!-- REGISTER -->
 <div id="pg-register" class="page">
   <div class="rl">
@@ -351,10 +340,8 @@ select:focus{border-color:var(--blue)}
         </div>
         <div><h2>SafeVoice</h2><p>College Complaint System</p></div>
       </div>
-
       <h1>Create your account</h1>
       <p class="rsub">Use your student email to sign up</p>
-
       <div class="fg">
         <label>Email Address</label>
         <div class="iw">
@@ -362,7 +349,6 @@ select:focus{border-color:var(--blue)}
           <input type="email" id="reg-email" placeholder="you@college.edu">
         </div>
       </div>
-
       <div class="fg">
         <label>Password</label>
         <div class="iw">
@@ -370,7 +356,6 @@ select:focus{border-color:var(--blue)}
           <input type="password" id="reg-pw" placeholder="Create a password">
         </div>
       </div>
-
       <div class="fg">
         <label>Confirm Password</label>
         <div class="iw">
@@ -378,25 +363,20 @@ select:focus{border-color:var(--blue)}
           <input type="password" id="reg-pw2" placeholder="Repeat password">
         </div>
       </div>
-
       <button class="btn-blue" id="reg-btn" onclick="register()">Create account</button>
-
       <div class="sep">
         <span>or continue with</span>
       </div>
-
       <button class="btn-google" onclick="toast('Google sign-in is UI-only in this demo. Use email signup instead.', true)">
         <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#EA4335" d="M12 10.2v3.6h5.2c-.2 1.2-1.4 3.6-5.2 3.6-3.1 0-5.6-2.6-5.6-5.8s2.5-5.8 5.6-5.8c1.8 0 3 .7 3.7 1.4l2.5-2.4C18.4 3.8 16.2 2.6 12 2.6 6.7 2.6 2.5 6.9 2.5 12.8S6.7 23 12 23c5.8 0 9.6-4.1 9.6-9.9 0-.7-.1-1.3-.2-1.9H12z"/><path fill="#4285F4" d="M3.1 8.9l3 2.3c.8-2 2.9-3.4 5.9-3.4 1.8 0 3 .7 3.7 1.4l2.5-2.4c-1.4-1.4-3.6-2.6-6.2-2.6-3 0-5.8 1.2-7.9 3.2z"/><path fill="#FBBC05" d="M21.6 13.1c.1-.6.2-1.2.2-1.8 0-.6-.1-1.2-.2-1.8H12V12.2h9.6z"/><path fill="#34A853" d="M12 22.9c4.5 0 8.2-2.1 9.4-6.3l-3.1-2.4c-.6 2-2.4 4.1-6.3 4.1-2.9 0-5.4-1.7-6.3-4l-3.1 2.4c1.2 4.1 5 6.2 8.4 6.2z"/></svg>
         Continue with Google
       </button>
-
       <p class="small-note">
         Already have an account? <a class="a-link" onclick="go('login')">Sign in</a>
       </p>
     </div>
   </div>
 </div>
-
 <!-- HOME -->
 <div id="pg-home" class="page">
   <nav class="nav">
@@ -422,8 +402,17 @@ select:focus{border-color:var(--blue)}
           </div>
           <div id="notifList" style="max-height:340px;overflow:auto"></div>
         </div>
+        <!-- Overlay root (single source of truth) -->
+        <div id="notifOverlay" onclick="closeNotifOverlay()">
+          <div id="notifOverlayCard" onclick="event.stopPropagation()">
+            <div id="notifOverlayHeader">
+              <span class="title">Notifications</span>
+              <button onclick="markAllRead()">Mark all read</button>
+            </div>
+            <div id="notifListOverlay"></div>
+          </div>
+        </div>
       </div>
-
       <div class="av-wrap">
         <button class="av" id="av1" onclick="toggleDD(event)">S</button>
         <div class="profile-dd" id="dd1">
@@ -432,7 +421,6 @@ select:focus{border-color:var(--blue)}
         </div>
       </div>
     </div>
-
   </nav>
   <div class="hc">
     <div class="inp-bar" id="inp-bar" onclick="openM()">
@@ -448,7 +436,6 @@ select:focus{border-color:var(--blue)}
       <textarea id="cd" placeholder="Describe your complaint in detail..."></textarea>
       <input type="file" id="cp-photo" accept="image/*,video/*" style="width:100%;">
       <select id="cc-cat">
-
         <option value="">Category (auto-assigned if blank)</option>
         <option>Food Services</option>
         <option>Facilities</option>
@@ -480,7 +467,6 @@ select:focus{border-color:var(--blue)}
     <div id="feed"><div class="loading">Loading complaints…</div></div>
   </div>
 </div>
-
 <!-- TRACK -->
 <div id="pg-track" class="page">
   <nav class="nav">
@@ -491,23 +477,6 @@ select:focus{border-color:var(--blue)}
       <button class="nl" id="alink2" onclick="go('admin')" style="display:none"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/></svg>Admin</button>
     </div>
     <div class="na">
-      <div class="av-wrap" style="margin-right:10px;">
-        <button class="av" id="bellBtn" style="background:transparent;color:var(--sub)" onclick="toggleNotif(event)" aria-label="Notifications">
-          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="18" height="18">
-            <path d="M18 8a6 6 0 10-12 0c0 7-3 7-3 7h18s-3 0-3-7"/>
-            <path d="M13.73 21a2 2 0 01-3.46 0"/>
-          </svg>
-          <span id="notifDot" class="notifDot"></span>
-        </button>
-        <div class="profile-dd" id="notifPanel" style="display:none;min-width:320px;right:0;left:auto;animation:none;position:absolute;top:calc(100% + 10px);">
-          <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;">
-            <span style="font-size:13px;font-weight:700;color:var(--text);">Notifications</span>
-            <button style="background:none;border:none;color:var(--blue);font-weight:700;cursor:pointer;font-size:13px" onclick="markAllRead()">Mark all read</button>
-          </div>
-          <div id="notifList" style="max-height:340px;overflow:auto"></div>
-        </div>
-      </div>
-
       <div class="av-wrap">
         <button class="av" id="av2" onclick="toggleDD(event)">S</button>
         <div class="profile-dd" id="dd2">
@@ -529,7 +498,6 @@ select:focus{border-color:var(--blue)}
     <div id="tlist"></div>
   </div>
 </div>
-
 <!-- ADMIN -->
 <div id="pg-admin" class="page">
   <nav class="nav">
@@ -540,23 +508,6 @@ select:focus{border-color:var(--blue)}
       <button class="nl act" onclick="go('admin')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/></svg>Admin</button>
     </div>
     <div class="na">
-      <div class="av-wrap" style="margin-right:10px;">
-        <button class="av" id="bellBtn" style="background:transparent;color:var(--sub)" onclick="toggleNotif(event)" aria-label="Notifications">
-          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="18" height="18">
-            <path d="M18 8a6 6 0 10-12 0c0 7-3 7-3 7h18s-3 0-3-7"/>
-            <path d="M13.73 21a2 2 0 01-3.46 0"/>
-          </svg>
-          <span id="notifDot" class="notifDot"></span>
-        </button>
-        <div class="profile-dd" id="notifPanel" style="display:none;min-width:320px;right:0;left:auto;animation:none;position:absolute;top:calc(100% + 10px);">
-          <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;">
-            <span style="font-size:13px;font-weight:700;color:var(--text);">Notifications</span>
-            <button style="background:none;border:none;color:var(--blue);font-weight:700;cursor:pointer;font-size:13px" onclick="markAllRead()">Mark all read</button>
-          </div>
-          <div id="notifList" style="max-height:340px;overflow:auto"></div>
-        </div>
-      </div>
-
       <div class="av-wrap">
         <button class="av" id="av3" onclick="toggleDD(event)">A</button>
         <div class="profile-dd" id="dd3">
@@ -583,20 +534,16 @@ select:focus{border-color:var(--blue)}
     <div class="acs"><h2 id="atitle">Complaints</h2><div id="alist"></div></div>
   </div>
 </div>
-
 <!-- TOAST -->
 <div class="toast" id="toast"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><span id="tmsg">Done!</span></div>
-
 <script>
 // ── Config ───────────────────────────────────────────────────────────────────
 // Use same-origin API (works regardless of port / deployment)
 const API = '/api';
-
 // ── State ────────────────────────────────────────────────────────────────────
 let token    = sessionStorage.getItem('sv_token') || null;
 let currentUser = null;
 let allComplaints = []; // local cache
-
 // ── Helpers ──────────────────────────────────────────────────────────────────
 async function apiFetch(path, opts = {}) {
   const isFormData = typeof opts.body !== 'undefined' && opts.body instanceof FormData;
@@ -604,12 +551,10 @@ async function apiFetch(path, opts = {}) {
   if (!isFormData) headers['Content-Type'] = 'application/json';
   if (token) headers['Authorization'] = `Bearer ${token}`;
   const res = await fetch(API + path, { ...opts, headers });
-
   const json = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(json.error || 'Request failed');
   return json;
 }
-
 function toast(msg, ok = true) {
   const t = document.getElementById('toast');
   document.getElementById('tmsg').textContent = msg;
@@ -617,16 +562,13 @@ function toast(msg, ok = true) {
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 3200);
 }
-
 // ── Auth ─────────────────────────────────────────────────────────────────────
 async function login() {
   const email = document.getElementById('em').value.trim();
   const pw    = document.getElementById('pw').value;
   if (!email) { toast('Please enter your email.', false); return; }
-
   const btn = document.getElementById('login-btn');
   btn.disabled = true; btn.textContent = 'Signing in…';
-
   try {
     const data = await apiFetch('/auth/login', {
       method: 'POST',
@@ -643,7 +585,6 @@ async function login() {
     btn.disabled = false; btn.textContent = 'Sign In';
   }
 }
-
 function afterLogin() {
   const initials = currentUser.role === 'admin' ? 'A' : 'S';
   ['av1','av2','av3'].forEach(id => {
@@ -652,24 +593,19 @@ function afterLogin() {
   ['dd-email1','dd-email2','dd-email3'].forEach(id => {
     const el = document.getElementById(id); if (el) el.textContent = currentUser.email;
   });
-
   const isAdmin = currentUser.role === 'admin';
-
   // Show Admin navigation only for admins
   ['alink','alink2'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = isAdmin ? 'flex' : 'none';
   });
-
   // Remove/hide the admin page entirely for non-admins
   const adminPage = document.getElementById('pg-admin');
   if (adminPage && !isAdmin) adminPage.style.display = 'none';
   if (adminPage && isAdmin) adminPage.style.display = 'flex';
-
   // Keep users on Home for non-admins
   go('home');
 }
-
 function signOut() {
   token = null; currentUser = null; allComplaints = [];
   sessionStorage.removeItem('sv_token');
@@ -678,7 +614,6 @@ function signOut() {
   document.getElementById('pg-login').classList.add('active');
   toast('Signed out successfully.');
 }
-
 function showRegister() {
   go('register');
   setTimeout(() => {
@@ -686,27 +621,22 @@ function showRegister() {
     if (el) el.focus();
   }, 50);
 }
-
 async function register() {
   const email = document.getElementById('reg-email').value.trim();
   const pw1   = document.getElementById('reg-pw').value;
   const pw2   = document.getElementById('reg-pw2').value;
-
   if (!email) { toast('Please enter your email.', false); return; }
   if (pw1.length < 6) { toast('Password must be at least 6 characters.', false); return; }
   if (pw1 !== pw2) { toast('Passwords do not match.', false); return; }
-
   const btn = document.getElementById('reg-btn');
   btn.disabled = true;
   const prev = btn.textContent;
   btn.textContent = 'Creating account…';
-
   try {
     const data = await apiFetch('/auth/register', {
       method: 'POST',
       body: JSON.stringify({ email, password: pw1 })
     });
-
     token = data.token;
     currentUser = data.user;
     sessionStorage.setItem('sv_token', token);
@@ -719,16 +649,31 @@ async function register() {
     btn.textContent = prev;
   }
 }
-
-
 // ── Navigation ───────────────────────────────────────────────────────────────
 function go(p) {
+  // Always close notification UI before navigating pages
+  closeNotifOverlay();
+  closeNotifPanel();
+  // Explicitly hide admin dashboard when leaving admin (prevents it from showing on scroll)
+  const adminPage = document.getElementById('pg-admin');
+  if (adminPage) adminPage.style.display = 'none';
   document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
   document.getElementById('pg-' + p).classList.add('active');
-  if (p === 'home')  { closeM(); rf(); }
-  if (p === 'track') rt();
-  if (p === 'admin') ra();
+  if (p === 'home') {
+    if (adminPage) adminPage.style.display = 'none';
+    closeM();
+    rf();
+  }
+  if (p === 'track') {
+    if (adminPage) adminPage.style.display = 'none';
+    rt();
+  }
+  if (p === 'admin') {
+    if (adminPage) adminPage.style.display = 'flex';
+    ra();
+  }
   if (p === 'register') {
+    if (adminPage) adminPage.style.display = 'none';
     const e = document.getElementById('reg-email');
     const p1 = document.getElementById('reg-pw');
     const p2 = document.getElementById('reg-pw2');
@@ -737,11 +682,11 @@ function go(p) {
     if (p2) p2.value = '';
   }
 }
-
-
-
 function toggleDD(e) {
   e.stopPropagation();
+  // If any notification overlay is open, close it so it never blocks dropdowns
+  const ov=document.getElementById('notifOverlay');
+  if (ov && ov.classList.contains('open')) ov.classList.remove('open');
   const wrap    = e.currentTarget.nextElementSibling;
   const isOpen  = wrap.classList.contains('open');
   document.querySelectorAll('.profile-dd').forEach(d => d.classList.remove('open'));
@@ -749,45 +694,57 @@ function toggleDD(e) {
 }
 document.addEventListener('click', () => {
   document.querySelectorAll('.profile-dd').forEach(d => d.classList.remove('open'));
-  const panel = document.getElementById('notifPanel');
-  if (panel) panel.style.display = 'none';
+  closeNotifPanel();
+  closeNotifOverlay();
 });
-
+function closeNotifOverlay(){
+  const ov=document.getElementById('notifOverlay');
+  if (ov) ov.classList.remove('open');
+}
+function closeNotifPanel(){
+  const panel=document.getElementById('notifPanel');
+  if (!panel) return;
+  panel.style.display = 'none';
+  panel.classList.remove('open');
+}
 function toggleNotif(e) {
   e.stopPropagation();
-  const panel = document.getElementById('notifPanel');
-  if (!panel) return;
-  const isOpen = panel.style.display === 'block';
-  panel.style.display = isOpen ? 'none' : 'block';
-  if (!isOpen) fetchNotifications();
+  token = sessionStorage.getItem('sv_token') || null;
+  // Ensure dropdown panel is not visible while overlay is open
+  const panel=document.getElementById('notifPanel');
+  if (panel) { panel.style.display = 'none'; panel.classList.remove('open'); }
+  const ov=document.getElementById('notifOverlay');
+  if (!ov) return;
+  const isOpen = ov.classList.contains('open');
+  if (isOpen) {
+    ov.classList.remove('open');
+  } else {
+    ov.classList.add('open');
+    fetchNotifications();
+  }
 }
-
 let notifCache = [];
-
 async function fetchNotifications() {
   try {
     const data = await apiFetch('/notifications/me');
     notifCache = data.notifications || [];
     renderNotifications();
   } catch (e) {
-    const list = document.getElementById('notifList');
-    if (list) list.innerHTML = `<div style="padding:12px 16px;color:var(--sub);font-size:13px;">Error: ${esc(e.message)}</div>`;
+    console.error('fetchNotifications error:', e);
+    const list = document.getElementById('notifListOverlay');
+    if (list) list.innerHTML = `<div style="padding:14px 16px;color:var(--sub);font-size:13px;">Error: ${esc(e.message)}</div>`;
   }
 }
-
 function renderNotifications() {
-  const list = document.getElementById('notifList');
+  const list = document.getElementById('notifListOverlay');
   if (!list) return;
-
   const unread = notifCache.filter(n => !n.is_read).length;
   const dot = document.getElementById('notifDot');
   if (dot) dot.style.display = unread > 0 ? 'block' : 'none';
-
   if (!notifCache.length) {
     list.innerHTML = `<div style="padding:14px 16px;color:var(--sub);font-size:13px;">No notifications yet.</div>`;
     return;
   }
-
   list.innerHTML = notifCache
     .slice(0, 50)
     .map(n => `
@@ -799,17 +756,19 @@ function renderNotifications() {
     `)
     .join('');
 }
-
 async function markRead(id) {
   try {
+    const n = notifCache.find(x => x.id === id);
+    const complaintTitle = n?.complaint_title || n?.title || 'Complaint';
     await apiFetch(`/notifications/${id}/read`, { method: 'PATCH' });
     notifCache = notifCache.map(n => (n.id === id ? { ...n, is_read: 1 } : n));
     renderNotifications();
+    // Inform the student which complaint was marked as read
+    toast('Resolved complaint: ' + complaintTitle);
   } catch (e) {
     toast(e.message, false);
   }
 }
-
 async function markAllRead() {
   try {
     await apiFetch('/notifications/readAll', { method: 'PATCH' });
@@ -819,9 +778,7 @@ async function markAllRead() {
     toast(e.message, false);
   }
 }
-
 // ── Complaint Form ───────────────────────────────────────────────────────────
-
 function openM() {
   document.getElementById('inp-bar').style.display = 'none';
   document.getElementById('inline-form').classList.add('open');
@@ -831,7 +788,6 @@ function closeM() {
   document.getElementById('inp-bar').style.display = 'flex';
   ['ct','cd'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
 }
-
 async function submitComplaint() {
   const title       = document.getElementById('ct').value.trim();
   const description = document.getElementById('cd').value.trim();
@@ -839,19 +795,15 @@ async function submitComplaint() {
   const priority    = document.getElementById('cc-pri').value;
   const fileInput   = document.getElementById('cp-photo');
   const file        = fileInput?.files?.[0] || null;
-
   if (!title)       { toast('Please enter a complaint title.', false); return; }
   if (!description) { toast('Please describe your complaint.', false); return; }
-
   const btn = document.getElementById('submit-btn');
   btn.disabled = true;
-
   try {
     const data = await apiFetch('/complaints', {
       method: 'POST',
       body: JSON.stringify({ title, description, category: category || undefined, priority })
     });
-
     // If a photo/video was attached, upload it to the created complaint
     if (file) {
       const form = new FormData();
@@ -861,7 +813,6 @@ async function submitComplaint() {
         body: form
       });
     }
-
     allComplaints.unshift(data.complaint);
     closeM(); rf(); rt();
     toast(file ? 'Complaint submitted with photo/video!' : 'Complaint submitted successfully!');
@@ -871,28 +822,22 @@ async function submitComplaint() {
     btn.disabled = false;
   }
 }
-
-
 // ── Feed (Home) ──────────────────────────────────────────────────────────────
 async function rf() {
   const status   = document.getElementById('fs').value;
   const category = document.getElementById('fc').value;
   const sort     = document.getElementById('so').value;
-
   try {
     const params = new URLSearchParams();
     if (status)   params.set('status', status);
     if (category) params.set('category', category);
     if (sort)     params.set('sort', sort);
-
     const data = await apiFetch('/complaints?' + params);
     allComplaints = data.complaints; // update cache
-
     // Apply local filters for count display
     const complaints = data.complaints;
     document.getElementById('cnt').textContent =
       complaints.length + ' complaint' + (complaints.length !== 1 ? 's' : '');
-
     document.getElementById('feed').innerHTML = complaints.length
       ? complaints.map(renderCard).join('')
       : '<div class="loading">No complaints found.</div>';
@@ -900,7 +845,6 @@ async function rf() {
     document.getElementById('feed').innerHTML = `<div class="loading">Error: ${e.message}</div>`;
   }
 }
-
 function renderCard(c) {
   return `
     <div class="cc">
@@ -918,7 +862,6 @@ function renderCard(c) {
       </div>
     </div>`;
 }
-
 async function vote(id) {
   try {
     const data = await apiFetch(`/complaints/${id}/vote`, { method: 'POST' });
@@ -934,21 +877,17 @@ async function vote(id) {
     toast(e.message, false);
   }
 }
-
 // ── Track ────────────────────────────────────────────────────────────────────
 async function rt() {
   const q = (document.getElementById('ts')?.value || '').toLowerCase();
-
   try {
     const params = new URLSearchParams();
     if (q) params.set('search', q);
     const data = await apiFetch('/complaints?' + params);
     const list = data.complaints;
-
     document.getElementById('tp').textContent   = list.filter(c => c.status === 'Pending').length;
     document.getElementById('tr2').textContent  = list.filter(c => c.status === 'Under Review').length;
     document.getElementById('tres').textContent = list.filter(c => c.status === 'Resolved').length;
-
     document.getElementById('tlist').innerHTML = list.length
       ? list.map(c => `
         <div class="tcard">
@@ -956,9 +895,6 @@ async function rt() {
           <p class="tdesc">${esc(c.desc)}</p>
           <div class="pr"><span>Status</span><span>${c.status}</span></div>
           
-
-
-
           
           <div class="tm">
             <span class="mi">Category: <span class="mv">${esc(c.cat)}</span></span>
@@ -972,13 +908,11 @@ async function rt() {
     document.getElementById('tlist').innerHTML = `<div class="loading">Error: ${e.message}</div>`;
   }
 }
-
 // ── Admin ────────────────────────────────────────────────────────────────────
 async function ra() {
   const fac  = document.getElementById('at2').value;
   const stat = document.getElementById('as2').value;
   const sort = document.getElementById('ap2').value || 'votes';
-
   try {
     const [statsData, listData] = await Promise.all([
       apiFetch('/complaints/stats'),
@@ -988,14 +922,12 @@ async function ra() {
         )
       ))
     ]);
-
     const s = statsData;
     document.getElementById('astats').innerHTML = `
       <div class="stc"><div><div class="sl2">Total Complaints</div><div class="sn2">${s.total}</div></div><div class="si bl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div></div>
       <div class="stc"><div><div class="sl2">Pending</div><div class="sn2">${s.pending}</div></div><div class="si ye"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div></div>
       <div class="stc"><div><div class="sl2" style="color:var(--red)">High Priority</div><div class="sn2" style="color:var(--red)">${s.highPri}</div></div><div class="si re"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div></div>
       <div class="stc"><div><div class="sl2" style="color:var(--green)">Resolved</div><div class="sn2" style="color:var(--green)">${s.resolved}</div></div><div class="si gr"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div></div>`;
-
     const cats = s.byFaculty;
     const mx   = Math.max(...cats.map(c => c.count), 1);
     document.getElementById('catb').innerHTML = cats.map(c => `
@@ -1004,7 +936,6 @@ async function ra() {
         <div class="cbg"><div class="cf2" style="width:${(c.count / mx) * 100}%"></div></div>
         <span class="cc2">${c.count}</span>
       </div>`).join('');
-
     const list = listData.complaints;
     document.getElementById('atitle').textContent = `Complaints (${list.length})`;
     document.getElementById('alist').innerHTML = list.length
@@ -1024,12 +955,10 @@ async function ra() {
           </div>
         </div>`).join('')
       : '<div class="loading">No complaints match the current filters.</div>';
-
   } catch (e) {
     toast(e.message, false);
   }
 }
-
 async function updStatus(id, status) {
   try {
     await apiFetch(`/complaints/${id}/status`, {
@@ -1043,7 +972,6 @@ async function updStatus(id, status) {
     toast(e.message, false);
   }
 }
-
 // ── Rendering helpers ────────────────────────────────────────────────────────
 function esc(s = '') {
   return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -1058,20 +986,19 @@ function pp(p) {
   if (p === 'Medium') return `<span class="pill p-med">Medium Priority</span>`;
   return `<span class="pill p-lo">Low Priority</span>`;
 }
-
 function priCls(p) { return p === 'High' ? 'phi' : p === 'Medium' ? 'pme' : 'plo'; }
 function ta(d) { return d === 0 ? 'just now' : d + ' day' + (d !== 1 ? 's' : '') + ' ago'; }
-
 // ── Keyboard ─────────────────────────────────────────────────────────────────
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closeNotifPanel();
+    closeNotifOverlay();
+  }
+});
 const loginPw = document.getElementById('pw');
 if (loginPw) loginPw.addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
-
-
 const regPw2 = document.getElementById('reg-pw2');
 if (regPw2) regPw2.addEventListener('keydown', e => { if (e.key === 'Enter') register(); });
-
-
-
 // ── Auto-login if token in session ──────────────────────────────────────────
 (async function init() {
   if (!token) return;
@@ -1087,3 +1014,4 @@ if (regPw2) regPw2.addEventListener('keydown', e => { if (e.key === 'Enter') reg
 </script>
 </body>
 </html>
+

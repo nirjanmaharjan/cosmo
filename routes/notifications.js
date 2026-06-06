@@ -12,10 +12,19 @@ router.get('/me', requireAuth, async (req, res) => {
         `SELECT n.*,
                 c.id AS complaint_id,
                 c.title AS complaint_title,
-                s.summary_text AS summary_text
+                c.description AS complaint_description,
+                c.status AS complaint_status,
+                c.category AS complaint_category,
+                c.faculty AS complaint_faculty,
+                c.priority AS complaint_priority,
+                c.department AS complaint_department,
+                c.votes AS complaint_votes,
+                c.progress AS complaint_progress,
+                NULL AS summary_text
            FROM notifications n
            JOIN complaints c ON c.id = n.complaint_id
-           LEFT JOIN admin_summaries s ON s.complaint_id = c.id
+
+
           WHERE n.user_id = ?
           ORDER BY n.is_read ASC, n.created_at DESC
         `,
@@ -32,7 +41,20 @@ router.get('/me', requireAuth, async (req, res) => {
       is_read: r.is_read,
       created_at: r.created_at,
       complaint_id: r.complaint_id,
+      complaint: r.complaint_id ? {
+        id: r.complaint_id,
+        title: r.complaint_title || null,
+        description: r.complaint_description || null,
+        status: r.complaint_status || null,
+        category: r.complaint_category || null,
+        faculty: r.complaint_faculty || null,
+        priority: r.complaint_priority || null,
+        department: r.complaint_department || null,
+        votes: r.complaint_votes || 0,
+        progress: r.complaint_progress || 0,
+      } : null,
     }));
+
 
     res.json({ notifications });
   } catch (err) {

@@ -86,21 +86,6 @@ async function init() {
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
 
-    CREATE TABLE IF NOT EXISTS admin_summaries (
-      complaint_id INTEGER PRIMARY KEY REFERENCES complaints(id) ON DELETE CASCADE,
-      summary_text TEXT NOT NULL,
-      created_by INTEGER REFERENCES users(id) ON DELETE SET NULL,
-      created_at TEXT NOT NULL DEFAULT (datetime('now')),
-      updated_at TEXT NOT NULL DEFAULT (datetime('now'))
-    );
-
-    CREATE TRIGGER IF NOT EXISTS admin_summaries_updated_at
-    AFTER UPDATE ON admin_summaries
-    FOR EACH ROW
-    BEGIN
-      UPDATE admin_summaries SET updated_at = datetime('now') WHERE complaint_id = OLD.complaint_id;
-    END;
-
     CREATE TABLE IF NOT EXISTS notifications (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -111,6 +96,7 @@ async function init() {
       is_read INTEGER NOT NULL DEFAULT 0,
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
+
   `);
 
   await exec(`
@@ -147,17 +133,9 @@ async function init() {
             AND n.message = 'Your complaint has been resolved.'
         );
 
-      -- ensure there is an admin summary row (use INSERT OR IGNORE to avoid UNIQUE constraint failures)
-      INSERT OR IGNORE INTO admin_summaries (complaint_id, summary_text, created_by, created_at, updated_at)
-      VALUES (
-        NEW.id,
-        'Resolved by admin.',
-        NULL,
-        datetime('now'),
-        datetime('now')
-      );
     END;
   `);
+
 
 
 

@@ -12,7 +12,20 @@ function requireAuth(req, res, next) {
   }
   const token = header.slice(7);
   try {
-    req.user = jwt.verify(token, JWT_SECRET);
+    // jwt payload shape depends on how token was created (login/register)
+    // Normalize here so downstream routes can rely on req.user.id + req.user.role.
+    const payload = jwt.verify(token, JWT_SECRET);
+
+    req.user = {
+      id: payload.userId ?? payload.id ?? payload.sub,
+      email: payload.email,
+      role: payload.role,
+    };
+
+    if (!req.user.id || !req.user.role) {
+      return res.status(401).json({ error: 'Invalid token payload.' });
+    }
+
     next();
   } catch {
     return res.status(401).json({ error: 'Token invalid or expired.' });
