@@ -648,7 +648,23 @@ router.delete('/:id', requireAuth, requireAdmin, async (req, res) => {
 //
 // Admin Notes
 
-router.get('/:id/admin/notes', requireAuth, requireAdmin, async (req, res) => {
+router.get('/:id/admin/notes', requireAuth, async (req, res) => {
+  // Admins can view all notes.
+  // Students can view notes for complaints they submitted.
+  const isAdmin = req.user?.role === 'admin';
+  const id = Number(req.params.id);
+  if (!isAdmin) {
+    const complaint = await new Promise((resolve, reject) => {
+      db.get('SELECT id, submitter_id, is_sensitive FROM complaints WHERE id = ?', [id], (err, row) => {
+        if (err) reject(err);
+        else resolve(row);
+      });
+    });
+    if (!complaint) return res.status(404).json({ error: 'Complaint not found.' });
+    if (complaint.submitter_id !== req.user.id) return res.status(403).json({ error: 'Access denied.' });
+    // If complaint is sensitive, still allow owner to see notes
+    // (timeline access already follows similar rules elsewhere).
+  }
   try {
     const id = Number(req.params.id);
     const rows = await new Promise((resolve, reject) => {

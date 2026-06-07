@@ -8,6 +8,40 @@ const { requireAuth } = require('../middleware/auth');
 
 const router = express.Router();
 
+// ── POST /api/auth/password-reset ─────────────────────────────────────────
+// Authenticated password update (profile -> Reset Password)
+router.post('/password-reset', requireAuth, async (req, res) => {
+  try {
+    const { password } = req.body || {};
+
+    if (!password) {
+      return res.status(400).json({ error: 'New password is required.' });
+    }
+    if (typeof password !== 'string' || password.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters.' });
+    }
+
+    const hashed = bcrypt.hashSync(password, 10);
+
+    await new Promise((resolve, reject) => {
+      db.run(
+        'UPDATE users SET password = ? WHERE id = ?',
+        [hashed, req.user.id],
+        function (err) {
+          if (err) reject(err);
+          else resolve(this);
+        }
+      );
+    });
+
+    return res.json({ message: 'Password updated.' });
+  } catch (err) {
+    console.error('Password reset error:', err);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+});
+
+
 // ── POST /api/auth/login ─────────────────────────────────────────────────────
 router.post('/login', async (req, res) => {
   try {
