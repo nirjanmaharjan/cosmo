@@ -927,24 +927,35 @@ async function submitComplaint() {
   const priority    = document.getElementById('cc-pri').value;
   const photosInput = document.getElementById('cp-photos');
   const photoFiles  = photosInput?.files ? Array.from(photosInput.files) : [];
+
   // Update selected counter
   const countEl = document.getElementById('cp-photos-count');
   if (countEl) countEl.textContent = String(photoFiles.length);
 
   if (!title)       { toast('Please enter a complaint title.', false); return; }
   if (!description) { toast('Please describe your complaint.', false); return; }
+
   const btn = document.getElementById('submit-btn');
   btn.disabled = true;
   try {
+    const fd = new FormData();
+    fd.append('title', title);
+    fd.append('description', description);
+    fd.append('category', category || '');
+    fd.append('priority', priority || '');
+
+    for (const f of photoFiles) {
+      fd.append('photos', f);
+    }
+
     const data = await apiFetch('/complaints', {
       method: 'POST',
-      body: JSON.stringify({ title, description, category: category || undefined, priority })
+      body: fd
     });
 
     allComplaints.unshift(data.complaint);
     closeM(); rf(); rt();
     toast('Complaint submitted successfully!');
-
   } catch (e) {
     toast(e.message, false);
   } finally {
@@ -975,11 +986,19 @@ async function rf() {
   }
 }
 function renderCard(c) {
+  const firstAtt = (c.attachments && c.attachments.length) ? c.attachments[0] : null;
+  const attHtml = firstAtt
+    ? `<div style="margin:10px 0 0;">
+         <img src="${esc(firstAtt.url)}" alt="Attachment" style="width:100%;max-height:160px;object-fit:cover;border-radius:10px;border:1px solid var(--border);" />
+       </div>`
+    : '';
+
   return `
     <div class="cc" style="cursor:pointer" onclick="openComplaintDetail(${c.id})">
       <div class="ct">${esc(c.title)}</div>
       <div class="cd">${esc(c.desc)}</div>
-      <div class="ctags">${sp(c.status)}<span class="pill p-cat">${esc(c.cat)}</span>${pp(c.pri)}</div>
+      ${attHtml}
+      <div class="ctags" style="margin-top:${firstAtt ? '10px' : '0'};">${sp(c.status)}<span class="pill p-cat">${esc(c.cat)}</span>${pp(c.pri)}</div>
       <div class="ca">Assigned to: <span>${esc(c.dept)}</span></div>
       <hr class="cdiv">
       <div class="cf">

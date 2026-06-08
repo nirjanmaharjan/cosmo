@@ -372,7 +372,12 @@ router.get('/:id', requireAuth, async (req, res) => {
 
 
 // ── POST /api/complaints ──────────────────────────────────────────────────────
-router.post('/', requireAuth, async (req, res) => {
+const upload = require('../middleware/upload');
+// Accept up to 10 uploaded files under field name `photos`
+router.post('/', requireAuth, upload.array('photos', 10), async (req, res) => {
+  // Note: multer populates uploaded files as req.files
+  // We'll insert metadata into the `attachments` table after creating the complaint.
+
   try {
     // Frontend currently sends `category` (Food Services/Facilities/...) not `faculty`.
     // Accept both, and map category -> faculty when faculty isn't provided.
@@ -451,13 +456,32 @@ router.post('/', requireAuth, async (req, res) => {
       });
     });
 
+    // Insert attachments rows (if any)
+    const files = req.files || [];
+    if (files.length) {
+      await Promise.all(
+        files.map(f => {
+          return new Promise((resolve, reject) => {
+            db.run(
+              `INSERT INTO attachments (complaint_id, filename, original_name, file_type, file_size)
+               VALUES (?, ?, ?, ?, ?)`,
+              [info.lastID, f.filename, f.originalname, f.mimetype, f.size || 0],
+              (err) => (err ? reject(err) : resolve())
+            );
+          });
+        })
+      );
+    }
+
     const row = await new Promise((resolve, reject) => {
       db.get('SELECT * FROM complaints WHERE id = ?', [info.lastID], (err, row) => {
         if (err) reject(err);
         else resolve(row);
       });
     });
-    res.status(201).json({ complaint: format(row, new Set(), []) });
+
+    const attachments = await fetchAttachments(info.lastID);
+    res.status(201).json({ complaint: format(row, new Set(), attachments) });
   } catch (err) {
     console.error('Create complaint error:', err);
     res.status(500).json({ error: 'Internal server error.' });
