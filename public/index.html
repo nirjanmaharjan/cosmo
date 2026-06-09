@@ -1054,6 +1054,12 @@ function openComplaintDetail(id) {
           <div id="cd_basic_tags" style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px;"> </div>
           <div id="cd_basic_staff" style="font-size:13px;color:var(--sub);margin-bottom:8px;"></div>
           <div id="cd_basic_badge" style="margin-bottom:8px;"></div>
+
+          <div style="margin-top:10px;">
+            <div style="font-size:12px;color:var(--sub);font-weight:700;margin-bottom:6px;">Photos</div>
+            <div id="cd_photos" style="display:flex;flex-direction:column;gap:12px;"></div>
+          </div>
+
           <div style="margin-top:10px;">
             <div style="font-size:12px;color:var(--sub);font-weight:700;margin-bottom:6px;">Status Update</div>
             <div style="display:flex;gap:10px;align-items:center;">
@@ -1131,10 +1137,9 @@ async function cdLoadDetail(id) {
   const timelineEl = document.getElementById('cd_timeline');
   const notesEl    = document.getElementById('cd_notes');
   const notesGatedEl = document.getElementById('cd_notes_gated');
+  const photosWrap = document.getElementById('cd_photos');
   const staffEl    = document.getElementById('cd_basic_staff');
   const badgeEl    = document.getElementById('cd_basic_badge');
-
-  const isAdmin = currentUser && currentUser.role === 'admin';
 
   try {
     // Fetch each section independently so Access denied on one endpoint
@@ -1175,6 +1180,21 @@ async function cdLoadDetail(id) {
       basicTags.innerHTML = `${sp(c.status)}<span class="pill p-cat">${esc(c.cat)}</span>${pp(c.pri)}<span class="pill" style="background:var(--blue-l;color:var(--blue);">${esc(c.faculty||'')}</span>`;
       staffEl.textContent = c.staff ? `Assigned to: ${c.staff}` : '';
       badgeEl.innerHTML = c.escalated ? '<span class="pill p-hi">Escalated</span>' : '';
+
+      const photosWrap = document.getElementById('cd_photos');
+      if (photosWrap) {
+        const attachments = Array.isArray(c.attachments) ? c.attachments : [];
+        photosWrap.innerHTML = attachments.length
+          ? attachments.map(a => {
+              return `
+                <img
+                  src="${esc(a.url)}"
+                  alt="${esc(a.name || 'Photo')}"
+                  style="max-width:100%;height:auto;border-radius:10px;border:1px solid var(--border);display:block;" />
+              `;
+            }).join('')
+          : '<div style="font-size:13px;color:var(--sub);">No photos attached.</div>';
+      }
     }
 
     // Timeline render
