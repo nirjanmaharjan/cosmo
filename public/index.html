@@ -195,10 +195,17 @@ select:focus{border-color:var(--blue)}
 .pme{color:var(--orange)!important;font-weight:600}
 .plo{color:var(--green)!important;font-weight:600}
 /* ADMIN */
+.adminShell{display:flex;gap:0;min-height:calc(100vh - 58px);}
+.adminSide{width:240px;flex:0 0 240px;background:#fff;border-right:1px solid var(--border);padding:18px 10px;}
+.adminSide .sideItem{width:100%;padding:10px 12px;border-radius:10px;border:none;background:none;cursor:pointer;font-family:inherit;font-size:14px;color:var(--sub);display:flex;align-items:center;gap:10px;}
+.adminSide .sideItem:hover{background:var(--bg);color:var(--text)}
+.adminSide .sideItem.act{background:var(--blue-l);color:var(--blue);font-weight:600;}
+.adminMain{flex:1;}
 .ac{max-width:1080px;margin:0 auto;padding:36px 20px}
 .ac h1{font-size:24px;font-weight:700;margin-bottom:4px}
 .ac .sub{font-size:14px;color:var(--sub);margin-bottom:26px}
 .sg{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:26px}
+
 .stc{background:#fff;border-radius:12px;border:1px solid var(--border);padding:18px 20px;display:flex;justify-content:space-between;align-items:flex-start}
 .stc .sl2{font-size:13px;color:var(--sub);margin-bottom:5px}
 .stc .sn2{font-size:26px;font-weight:700}
@@ -462,13 +469,38 @@ select:focus{border-color:var(--blue)}
     <div class="nb"><div class="ni"><svg width="16" height="16" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg></div><div><h3>SafeVoice</h3><p>College Complaint System</p></div></div>
     <div class="nls">
 
-      <button class="nl act" onclick="go('admin')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/></svg>Home</button>
-
     </div>
     <div class="na">
+      <div class="av-wrap" style="margin-right:10px;">
+        <button class="av" id="bellBtn" style="background:transparent;color:var(--sub)" onclick="toggleNotif(event)" aria-label="Notifications">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="18" height="18">
+            <path d="M18 8a6 6 0 10-12 0c0 7-3 7-3 7h18s-3 0-3-7"/>
+            <path d="M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+          <span id="notifDot" class="notifDot"></span>
+        </button>
+        <div class="profile-dd" id="notifPanel" style="display:none;min-width:320px;right:0;left:auto;animation:none">
+          <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;">
+            <span style="font-size:13px;font-weight:700;color:var(--text);">Notifications</span>
+            <button style="background:none;border:none;color:var(--blue);font-weight:700;cursor:pointer;font-size:13px" onclick="markAllRead()">Mark all read</button>
+          </div>
+          <div id="notifList" style="max-height:340px;overflow:auto"></div>
+        </div>
+        <!-- Overlay root (single source of truth) -->
+        <div id="notifOverlay" onclick="closeNotifOverlay()">
+          <div id="notifOverlayCard" onclick="event.stopPropagation()">
+            <div id="notifOverlayHeader">
+              <span class="title">Notifications</span>
+              <button onclick="markAllRead()">Mark all read</button>
+            </div>
+            <div id="notifListOverlay"></div>
+          </div>
+        </div>
+      </div>
       <div class="av-wrap">
         <button class="av" id="av3" onclick="toggleDD(event)">A</button>
         <div class="profile-dd" id="dd3">
+
           <div class="dd-email" id="dd-email3">admin@college.edu</div>
           <button class="dd-item" onclick="openResetPassword()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6"/><path d="M23 11h-6"/></svg>Reset Password</button>
           <button class="dd-item" onclick="signOut()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out</button>
@@ -476,21 +508,34 @@ select:focus{border-color:var(--blue)}
       </div>
     </div>
   </nav>
-  <div class="ac">
-    <h1>Admin Dashboard</h1>
-    <p class="sub">Manage and monitor all campus complaints</p>
-    <div class="sg" id="astats"></div>
-    <div class="amid">
-      <div class="ap"><div class="pt"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Category Breakdown</div><div class="cr" id="catb"></div></div>
-      <div class="ap"><div class="pt"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>Filters</div>
-        <div class="fp">
-          <div class="fg2"><label>Faculty</label><select id="at2" onchange="ra()"><option value="">All Faculties</option><option>Food</option><option>Library</option><option>Hostel</option><option>Infrastructure</option><option>Staff</option><option>Others</option></select></div>
-          <div class="fg2"><label>Status</label><select id="as2" onchange="ra()"><option value="">All Status</option><option>Pending</option><option>Under Review</option><option>Resolved</option></select></div>
-          <div class="fg2"><label>Sort</label><select id="ap2" onchange="ra()"><option value="votes">Most Upvoted</option><option value="new">Newest</option><option value="old">Oldest</option></select></div>
+  <div class="adminShell">
+    <aside class="adminSide">
+      <button class="sideItem act" onclick="go('admin')" style="display:flex">
+
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/>
+        </svg>
+        Admin
+      </button>
+    </aside>
+    <main class="adminMain">
+      <div class="ac">
+        <h1>Admin Dashboard</h1>
+        <p class="sub">Manage and monitor all campus complaints</p>
+        <div class="sg" id="astats"></div>
+        <div class="amid">
+          <div class="ap"><div class="pt"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Category Breakdown</div><div class="cr" id="catb"></div></div>
+          <div class="ap"><div class="pt"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>Filters</div>
+            <div class="fp">
+              <div class="fg2"><label>Faculty</label><select id="at2" onchange="ra()"><option value="">All Faculties</option><option>Food</option><option>Library</option><option>Hostel</option><option>Infrastructure</option><option>Staff</option><option>Others</option></select></div>
+              <div class="fg2"><label>Status</label><select id="as2" onchange="ra()"><option value="">All Status</option><option>Pending</option><option>Under Review</option><option>Resolved</option></select></div>
+              <div class="fg2"><label>Sort</label><select id="ap2" onchange="ra()"><option value="votes">Most Upvoted</option><option value="new">Newest</option><option value="old">Oldest</option></select></div>
+            </div>
+          </div>
         </div>
+        <div class="acs"><h2 id="atitle">Complaints</h2><div id="alist"></div></div>
       </div>
-    </div>
-    <div class="acs"><h2 id="atitle">Complaints</h2><div id="alist"></div></div>
+    </main>
   </div>
 </div>
 <!-- TOAST -->
@@ -499,6 +544,7 @@ select:focus{border-color:var(--blue)}
 // ── Config ───────────────────────────────────────────────────────────────────
 // Use same-origin API (works regardless of port / deployment)
 const API = '/api';
+
 // ── State ────────────────────────────────────────────────────────────────────
 let token    = sessionStorage.getItem('sv_token') || null;
 let currentUser = null;
