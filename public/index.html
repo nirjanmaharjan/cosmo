@@ -14,9 +14,10 @@
   --red:#DC2626;--orange:#EA580C;
 }
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
-.page{display:none;min-height:100vh;flex-direction:column}
-.page.active{display:flex}
+.page{display:none;min-height:100vh;flex-direction:column;align-items:stretch}
+.page.active{display:flex;}
 #pg-login{flex-direction:row!important}
+
 /* Notifications */
 .notifDot{position:absolute;right:4px;top:4px;width:8px;height:8px;border-radius:9999;background:var(--red);display:none}
 /* Overlay notification page */
@@ -300,10 +301,12 @@ select:focus{border-color:var(--blue)}
       </div>
       <div class="rrow">
         <label><input type="checkbox"> Remember me</label>
+        <a class="a-link" onclick="openResetPasswordFromLogin()" style="margin-left:auto;">Forget password?</a>
       </div>
       <button class="btn-blue" id="login-btn" onclick="login()">Sign In</button>
-      <p class="sl">Don't have an account? <a onclick="showRegister()">Sign Up</a></p>
-    </div>
+
+     </div>
+
 
   </div>
   <div class="lr">
@@ -324,66 +327,7 @@ select:focus{border-color:var(--blue)}
     </div>
   </div>
 </div>
-<!-- REGISTER -->
-<div id="pg-register" class="page">
-  <div class="rl">
-    <div class="rbox">
-      <div class="brand" style="margin-bottom:22px;align-self:flex-start">
-        <div class="brand-ico">
-          <svg width="22" height="22" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
-        </div>
-        <div><h2>SafeVoice</h2><p>College Complaint System</p></div>
-      </div>
-      <h1>Create your account</h1>
-      <p class="rsub">Use your student email to sign up</p>
-      <div class="fg">
-        <label>Email Address</label>
-        <div class="iw">
-          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-          <input type="email" id="reg-email" placeholder="you@college.edu">
-        </div>
-      </div>
-      <div class="fg">
-        <label>Password</label>
-        <div class="iw">
-          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-          <input type="password" id="reg-pw" placeholder="Create a password">
-        </div>
-      </div>
-      <div class="fg">
-        <label>Confirm Password</label>
-        <div class="iw">
-          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-          <input type="password" id="reg-pw2" placeholder="Repeat password">
-        </div>
-      </div>
-      <button class="btn-blue" id="reg-btn" onclick="register()">Create account</button>
 
-      <!-- Google sign-in removed from signup flow -->
-
-      <p class="small-note">
-        Already have an account? <a class="a-link" onclick="go('login')">Sign in</a>
-      </p>
-    </div>
-  </div>
-  <div class="lr">
-    <div class="rc">
-      <h2>Your Voice Matters on Campus</h2>
-      <p class="tag">Submit complaints anonymously, track their progress, and help improve your college experience.</p>
-      <div class="fl">
-        <div class="fi"><div class="fic"><svg fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24" width="18" height="18"><path d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg></div><div class="ft"><h4>Anonymous Complaints</h4><p>Submit your concerns safely without revealing your identity</p></div></div>
-        <div class="fi"><div class="fic"><svg fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24" width="18" height="18"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div><div class="ft"><h4>AI-Powered Categorization</h4><p>Automatic routing to relevant departments for faster resolution</p></div></div>
-        <div class="fi"><div class="fic"><svg fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24" width="18" height="18"><path d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905A3.61 3.61 0 017 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/></svg></div><div class="ft"><h4>Community Voting</h4><p>Upvote important complaints to prioritize campus issues</p></div></div>
-        <div class="fi"><div class="fic"><svg fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24" width="18" height="18"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg></div><div class="ft"><h4>Real-Time Status Tracking</h4><p>Monitor your complaint's progress from submission to resolution</p></div></div>
-      </div>
-      <div class="sr">
-        <div class="sb"><div class="v">500+</div><div class="l">Complaints Resolved</div></div>
-        <div class="sb"><div class="v">1200+</div><div class="l">Active Students</div></div>
-        <div class="sb"><div class="v">24h</div><div class="l">Avg Response Time</div></div>
-      </div>
-    </div>
-  </div>
-</div>
 <!-- HOME -->
 <div id="pg-home" class="page">
   <nav class="nav">
@@ -517,9 +461,9 @@ select:focus{border-color:var(--blue)}
   <nav class="nav">
     <div class="nb"><div class="ni"><svg width="16" height="16" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg></div><div><h3>SafeVoice</h3><p>College Complaint System</p></div></div>
     <div class="nls">
-      <button class="nl" onclick="go('home')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Home</button>
-      <button class="nl" onclick="go('track')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="12" y2="15"/></svg>Track Status</button>
-      <button class="nl act" onclick="go('admin')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/></svg>Admin</button>
+
+      <button class="nl act" onclick="go('admin')"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/></svg>Home</button>
+
     </div>
     <div class="na">
       <div class="av-wrap">
@@ -593,7 +537,8 @@ async function login() {
     currentUser = data.user;
     sessionStorage.setItem('sv_token', token);
     afterLogin();
-    toast('Welcome back! Signed in successfully.');
+    toast('Signed in successfully.');
+
   } catch (e) {
     toast(e.message, false);
   } finally {
@@ -618,8 +563,9 @@ function afterLogin() {
   const adminPage = document.getElementById('pg-admin');
   if (adminPage && !isAdmin) adminPage.style.display = 'none';
   if (adminPage && isAdmin) adminPage.style.display = 'flex';
-  // Keep users on Home for non-admins
-  go('home');
+  // Go to admin dashboard for admins; otherwise home for students.
+  go(isAdmin ? 'admin' : 'home');
+
 }
 function signOut() {
   token = null; currentUser = null; allComplaints = [];
@@ -630,12 +576,16 @@ function signOut() {
   toast('Signed out successfully.');
 }
 function showRegister() {
-  go('register');
-  setTimeout(() => {
-    const el = document.getElementById('reg-email');
-    if (el) el.focus();
-  }, 50);
+  toast('Sign up is disabled. Please sign in.');
 }
+
+function openResetPasswordFromLogin() {
+  // Login page doesn't have a user context; force password reset via email is not supported.
+  // Instead, instruct user to sign in first (the real reset UI is available from the profile dropdown).
+  toast('Please sign in first to reset your password.');
+}
+
+
 async function register() {
   const email = document.getElementById('reg-email').value.trim();
   const pw1   = document.getElementById('reg-pw').value;
@@ -686,6 +636,7 @@ function go(p) {
     if (adminPage) adminPage.style.display = 'none';
     rt();
   }
+
   if (p === 'admin') {
     if (adminPage) adminPage.style.display = 'flex';
     ra();
@@ -1089,10 +1040,11 @@ function openComplaintDetail(id) {
             <button onclick="cdAddNote()" class="btn-sub" style="padding:11px 16px;">Add</button>
           </div>
         </div>
-          <div id="cd_notes" style="margin-top:10px;font-size:13px;color:var(--sub);line-height:1.6;white-space:pre-wrap;">
+        <div id="cd_notes" style="margin-top:10px;font-size:13px;color:var(--sub);line-height:1.6;white-space:pre-wrap;">
           Loading notes…
         </div>
       </div>
+
     </div>
   `;
 
@@ -1237,6 +1189,17 @@ async function cdLoadDetail(id) {
         : '';
     }
 
+    // Ensure admin note input/buttons are not accidentally hidden for image complaints.
+    // (Sometimes re-rendering + gating logic can race and leave them hidden.)
+    const isAdminNow = currentUser && currentUser.role === 'admin';
+    const inputEl = card.querySelector('#cd_note_text');
+    const addBtn = Array.from(card.querySelectorAll('button')).find(b => (b.getAttribute('onclick') || '').includes('cdAddNote'));
+    if (isAdminNow) {
+      if (inputEl) inputEl.style.display = '';
+      if (addBtn) addBtn.style.display = '';
+    }
+
+
     if (notesSectionEl) {
       notesSectionEl.style.display = notes.length ? 'block' : 'none';
     }
@@ -1286,12 +1249,13 @@ async function cdAddNote() {
     });
     input.value = '';
     toast('Admin note added');
-    // reload
-    cdLoadDetail(id);
+    // reload without breaking after-image complaints
+    await cdLoadDetail(id);
   } catch (e) {
     toast(e.message, false);
   }
 }
+
 
 async function vote(id) {
   try {
@@ -1356,10 +1320,17 @@ async function ra() {
     ]);
     const s = statsData;
     document.getElementById('astats').innerHTML = `
-      <div class="stc"><div><div class="sl2">Total Complaints</div><div class="sn2">${s.total}</div></div><div class="si bl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div></div>
-      <div class="stc"><div><div class="sl2">Pending</div><div class="sn2">${s.pending}</div></div><div class="si ye"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></div></div>
-      <div class="stc"><div><div class="sl2" style="color:var(--red)">High Priority</div><div class="sn2" style="color:var(--red)">${s.highPri}</div></div><div class="si re"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div></div>
-      <div class="stc"><div><div class="sl2" style="color:var(--green)">Resolved</div><div class="sn2" style="color:var(--green)">${s.resolved}</div></div><div class="si gr"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div></div>`;
+
+              <div class="stc"><div><div class="sl2" style="color:var(--red)">Sensitive</div><div class="sn2" style="color:var(--red)">${s.highPri}</div></div><div class="si re"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div></div>
+              <div class="stc"><div><div class="sl2" style="color:var(--red)">High Priority</div><div class="sn2" style="color:var(--red)">${s.highPri}</div></div><div class="si re"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div></div>
+
+              <div class="stc"><div><div class="sl2" style="color:var(--orange)">Medium Priority</div><div class="sn2" style="color:var(--orange)">${s.highPri}</div></div><div class="si re"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div></div>
+
+
+              <div class="stc"><div><div class="sl2" style="color:var(--green)">Low Priority</div><div class="sn2" style="color:var(--green)">${s.highPri}</div></div><div class="si re"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div></div>
+
+`;
+
     const cats = s.byFaculty;
     const mx   = Math.max(...cats.map(c => c.count), 1);
     document.getElementById('catb').innerHTML = cats.map(c => `
@@ -1387,6 +1358,9 @@ async function ra() {
               <option ${c.status === 'Pending' ? 'selected' : ''}>Pending</option>
               <option ${c.status === 'Under Review' ? 'selected' : ''}>Under Review</option>
               <option ${c.status === 'Resolved' ? 'selected' : ''}>Resolved</option>
+
+
+
             </select>
           </div>
         </div>`).join('')
