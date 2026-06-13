@@ -2,13 +2,12 @@
 'use strict';
 
 // groq-sdk export style may differ between versions (default vs named export)
-const GroqImport = require('groq-sdk');
-const Groq = GroqImport?.default || GroqImport;
+const { GoogleGenAI } = require('@google/genai');
 
-const GROQ_API_KEY = process.env.GROQ_API_KEY;
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
-const client = GROQ_API_KEY
-  ? new Groq({ apiKey: GROQ_API_KEY })
+const ai = GEMINI_API_KEY
+  ? new GoogleGenAI({ apiKey: GEMINI_API_KEY })
   : null;
 
 
@@ -16,14 +15,14 @@ const VALID_FACULTIES = ['Food', 'Library', 'Hostel', 'Infrastructure', 'Staff',
 const VALID_PRIORITIES = ['High', 'Medium', 'Low'];
 
 /**
- * Categorize a complaint using Groq API
+ * Categorize a complaint using Gemini API
  * Returns { is_sensitive, faculty, priority }
  */
 async function categorizeComplaint(title, description) {
-  if (!client) {
-    // Groq not configured; fall back to safe defaults.
+  if (!ai) {
+    // Gemini not configured; fall back to safe defaults.
     // Keep this explicit so you notice missing env/config during development.
-    console.warn('[aiCategorizer] GROQ_API_KEY not set; using fallback categorization.');
+    console.warn('[aiCategorizer] GEMINI_API_KEY not set; using fallback categorization.');
     return { is_sensitive: false, faculty: 'Others', priority: 'Medium' };
   }
 
@@ -34,29 +33,15 @@ async function categorizeComplaint(title, description) {
 Title: "${title}"
 Description: "${description}"
 
-You MUST respond with ONLY a JSON object (no markdown, no code blocks, just raw JSON):
-{
-  "is_sensitive": true or false,
-  "faculty": "one of: Food, Library, Hostel, Infrastructure, Staff, Others",
-  "priority": "one of: High, Medium, Low"
-}
-
 Guidelines:
 - is_sensitive: true if complaint contains: harassment, sexual harassment, discrimination, abuse, safety threats, mental health crisis, sexual misconduct, substance abuse, health violations, bullying, violence, assault, or any concerning personal issues
 - faculty: categorize based on department (Food for dining, Library for library services, Hostel for hostel issues, Infrastructure for building/facilities, Staff for staff-related issues, Others as default)
-- priority: High for urgent/health/safety issues, sexual harassment, harassment, abuse, discrimination, security threats; Medium for standard complaints; Low for minor issues
+- priority: High for urgent/health/safety issues, sexual harassment, harassment, abuse, discrimination, security threats; Medium for standard complaints; Low for minor issues`;
 
-Respond with ONLY the JSON object.`;
-
-    // Try a small list of candidate models because Groq frequently deprecates models.
     const candidateModels = [
-      process.env.GROQ_MODEL,
-      'llama-3.1-70b-versatile',
-      'llama3-70b-8192',
-      'llama3-8b-8192',
-      'mixtral-8x7b-32768',
-      'gemma2-9b-it',
-      'llama2-70b-4096',
+      process.env.GEMINI_MODEL,
+      'gemini-2.5-flash',
+      'gemini-1.5-flash',
     ].filter(Boolean);
 
     let lastErr;
@@ -64,17 +49,22 @@ Respond with ONLY the JSON object.`;
 
     for (const model of candidateModels) {
       try {
-        response = await client.chat.completions.create({
+        response = await ai.models.generateContent({
           model,
-          temperature: 0,
-          max_completion_tokens: 200,
-          max_tokens: 200,
-          messages: [
-            {
-              role: 'user',
-              content: prompt,
+          contents: prompt,
+          config: {
+            responseMimeType: 'application/json',
+            responseSchema: {
+              type: 'OBJECT',
+              properties: {
+                is_sensitive: { type: 'BOOLEAN' },
+                faculty: { type: 'STRING', enum: VALID_FACULTIES },
+                priority: { type: 'STRING', enum: VALID_PRIORITIES }
+              },
+              required: ['is_sensitive', 'faculty', 'priority']
             },
-          ],
+            temperature: 0,
+          }
         });
         break;
       } catch (err) {
@@ -83,25 +73,17 @@ Respond with ONLY the JSON object.`;
     }
 
     if (!response) {
-      console.error('[aiCategorizer] Groq call failed for all candidate models:', {
+      console.error('[aiCategorizer] Gemini call failed for all candidate models:', {
         message: lastErr?.message,
       });
       return { is_sensitive: false, faculty: 'Others', priority: 'Medium' };
     }
 
-    const text =
-      response?.choices?.[0]?.message?.content ??
-      response?.choices?.[0]?.delta?.content ??
-      '';
-
-
-    // Robust JSON extraction: grab the first {...} block.
-    const match = String(text).match(/\{[\s\S]*\}/);
-    const jsonText = match ? match[0] : text;
+    const text = response.text || '';
 
     let result;
     try {
-      result = JSON.parse(jsonText);
+      result = JSON.parse(text);
     } catch (e) {
       console.warn('Failed to parse AI response JSON.', {
         raw: String(text).slice(0, 500),

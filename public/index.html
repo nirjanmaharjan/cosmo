@@ -592,9 +592,56 @@ select:focus{border-color:var(--blue)}
       </div>
 
       <div class="ac" id="admin-sensitive-page" style="display:none;">
-        <h1>Sensetive Complaint</h1>
+        <h1>Sensitive Complaint</h1>
         <p class="sub">View and manage sensitive complaints</p>
-        <div class="acs" style="margin-top:10px;">
+
+        <div class="amid" style="margin-top:20px;">
+          <div class="ap" style="width:100%; max-width: none;">
+            <div class="pt">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="16" height="16">
+                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
+              </svg>
+              Filters &amp; Search
+            </div>
+            <div class="fp" style="flex-wrap: wrap; gap: 12px; margin-top: 10px;">
+              <div class="fg2" style="flex: 1; min-width: 150px;">
+                <label>Faculty</label>
+                <select id="sens-fac" onchange="loadSensitiveComplaints()">
+                  <option value="">All Faculties</option>
+                  <option>Food</option>
+                  <option>Library</option>
+                  <option>Hostel</option>
+                  <option>Infrastructure</option>
+                  <option>Staff</option>
+                  <option>Others</option>
+                </select>
+              </div>
+              <div class="fg2" style="flex: 1; min-width: 150px;">
+                <label>Status</label>
+                <select id="sens-status" onchange="loadSensitiveComplaints()">
+                  <option value="">All Status</option>
+                  <option>Pending</option>
+                  <option>Under Review</option>
+                  <option>Resolved</option>
+                </select>
+              </div>
+              <div class="fg2" style="flex: 1; min-width: 150px;">
+                <label>Sort</label>
+                <select id="sens-sort" onchange="loadSensitiveComplaints()">
+                  <option value="votes">Most Upvoted</option>
+                  <option value="new">Newest</option>
+                  <option value="old">Oldest</option>
+                </select>
+              </div>
+              <div class="fg2" style="flex: 2; min-width: 250px;">
+                <label>Search</label>
+                <input type="text" id="sens-search" placeholder="Search title or description..." oninput="loadSensitiveComplaints()" style="padding: 8px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; box-sizing: border-box; background: #fff;" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="acs" style="margin-top:20px;">
           <h2 id="sensitiveTitle">Sensitive Complaints</h2>
           <div class="sub" id="sensitiveMeta" style="margin-top:-10px;margin-bottom:18px;"></div>
           <div id="sensitiveList" class="loading">Loading…</div>
@@ -761,45 +808,83 @@ async function register() {
 // ── Sensitive Complaints (Admin) ─────────────────────────────────────────
 let __sensitiveCache = null;
 
-function loadSensitiveComplaints() {
-  const list = document.getElementById('sensitiveList');
-  const title = document.getElementById('sensitiveTitle');
-  const meta = document.getElementById('sensitiveMeta');
-  if (title) title.textContent = 'Senstive Complaints (0)';
-  if (meta) meta.textContent = '';
-  if (list) list.innerHTML = '<div class="loading">Loading…</div>';
+async function loadSensitiveComplaints() {
+  const listEl = document.getElementById('sensitiveList');
+  const titleEl = document.getElementById('sensitiveTitle');
+  const metaEl = document.getElementById('sensitiveMeta');
+  
+  if (!listEl) return;
+  
+  const fac = document.getElementById('sens-fac')?.value || '';
+  const stat = document.getElementById('sens-status')?.value || '';
+  const sort = document.getElementById('sens-sort')?.value || 'votes';
+  const search = document.getElementById('sens-search')?.value || '';
 
-  // Backend endpoint may not exist yet.
-  fetch('/api/complaints/sensitive')
-    .then(r => r.json().catch(() => ({}))).then(data => {
-      const complaints = data?.complaints || data?.sensitive || [];
-      const count = Array.isArray(complaints) ? complaints.length : 0;
-      if (title) title.textContent = `Senstive Complaints (${count})`;
-      if (!list) return;
-      if (!complaints.length) {
-        list.innerHTML = '<div class="loading">No sensitive complaints found.</div>';
-        return;
-      }
-      list.innerHTML = complaints.map(c => {
-        const cid = c.id ?? '';
-        const ctitle = esc(c.title || 'Untitled');
-        const cdesc = esc(c.desc || c.description || '');
-        const status = esc(c.status || 'Pending');
-        return `
-          <div class="acard" style="padding:16px 20px;">
-            <div class="at" style="margin-bottom:6px;">${ctitle}</div>
-            <div class="ad">${cdesc}</div>
-            <div class="ca">Status: <span style="font-weight:700;color:var(--text);">${status}</span></div>
-            ${cid ? `<div style="margin-top:10px;"><button class="btn-sub" style="padding:9px 14px;" onclick="openComplaintDetail(${cid})">View</button></div>` : ''}
+  listEl.innerHTML = '<div class="loading">Loading…</div>';
+
+  try {
+    const params = new URLSearchParams(
+      Object.fromEntries(
+        [['faculty', fac], ['status', stat], ['sort', sort], ['search', search]].filter(([, v]) => v)
+      )
+    );
+
+    const data = await apiFetch('/complaints/admin/sensitive?' + params.toString());
+    const complaints = data?.complaints || [];
+    const count = complaints.length;
+    
+    if (titleEl) titleEl.textContent = `Sensitive Complaints (${count})`;
+    if (metaEl) {
+      metaEl.textContent = count > 0 
+        ? `Showing ${count} sensitive complaints` 
+        : 'No sensitive complaints match the current filters.';
+    }
+
+    if (count === 0) {
+      listEl.innerHTML = '<div class="loading">No sensitive complaints found.</div>';
+      return;
+    }
+
+    listEl.innerHTML = complaints.map(c => {
+      return `
+        <div class="acard" data-cid="${c.id}">
+          <div class="at" style="cursor:pointer" onclick="openComplaintDetail(${c.id})">${esc(c.title)}</div>
+          <div class="ad" style="cursor:pointer" onclick="openComplaintDetail(${c.id})">${esc(c.desc)}</div>
+          <div class="atags">
+            ${sp(c.status)}
+            <span class="pill p-cat">${esc(c.faculty)}</span>
+            ${pp(c.pri)}
           </div>
-        `;
-      }).join('');
-    })
-    .catch(() => {
-      if (!list) return;
-      if (title) title.textContent = 'Senstive Complaints (0)';
-      list.innerHTML = '<div class="loading">Sensitive complaints endpoint not available.</div>';
-    });
+          <div class="aa">Assigned to: <span>${esc(c.dept)}</span></div>
+          <div class="aa" style="margin-top:-4px">Admin notes: <span id="an-sens-${c.id}">—</span></div>
+          <div class="aft">
+            <div class="afl">${c.votes} upvotes &nbsp; ${ta(c.days)}</div>
+            <select class="ss" onchange="updStatus(${c.id}, this.value)">
+              <option ${c.status === 'Pending' ? 'selected' : ''}>Pending</option>
+              <option ${c.status === 'Under Review' ? 'selected' : ''}>Under Review</option>
+              <option ${c.status === 'Resolved' ? 'selected' : ''}>Resolved</option>
+            </select>
+          </div>
+        </div>`;
+    }).join('');
+
+    // Fetch admin notes count for each card
+    await Promise.all(complaints.map(async (c) => {
+      try {
+        const notes = await apiFetch(`/complaints/${c.id}/admin/notes`);
+        const count = notes?.notes?.length ?? 0;
+        const el = document.getElementById(`an-sens-${c.id}`);
+        if (el) el.textContent = String(count);
+      } catch {
+        const el = document.getElementById(`an-sens-${c.id}`);
+        if (el) el.textContent = '—';
+      }
+    }));
+
+  } catch (e) {
+    if (titleEl) titleEl.textContent = 'Sensitive Complaints (0)';
+    listEl.innerHTML = `<div class="loading">Error loading sensitive complaints: ${esc(e.message)}</div>`;
+  }
 }
 
 function go(p) {
@@ -879,54 +964,9 @@ function go(p) {
       if (sideStudents) sideStudents.classList.remove('act');
       if (sideSensitive) sideSensitive.classList.add('act');
 
-      // Always render something immediately (prevents blank page).
-      const titleEl = document.getElementById('sensitiveTitle');
-      const listEl = document.getElementById('sensitiveList');
-      if (titleEl) titleEl.textContent = 'Senstive Complaints (0)';
-      if (listEl) listEl.innerHTML = '<div class="loading">Loading…</div>';
-
-      // Fetch is best-effort only; never allow runtime errors to blank the UI.
-      try {
-        fetch('/api/complaints/sensitive')
-          .then(r => r.json().catch(() => ({})))
-          .then(data => {
-            const complaints = data?.complaints || data?.sensitive || [];
-            const count = Array.isArray(complaints) ? complaints.length : 0;
-            if (titleEl) titleEl.textContent = `Senstive Complaints (${count})`;
-            if (!listEl) return;
-            if (!Array.isArray(complaints) || complaints.length === 0) {
-              listEl.innerHTML = '<div class="loading">No sensitive complaints found.</div>';
-              return;
-            }
-            listEl.innerHTML = complaints.map(c => {
-              const cid = c.id ?? '';
-              const ctitle = (window.esc ? esc(c.title || 'Untitled') : (c.title || 'Untitled'));
-              const cdesc = (window.esc ? esc(c.desc || c.description || '') : (c.desc || c.description || ''));
-              const status = (window.esc ? esc(c.status || 'Pending') : (c.status || 'Pending'));
-              return `
-                <div class="acard" style="padding:16px 20px;">
-                  <div class="at" style="margin-bottom:6px;">${ctitle}</div>
-                  <div class="ad">${cdesc}</div>
-                  <div class="ca">Status: <span style="font-weight:700;color:var(--text);">${status}</span></div>
-                  ${cid ? `<div style="margin-top:10px;"><button class="btn-sub" style="padding:9px 14px;" onclick="openComplaintDetail(${cid})">View</button></div>` : ''}
-                </div>
-              `;
-            }).join('');
-          })
-          .catch(() => {
-            if (titleEl) titleEl.textContent = 'Senstive Complaints (0)';
-            if (listEl) listEl.innerHTML = '<div class="loading">Sensitive complaints endpoint not available.</div>';
-          });
-      } catch (e) {
-        if (listEl) listEl.innerHTML = '<div class="loading">Sensitive complaints could not be loaded.</div>';
-      }
+      loadSensitiveComplaints();
     } catch (e) {
-      const sens = document.getElementById('admin-sensitive-page');
-      if (sens) sens.style.display = 'block';
-      const titleEl = document.getElementById('sensitiveTitle');
-      const listEl = document.getElementById('sensitiveList');
-      if (titleEl) titleEl.textContent = 'Senstive Complaints (0)';
-      if (listEl) listEl.innerHTML = '<div class="loading">Sensitive complaints failed to render.</div>';
+      console.error('adminSensitive navigation error:', e);
     }
   }
 
@@ -1545,7 +1585,12 @@ async function cdUpdateStatus() {
     });
     toast('Status updated');
     // refresh lists depending on current page
-    if (document.getElementById('pg-admin')?.style.display !== 'none') ra(); else rf();
+    if (document.getElementById('pg-admin')?.style.display !== 'none') {
+      ra();
+      loadSensitiveComplaints();
+    } else {
+      rf();
+    }
   } catch (e) {
     toast(e.message, false);
   }
@@ -1906,8 +1951,9 @@ async function updStatus(id, status) {
       body: JSON.stringify({ status })
     });
     toast('Status updated to ' + status);
-    // Refresh admin view to reflect new progress bars
+    // Refresh admin views to reflect new progress bars
     ra();
+    loadSensitiveComplaints();
   } catch (e) {
     toast(e.message, false);
   }

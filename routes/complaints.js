@@ -79,13 +79,16 @@ function format(row, votedSet = new Set(), attachments = []) {
 // Admin only — view all sensitive complaints
 router.get('/admin/sensitive', requireAuth, requireAdmin, async (req, res) => {
   try {
-    const { faculty, sort = 'votes', search } = req.query;
+    const { faculty, status, sort = 'votes', search } = req.query;
 
     let sql = 'SELECT * FROM complaints WHERE is_sensitive = 1';
     const params = [];
 
     if (faculty && VALID_FACULTIES.includes(faculty)) {
       sql += ' AND faculty = ?'; params.push(faculty);
+    }
+    if (status && VALID_STATUSES.includes(status)) {
+      sql += ' AND status = ?'; params.push(status);
     }
     if (search) {
       const like = `%${search}%`;
