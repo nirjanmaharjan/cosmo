@@ -1,16 +1,23 @@
-# TODO - Image attachments in complaint feed
+# TODO
 
-## Step 1: Backend upload wiring
-- Update `routes/complaints.js` `POST /api/complaints` to accept multipart uploads using `middleware/upload.js`.
-- Insert uploaded files into `attachments` table after creating the complaint.
+- [x] Add admin backend APIs for student CRUD in `routes/admin.js`:
 
-## Step 2: Frontend send multipart
-- Update `public/index.html` `submitComplaint()` to use `FormData`.
-- Append images from `#cp-photos` with field name `photos`.
+  - [x] `PUT /api/admin/students/:id` update fields (name, roll_number, class_name, section, degree_faculty, email)
 
-## Step 3: Feed UI thumbnail
-- Update `renderCard(c)` in `public/index.html` to display the first attachment thumbnail (if any).
+  - [x] `POST /api/admin/students` create a student (email, password, name, roll_number, class_name, section, degree_faculty)
 
-## Step 4: Verification
-- Start server, submit a complaint with images, confirm images show in the feed and after refresh.
+  - [x] `DELETE /api/admin/students/:id` remove student
+
+- [x] Update admin frontend `public/index.html` Student List page:
+
+  - [ ] Add Edit button + modal per student and save via `PUT`
+  - [ ] Add Add Student form and submit via `POST`
+  - [ ] Add Remove button + confirmation and delete via `DELETE`
+- [x] Refresh list and dropdown filters after create/update/delete
+
+- [ ] Manual testing:
+  - [ ] Login as admin, navigate to Student List, verify list + filters + search
+  - [ ] Edit student info updates UI
+  - [ ] Add student appears in list
+  - [ ] Remove student disappears from list
 

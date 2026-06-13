@@ -466,11 +466,20 @@ select:focus{border-color:var(--blue)}
 <!-- ADMIN -->
 <div id="pg-admin" class="page">
   <nav class="nav">
-    <div class="nb"><div class="ni"><svg width="16" height="16" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg></div><div><h3>SafeVoice</h3><p>College Complaint System</p></div></div>
-    <div class="nls">
-
+    <div class="nb">
+      <div class="ni">
+        <svg width="16" height="16" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+        </svg>
+      </div>
+      <div>
+        <h3>SafeVoice</h3>
+        <p>College Complaint System</p>
+      </div>
     </div>
+    <div class="nls"></div>
     <div class="na">
+
       <div class="av-wrap" style="margin-right:10px;">
         <button class="av" id="bellBtn" style="background:transparent;color:var(--sub)" onclick="toggleNotif(event)" aria-label="Notifications">
           <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="18" height="18">
@@ -510,16 +519,37 @@ select:focus{border-color:var(--blue)}
   </nav>
   <div class="adminShell">
     <aside class="adminSide">
-      <button class="sideItem act" onclick="go('admin')" style="display:flex">
+      <button id="side_admin" class="sideItem act" onclick="go('admin')" style="display:flex">
 
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/>
         </svg>
         Admin
       </button>
+
+      <button id="side_sensitive" class="sideItem" onclick="go('adminSensitive')" style="display:flex">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M12 9v4"/>
+          <path d="M12 17h.01"/>
+          <path d="M10.3 3.1l-7.5 13A2 2 0 004.6 19h14.8a2 2 0 001.8-2.9l-7.5-13a2 2 0 00-3.4 0z"/>
+        </svg>
+        Sensitive Complaint
+      </button>
+
+      <button id="side_students" class="sideItem" onclick="go('adminStudents')" style="display:flex">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M4 19c0-1.1 3.1-2 8-2s8 .9 8 2"/>
+          <path d="M12 11a4 4 0 1 0-4-4 4 4 0 0 0 4 4z"/>
+          <path d="M20 8v6"/>
+          <path d="M23 11h-6"/>
+        </svg>
+        Student List
+      </button>
+
+
     </aside>
     <main class="adminMain">
-      <div class="ac">
+      <div class="ac" id="admin-dashboard-page">
         <h1>Admin Dashboard</h1>
         <p class="sub">Manage and monitor all campus complaints</p>
         <div class="sg" id="astats"></div>
@@ -534,6 +564,42 @@ select:focus{border-color:var(--blue)}
           </div>
         </div>
         <div class="acs"><h2 id="atitle">Complaints</h2><div id="alist"></div></div>
+      </div>
+
+      <div class="ac" id="admin-sensitive-page" style="display:none;">
+        <h1>Sensetive Complaint</h1>
+        <p class="sub">View and manage sensitive complaints</p>
+        <div class="acs" style="margin-top:10px;">
+          <h2 id="sensitiveTitle">Sensitive Complaints</h2>
+          <div class="sub" id="sensitiveMeta" style="margin-top:-10px;margin-bottom:18px;"></div>
+          <div id="sensitiveList" class="loading">Loading…</div>
+        </div>
+      </div>
+
+
+      <div class="ac" id="admin-students-page" style="display:none;">
+        <h1>Student List</h1>
+        <p class="sub">View registered students and manage passwords</p>
+
+        <div class="sb2" style="margin-bottom:14px;">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="min-width:15px;">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="m21 21-4.35-4.35"/>
+          </svg>
+          <input type="text" id="ss" placeholder="Search students by name, email, or roll number…" oninput="queueLoadStudents()">
+        </div>
+
+        <div class="fp" style="margin-bottom:18px;">
+          <div class="fg2"><label>Class</label><select id="sfClass" onchange="loadStudents()"><option value="">All Classes</option></select></div>
+          <div class="fg2"><label>Section</label><select id="sfSection" onchange="loadStudents()"><option value="">All Sections</option></select></div>
+          <div class="fg2"><label>Degree/Faculty</label><select id="sfDegree" onchange="loadStudents()"><option value="">All Faculties</option></select></div>
+        </div>
+
+        <div class="acs" style="margin-top:8px;">
+          <h2 id="sttitle">Students</h2>
+          <div class="sub" id="stmeta" style="margin-top:-10px;margin-bottom:18px;"></div>
+          <div id="studentsList"> <div class="loading">Loading students…</div></div>
+        </div>
       </div>
     </main>
   </div>
@@ -609,6 +675,13 @@ function afterLogin() {
   const adminPage = document.getElementById('pg-admin');
   if (adminPage && !isAdmin) adminPage.style.display = 'none';
   if (adminPage && isAdmin) adminPage.style.display = 'flex';
+
+  // Hide/show left sidebar items (frontend hardening)
+  const sideStudents = document.getElementById('side_students');
+  if (sideStudents) sideStudents.style.display = isAdmin ? 'flex' : 'none';
+  const sideAdmin = document.getElementById('side_admin');
+  if (sideAdmin) sideAdmin.style.display = isAdmin ? 'flex' : 'none';
+
   // Go to admin dashboard for admins; otherwise home for students.
   go(isAdmin ? 'admin' : 'home');
 
@@ -660,8 +733,54 @@ async function register() {
     btn.textContent = prev;
   }
 }
-// ── Navigation ───────────────────────────────────────────────────────────────
+// ── Sensitive Complaints (Admin) ─────────────────────────────────────────
+let __sensitiveCache = null;
+
+function loadSensitiveComplaints() {
+  const list = document.getElementById('sensitiveList');
+  const title = document.getElementById('sensitiveTitle');
+  const meta = document.getElementById('sensitiveMeta');
+  if (title) title.textContent = 'Senstive Complaints (0)';
+  if (meta) meta.textContent = '';
+  if (list) list.innerHTML = '<div class="loading">Loading…</div>';
+
+  // Backend endpoint may not exist yet.
+  fetch('/api/complaints/sensitive')
+    .then(r => r.json().catch(() => ({}))).then(data => {
+      const complaints = data?.complaints || data?.sensitive || [];
+      const count = Array.isArray(complaints) ? complaints.length : 0;
+      if (title) title.textContent = `Senstive Complaints (${count})`;
+      if (!list) return;
+      if (!complaints.length) {
+        list.innerHTML = '<div class="loading">No sensitive complaints found.</div>';
+        return;
+      }
+      list.innerHTML = complaints.map(c => {
+        const cid = c.id ?? '';
+        const ctitle = esc(c.title || 'Untitled');
+        const cdesc = esc(c.desc || c.description || '');
+        const status = esc(c.status || 'Pending');
+        return `
+          <div class="acard" style="padding:16px 20px;">
+            <div class="at" style="margin-bottom:6px;">${ctitle}</div>
+            <div class="ad">${cdesc}</div>
+            <div class="ca">Status: <span style="font-weight:700;color:var(--text);">${status}</span></div>
+            ${cid ? `<div style="margin-top:10px;"><button class="btn-sub" style="padding:9px 14px;" onclick="openComplaintDetail(${cid})">View</button></div>` : ''}
+          </div>
+        `;
+      }).join('');
+    })
+    .catch(() => {
+      if (!list) return;
+      if (title) title.textContent = 'Senstive Complaints (0)';
+      list.innerHTML = '<div class="loading">Sensitive complaints endpoint not available.</div>';
+    });
+}
+
 function go(p) {
+
+
+
   // Close only notification overlays/panels.
   // Do NOT touch bell icon visibility; each page owns its own navbar.
   closeNotifOverlay();
@@ -671,7 +790,12 @@ function go(p) {
   if (adminPage) adminPage.style.display = 'none';
 
   document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
-  document.getElementById('pg-' + p).classList.add('active');
+  // 'adminStudents' is a sub-view inside #pg-admin, not a standalone #pg-* page.
+  if (p === 'adminStudents') {
+    document.getElementById('pg-admin').classList.add('active');
+  } else {
+    document.getElementById('pg-' + p).classList.add('active');
+  }
 
   if (p === 'home') {
     if (adminPage) adminPage.style.display = 'none';
@@ -686,7 +810,105 @@ function go(p) {
   if (p === 'admin') {
     if (adminPage) adminPage.style.display = 'flex';
     ra();
+    const sideAdmin = document.getElementById('side_admin');
+    const sideStudents = document.getElementById('side_students');
+    if (sideAdmin) sideAdmin.classList.add('act');
+    if (sideStudents) sideStudents.classList.remove('act');
+    const dash = document.getElementById('admin-dashboard-page');
+    const stud = document.getElementById('admin-students-page');
+    if (dash) dash.style.display = 'block';
+    if (stud) stud.style.display = 'none';
   }
+
+  if (p === 'adminStudents') {
+    if (adminPage) adminPage.style.display = 'flex';
+    const dash = document.getElementById('admin-dashboard-page');
+    const stud = document.getElementById('admin-students-page');
+    const sens = document.getElementById('admin-sensitive-page');
+    if (dash) dash.style.display = 'none';
+    if (stud) stud.style.display = 'block';
+    if (sens) sens.style.display = 'none';
+    const sideAdmin = document.getElementById('side_admin');
+    const sideStudents = document.getElementById('side_students');
+    if (sideAdmin) sideAdmin.classList.remove('act');
+    if (sideStudents) sideStudents.classList.add('act');
+    const sideSensitive = document.getElementById('side_sensitive');
+    if (sideSensitive) sideSensitive.classList.remove('act');
+    loadStudents(true);
+  }
+
+  if (p === 'adminSensitive') {
+    try {
+      if (adminPage) adminPage.style.display = 'flex';
+      const dash = document.getElementById('admin-dashboard-page');
+      const stud = document.getElementById('admin-students-page');
+      const sens = document.getElementById('admin-sensitive-page');
+      if (dash) dash.style.display = 'none';
+      if (stud) stud.style.display = 'none';
+      if (sens) sens.style.display = 'block';
+
+      const sideAdmin = document.getElementById('side_admin');
+      const sideStudents = document.getElementById('side_students');
+      const sideSensitive = document.getElementById('side_sensitive');
+      if (sideAdmin) sideAdmin.classList.remove('act');
+      if (sideStudents) sideStudents.classList.remove('act');
+      if (sideSensitive) sideSensitive.classList.add('act');
+
+      // Always render something immediately (prevents blank page).
+      const titleEl = document.getElementById('sensitiveTitle');
+      const listEl = document.getElementById('sensitiveList');
+      if (titleEl) titleEl.textContent = 'Senstive Complaints (0)';
+      if (listEl) listEl.innerHTML = '<div class="loading">Loading…</div>';
+
+      // Fetch is best-effort only; never allow runtime errors to blank the UI.
+      try {
+        fetch('/api/complaints/sensitive')
+          .then(r => r.json().catch(() => ({})))
+          .then(data => {
+            const complaints = data?.complaints || data?.sensitive || [];
+            const count = Array.isArray(complaints) ? complaints.length : 0;
+            if (titleEl) titleEl.textContent = `Senstive Complaints (${count})`;
+            if (!listEl) return;
+            if (!Array.isArray(complaints) || complaints.length === 0) {
+              listEl.innerHTML = '<div class="loading">No sensitive complaints found.</div>';
+              return;
+            }
+            listEl.innerHTML = complaints.map(c => {
+              const cid = c.id ?? '';
+              const ctitle = (window.esc ? esc(c.title || 'Untitled') : (c.title || 'Untitled'));
+              const cdesc = (window.esc ? esc(c.desc || c.description || '') : (c.desc || c.description || ''));
+              const status = (window.esc ? esc(c.status || 'Pending') : (c.status || 'Pending'));
+              return `
+                <div class="acard" style="padding:16px 20px;">
+                  <div class="at" style="margin-bottom:6px;">${ctitle}</div>
+                  <div class="ad">${cdesc}</div>
+                  <div class="ca">Status: <span style="font-weight:700;color:var(--text);">${status}</span></div>
+                  ${cid ? `<div style="margin-top:10px;"><button class="btn-sub" style="padding:9px 14px;" onclick="openComplaintDetail(${cid})">View</button></div>` : ''}
+                </div>
+              `;
+            }).join('');
+          })
+          .catch(() => {
+            if (titleEl) titleEl.textContent = 'Senstive Complaints (0)';
+            if (listEl) listEl.innerHTML = '<div class="loading">Sensitive complaints endpoint not available.</div>';
+          });
+      } catch (e) {
+        if (listEl) listEl.innerHTML = '<div class="loading">Sensitive complaints could not be loaded.</div>';
+      }
+    } catch (e) {
+      const sens = document.getElementById('admin-sensitive-page');
+      if (sens) sens.style.display = 'block';
+      const titleEl = document.getElementById('sensitiveTitle');
+      const listEl = document.getElementById('sensitiveList');
+      if (titleEl) titleEl.textContent = 'Senstive Complaints (0)';
+      if (listEl) listEl.innerHTML = '<div class="loading">Sensitive complaints failed to render.</div>';
+    }
+  }
+
+
+
+
+
   if (p === 'register') {
     if (adminPage) adminPage.style.display = 'none';
     const e = document.getElementById('reg-email');
@@ -1451,6 +1673,11 @@ function sp(s) {
   if (s === 'Under Review') return `<span class="pill p-rev">Under Review</span>`;
   return `<span class="pill p-res">Resolved</span>`;
 }
+
+function esc(s = '') {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'<').replace(/>/g,'>');
+}
+
 function pp(p) {
   if (p === 'High')   return `<span class="pill p-hi">High Priority</span>`;
   if (p === 'Medium') return `<span class="pill p-med">Medium Priority</span>`;
@@ -1464,6 +1691,387 @@ function ta(d) {
   if (d === 0) return 'Today';
   return d + ' day' + (d !== 1 ? 's' : '') + ' ago';
 }
+
+// ── Admin: Student List ───────────────────────────────────────────────────
+let __studentsLoadTimer = null;
+let __studentsCache = null;
+
+function queueLoadStudents() {
+  if (__studentsLoadTimer) clearTimeout(__studentsLoadTimer);
+  __studentsLoadTimer = setTimeout(() => loadStudents(false), 250);
+}
+
+async function loadStudents(initial = false) {
+
+  const isAdminNow = currentUser && currentUser.role === 'admin';
+  if (!isAdminNow) return;
+
+  const search = (document.getElementById('ss')?.value || '').trim();
+  const class_name = document.getElementById('sfClass')?.value || '';
+  const section = document.getElementById('sfSection')?.value || '';
+  const degree_faculty = document.getElementById('sfDegree')?.value || '';
+
+  const listEl = document.getElementById('studentsList');
+  const metaEl = document.getElementById('stmeta');
+  if (listEl) listEl.innerHTML = '<div class="loading">Loading students…</div>';
+
+  try {
+    const params = new URLSearchParams();
+    if (search) params.set('search', search);
+    if (class_name) params.set('class_name', class_name);
+    if (section) params.set('section', section);
+    if (degree_faculty) params.set('degree_faculty', degree_faculty);
+
+    const data = await apiFetch('/admin/students?' + params.toString());
+    const students = data.students || [];
+    __studentsCache = students;
+
+    if (metaEl) metaEl.textContent = `Showing ${students.length} student${students.length === 1 ? '' : 's'}`;
+
+    if (initial) {
+      // Populate filter dropdowns based on the current result set.
+      // (Backend supports query filters, but we use dropdowns for narrowing.)
+      const all = await apiFetch('/admin/students');
+      const allStudents = all.students || [];
+
+      const clsSet = new Set(allStudents.map(s => s.class_name).filter(Boolean));
+      const secSet = new Set(allStudents.map(s => s.section).filter(Boolean));
+      const degSet = new Set(allStudents.map(s => s.degree_faculty).filter(Boolean));
+
+      const sfClass = document.getElementById('sfClass');
+      const sfSection = document.getElementById('sfSection');
+      const sfDegree = document.getElementById('sfDegree');
+
+      if (sfClass) {
+        const opts = ['<option value="">All Classes</option>']
+          .concat(Array.from(clsSet).sort().map(v => `<option value="${esc(v)}">${esc(v)}</option>`));
+        sfClass.innerHTML = opts.join('');
+      }
+      if (sfSection) {
+        const opts = ['<option value="">All Sections</option>']
+          .concat(Array.from(secSet).sort().map(v => `<option value="${esc(v)}">${esc(v)}</option>`));
+        sfSection.innerHTML = opts.join('');
+      }
+      if (sfDegree) {
+        const opts = ['<option value="">All Faculties</option>']
+          .concat(Array.from(degSet).sort().map(v => `<option value="${esc(v)}">${esc(v)}</option>`));
+        sfDegree.innerHTML = opts.join('');
+      }
+    }
+
+    if (!listEl) return;
+    listEl.innerHTML = students.length
+      ? students
+          .map(s => `
+        <div class="acard" style="padding:16px 20px;">
+          <div class="at" style="margin-bottom:10px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;">
+            <div>
+              <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px;">${esc(s.name)}</div>
+              <div class="ad" style="margin:0;">Roll: <span style="font-weight:700;color:var(--text);">${esc(s.roll_number)}</span></div>
+            </div>
+            <button class="btn-sub" style="padding:9px 14px;border-radius:10px;" onclick="openAdminResetStudentPassword(${s.id})">Reset Password</button>
+          </div>
+          <div class="tm" style="justify-content:flex-start;gap:14px;">
+            <span class="mi">Class: <span class="mv">${esc(s.class_name || '')}</span></span>
+            <span class="mi">Section: <span class="mv">${esc(s.section || '')}</span></span>
+            <span class="mi">Degree/Faculty: <span class="mv">${esc(s.degree_faculty || '')}</span></span>
+          </div>
+
+          <div class="aft" style="margin-top:12px;gap:12px;">
+            <button class="vb" style="padding:9px 14px;border-radius:10px;" onclick="openAdminEditStudent(${s.id})" type="button">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+              Edit
+            </button>
+
+            <button class="vb" style="padding:9px 14px;border-radius:10px;border-color:#FECACA;color:#DC2626;" onclick="removeAdminStudent(${s.id})" type="button">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+              Remove
+            </button>
+
+          </div>
+        </div>
+      `)
+
+
+          .join('')
+      : '<div class="loading">No students match the current filters.</div>';
+  } catch (e) {
+    if (listEl) listEl.innerHTML = `<div class="loading">Error: ${esc(e.message)}</div>`;
+  }
+}
+
+function openAdminResetStudentPassword(studentId) {
+  // Create modal for admin reset password.
+  const existing = document.getElementById('resetStudentPwModal');
+  if (existing) existing.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'resetStudentPwModal';
+  modal.style.position = 'fixed';
+  modal.style.inset = '0';
+  modal.style.background = 'rgba(0,0,0,.45)';
+  modal.style.zIndex = '2000';
+  modal.style.display = 'flex';
+  modal.style.alignItems = 'flex-start';
+  modal.style.justifyContent = 'center';
+  modal.style.paddingTop = '72px';
+
+  const student = (__studentsCache || []).find(x => x.id === studentId) || null;
+  const studentEmail = student?.email || '';
+
+  modal.innerHTML = `
+    <div style="width:100%;max-width:520px;background:#fff;border-radius:16px;border:1px solid var(--border);box-shadow:0 16px 60px rgba(0,0,0,.25);overflow:hidden;">
+      <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;">
+        <div>
+          <div style="font-size:13px;font-weight:900;color:var(--text);">Reset Student Password</div>
+          <div style="font-size:11px;color:var(--sub);margin-top:2px;">${student?.name ? `For ${esc(student.name)}` : 'Student'}</div>
+        </div>
+        <button onclick="closeAdminResetStudentPassword()" style="background:none;border:none;color:var(--blue);font-weight:900;cursor:pointer;font-size:13px;">Close</button>
+      </div>
+
+      <div style="padding:16px;">
+        <div class="fg" style="margin-bottom:14px;">
+          <label style="display:block;font-size:13px;font-weight:500;margin-bottom:6px;color:var(--sub);">Email</label>
+          <div style="padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;background:#fff;font-size:14px;">${esc(studentEmail)}</div>
+        </div>
+
+        <div class="fg" style="margin-bottom:14px;">
+          <label style="display:block;font-size:13px;font-weight:500;margin-bottom:6px;color:var(--sub);">New Password</label>
+          <div class="iw">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:15px;height:15px;position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--sub)">
+              <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+            </svg>
+            <input type="password" id="rsp-pw" placeholder="Create a new password" style="padding:10px 12px 10px 36px;width:100%;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;outline:none;" />
+          </div>
+        </div>
+
+        <div class="fg" style="margin-bottom:18px;">
+          <label style="display:block;font-size:13px;font-weight:500;margin-bottom:6px;color:var(--sub);">Confirm Password</label>
+          <div class="iw">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:15px;height:15px;position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--sub)">
+              <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+            </svg>
+            <input type="password" id="rsp-pw2" placeholder="Repeat new password" style="padding:10px 12px 10px 36px;width:100%;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;outline:none;" />
+          </div>
+        </div>
+
+        <button class="btn-blue" onclick="resetAdminStudentPassword(${studentId}, this)" style="width:100%;">Update Password</button>
+        <div class="small-note" style="text-align:center;margin-top:10px;">Use 6+ characters.</div>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+}
+
+function closeAdminResetStudentPassword() {
+  const existing = document.getElementById('resetStudentPwModal');
+  if (existing) existing.remove();
+}
+
+async function resetAdminStudentPassword(studentId, btnEl) {
+  const pw1 = document.getElementById('rsp-pw')?.value || '';
+  const pw2 = document.getElementById('rsp-pw2')?.value || '';
+
+  if (!pw1 || !pw2) { toast('Please enter the new password.', false); return; }
+  if (pw1.length < 6) { toast('Password must be at least 6 characters.', false); return; }
+  if (pw1 !== pw2) { toast('Passwords do not match.', false); return; }
+
+  try {
+    if (btnEl) { btnEl.disabled = true; btnEl.textContent = 'Updating…'; }
+    await apiFetch(`/admin/students/${studentId}/reset-password`, {
+      method: 'POST',
+      body: JSON.stringify({ password: pw1 })
+    });
+    toast('Student password reset successfully!');
+    closeAdminResetStudentPassword();
+    // Refresh list (no need to change data, but good UX)
+    loadStudents(false);
+  } catch (e) {
+    toast(e.message, false);
+  } finally {
+    if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Update Password'; }
+  }
+}
+
+function openAdminEditStudent(studentId) {
+  const existing = document.getElementById('editStudentModal');
+  if (existing) existing.remove();
+
+  const student = (__studentsCache || []).find(x => x.id === studentId) || null;
+
+  const modal = document.createElement('div');
+  modal.id = 'editStudentModal';
+  modal.style.position = 'fixed';
+  modal.style.inset = '0';
+  modal.style.background = 'rgba(0,0,0,.45)';
+  modal.style.zIndex = '2000';
+  modal.style.display = 'flex';
+  modal.style.alignItems = 'flex-start';
+  modal.style.justifyContent = 'center';
+  modal.style.paddingTop = '72px';
+
+  modal.innerHTML = `
+    <div style="width:100%;max-width:640px;background:#fff;border-radius:16px;border:1px solid var(--border);box-shadow:0 16px 60px rgba(0,0,0,.25);overflow:hidden;">
+      <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;">
+        <div>
+          <div style="font-size:13px;font-weight:900;color:var(--text);">Edit Student</div>
+          <div style="font-size:11px;color:var(--sub);margin-top:2px;">${student?.name ? `For ${esc(student.name)}` : 'Student'} </div>
+        </div>
+        <button onclick="closeAdminEditStudent()" style="background:none;border:none;color:var(--blue);font-weight:900;cursor:pointer;font-size:13px;">Close</button>
+      </div>
+
+      <div style="padding:16px;">
+        <div class="fp" style="gap:12px;">
+          <div class="fg2" style="margin-bottom:0;">
+            <label>Roll</label>
+            <input id="es_roll" type="text" value="${esc(student?.roll_number || '')}" style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;outline:none;" />
+          </div>
+
+          <div class="fg2" style="margin-bottom:0;">
+            <label>Class</label>
+            <input id="es_class" type="text" value="${esc(student?.class_name || '')}" style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;outline:none;" />
+          </div>
+
+          <div class="fg2" style="margin-bottom:0;">
+            <label>Section</label>
+            <input id="es_section" type="text" value="${esc(student?.section || '')}" style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;outline:none;" />
+          </div>
+
+          <div class="fg2" style="margin-bottom:0;">
+            <label>Degree/Faculty</label>
+            <input id="es_degree" type="text" value="${esc(student?.degree_faculty || '')}" style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;outline:none;" />
+          </div>
+
+          <div class="fg2" style="margin-bottom:0;">
+            <label>Reset Password</label>
+            <input id="es_reset_pw" type="password" placeholder="Enter new password (min 6 chars)" style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;outline:none;" />
+          </div>
+
+          <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:6px;">
+            <button onclick="closeAdminEditStudent()" class="ss">Cancel</button>
+            <button class="btn-sub" style="padding:11px 18px;" onclick="confirmAdminEditStudent(${studentId}, this)">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+}
+
+function closeAdminEditStudent() {
+  const existing = document.getElementById('editStudentModal');
+  if (existing) existing.remove();
+}
+
+async function confirmAdminEditStudent(studentId, btnEl) {
+  const roll_number = document.getElementById('es_roll')?.value?.trim() || '';
+  const class_name = document.getElementById('es_class')?.value?.trim() || '';
+  const section = document.getElementById('es_section')?.value?.trim() || '';
+  const degree_faculty = document.getElementById('es_degree')?.value?.trim() || '';
+  const reset_pw = document.getElementById('es_reset_pw')?.value?.trim() || '';
+
+  if (!roll_number) { toast('Roll is required.', false); return; }
+  if (!class_name) { toast('Class is required.', false); return; }
+  if (!section) { toast('Section is required.', false); return; }
+  if (!degree_faculty) { toast('Degree/Faculty is required.', false); return; }
+
+  try {
+    if (btnEl) { btnEl.disabled = true; btnEl.textContent = 'Saving…'; }
+
+    // Update profile (PUT)
+    await apiFetch(`/admin/students/${studentId}`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        roll_number,
+        class_name,
+        section,
+        degree_faculty,
+      })
+    });
+
+    // Optional reset password (POST)
+    if (reset_pw) {
+      if (reset_pw.length < 6) { toast('Password must be at least 6 characters.', false); return; }
+      await apiFetch(`/admin/students/${studentId}/reset-password`, {
+        method: 'POST',
+        body: JSON.stringify({ password: reset_pw })
+      });
+    }
+
+    toast('Student updated successfully!');
+    closeAdminEditStudent();
+    loadStudents(false);
+  } catch (e) {
+    toast(e.message, false);
+  } finally {
+    if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Save'; }
+  }
+}
+
+function removeAdminStudent(studentId) {
+  const existing = document.getElementById('removeStudentModal');
+  if (existing) existing.remove();
+
+
+  const modal = document.createElement('div');
+  modal.id = 'removeStudentModal';
+  modal.style.position = 'fixed';
+  modal.style.inset = '0';
+  modal.style.background = 'rgba(0,0,0,.45)';
+  modal.style.zIndex = '2000';
+  modal.style.display = 'flex';
+  modal.style.alignItems = 'flex-start';
+  modal.style.justifyContent = 'center';
+  modal.style.paddingTop = '72px';
+
+  const student = (__studentsCache || []).find(x => x.id === studentId) || null;
+  const title = student?.name ? ` ${esc(student.name)}` : ` #${studentId}`;
+
+  modal.innerHTML = `
+    <div style="width:100%;max-width:520px;background:#fff;border-radius:16px;border:1px solid var(--border);box-shadow:0 16px 60px rgba(0,0,0,.25);overflow:hidden;">
+      <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;">
+        <div>
+          <div style="font-size:13px;font-weight:900;color:var(--text);">Remove Student</div>
+          <div style="font-size:11px;color:var(--sub);margin-top:2px;">This cannot be undone.${title}</div>
+        </div>
+        <button onclick="closeRemoveAdminStudent()" style="background:none;border:none;color:var(--blue);font-weight:900;cursor:pointer;font-size:13px;">Close</button>
+      </div>
+
+      <div style="padding:16px;">
+        <div class="small-note" style="text-align:left;margin-top:4px;">Are you sure you want to remove this student from the system?</div>
+        <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:18px;">
+          <button onclick="closeRemoveAdminStudent()" class="ss" style="border-color:var(--border);">Cancel</button>
+          <button class="btn-sub" onclick="confirmRemoveAdminStudent(${studentId}, this)" style="background:#DC2626">Remove</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+}
+
+function closeRemoveAdminStudent() {
+  const existing = document.getElementById('removeStudentModal');
+  if (existing) existing.remove();
+}
+
+async function confirmRemoveAdminStudent(studentId, btnEl) {
+  try {
+    if (btnEl) { btnEl.disabled = true; btnEl.textContent = 'Removing…'; }
+    await apiFetch(`/admin/students/${studentId}`, { method: 'DELETE' });
+    toast('Student removed successfully!');
+    closeRemoveAdminStudent();
+    loadStudents(false);
+  } catch (e) {
+    toast(e.message, false);
+  } finally {
+    if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Remove'; }
+  }
+}
+
+
 // ── Keyboard ─────────────────────────────────────────────────────────────────
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {

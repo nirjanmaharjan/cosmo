@@ -14,10 +14,12 @@ require('./db');
 const authRouter       = require('./routes/auth');
 const complaintsRouter = require('./routes/complaints');
 const notificationsRouter = require('./routes/notifications');
+const adminRouter = require('./routes/admin');
 
 
 
 const app = express();
+
 
 // ── Middleware ────────────────────────────────────────────────────────────────
 app.use(cors({ origin: CORS_ORIGIN, credentials: true }));
@@ -34,6 +36,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api/auth',       authRouter);
 app.use('/api/complaints', complaintsRouter);
 app.use('/api/notifications', notificationsRouter);
+app.use('/api/admin', adminRouter);
 
 
 // Health check

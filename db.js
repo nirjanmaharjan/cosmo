@@ -1,4 +1,4 @@
-// db.js — SafeVoice database setup (FIXED: avoids better-sqlite3 build issues)
+// db.js — SafeVoice database setup
 'use strict';
 
 const path = require('path');
@@ -47,8 +47,17 @@ async function init() {
       email TEXT NOT NULL UNIQUE COLLATE NOCASE,
       password TEXT NOT NULL,
       role TEXT NOT NULL DEFAULT 'student' CHECK(role IN ('student','admin')),
+      name TEXT,
+      roll_number TEXT,
+      class_name TEXT,
+      section TEXT,
+      degree_faculty TEXT,
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
+
+    -- Backfill derived fields for existing rows
+    UPDATE users
+      SET name = COALESCE(name, substr(email, 1, instr(email, '@') - 1));
 
     CREATE TABLE IF NOT EXISTS complaints (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -96,7 +105,6 @@ async function init() {
       is_read INTEGER NOT NULL DEFAULT 0,
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
-
   `);
 
   await exec(`
@@ -115,7 +123,6 @@ async function init() {
     FOR EACH ROW
     WHEN NEW.status = 'Resolved'
     BEGIN
-      -- notify the submitter if present
       INSERT INTO notifications (user_id, complaint_id, title, message, type, is_read, created_at)
       SELECT NEW.submitter_id,
              NEW.id,
@@ -132,12 +139,8 @@ async function init() {
             AND n.type = 'status'
             AND n.message = 'Your complaint has been resolved.'
         );
-
     END;
   `);
-
-
-
 
   await seed();
 }
@@ -145,13 +148,13 @@ async function init() {
 // ── Seed ───────────────────────────────────────────────────────────────────
 async function seed() {
   const row = await get('SELECT COUNT(*) as c FROM users');
-  if (row.c > 0) return;
+  if (row?.c > 0) return;
 
   const hash = (pwd) => bcrypt.hashSync(pwd, 10);
 
   await run(
-    'INSERT INTO users (email, password, role) VALUES (?, ?, ?)',
-    ['student@college.edu', hash('password'), 'student']
+    'INSERT INTO users (email, password, role, name, roll_number, class_name, section, degree_faculty) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+    ['student@college.edu', hash('password'), 'student', 'student', 'R001', 'B.Tech', 'A', 'Engineering']
   );
 
   await run(
@@ -159,9 +162,7 @@ async function seed() {
     ['admin@college.edu', hash('password'), 'admin']
   );
 
-  const student = await get(
-    "SELECT id FROM users WHERE email = 'student@college.edu'"
-  );
+  const student = await get("SELECT id FROM users WHERE email = 'student@college.edu'");
 
   const complaints = [
     ['Mess food quality has deteriorated', 'Food quality issue', 'Under Review', 'Food', 'Food Services', 'High', 0, 67, 66],
@@ -174,9 +175,9 @@ async function seed() {
 
   for (const c of complaints) {
     await run(
-      `INSERT INTO complaints 
-      (title, description, status, faculty, category, priority, is_sensitive, department, votes, progress, submitter_id, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
+      `INSERT INTO complaints
+        (title, description, status, faculty, category, priority, is_sensitive, department, votes, progress, submitter_id, created_at, updated_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
       [...c, student.id]
     );
   }
@@ -187,3 +188,4 @@ async function seed() {
 init();
 
 module.exports = db;
+
