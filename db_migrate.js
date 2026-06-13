@@ -72,6 +72,48 @@ function get(sql, params = []) {
   await addC('faculty', 'TEXT', "'Others'");
   await addC('category', 'TEXT', "''");
 
+  // comments table (new)
+  const tableNames = await new Promise((resolve, reject) => {
+    db.all("SELECT name FROM sqlite_master WHERE type='table'", [], (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows || []);
+    });
+  });
+  const tHas = new Set(tableNames.map(r => r.name));
+
+  if (!tHas.has('comments')) {
+    await run(`
+      CREATE TABLE comments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        complaint_id INTEGER NOT NULL,
+        user_id INTEGER NOT NULL,
+        message TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      )
+    `);
+    console.log('Created comments table');
+  } else {
+    // Ensure required columns exist (defensive; sqlite doesn't support most ALTER TABLE ops well)
+    const commentCols = await new Promise((resolve, reject) => {
+      db.all("PRAGMA table_info(comments)", [], (err, rows) => {
+        if (err) reject(err);
+        else resolve(rows || []);
+      });
+    });
+    const ccHas = new Set(commentCols.map(r => r.name));
+
+    const addCommentCol = async (col, sqlType, def) => {
+      if (ccHas.has(col)) return;
+      await run(`ALTER TABLE comments ADD COLUMN ${col} ${sqlType}${def ? ' DEFAULT ' + def : ''}`);
+      console.log('Added comments column:', col);
+    };
+
+    await addCommentCol('complaint_id', 'INTEGER');
+    await addCommentCol('user_id', 'INTEGER');
+    await addCommentCol('message', 'TEXT');
+    await addCommentCol('created_at', 'TEXT', "(datetime('now'))");
+  }
+
   await run('PRAGMA foreign_keys = ON;');
 
   console.log('Migration complete');

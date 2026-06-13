@@ -160,6 +160,7 @@ select:focus{border-color:var(--blue)}
 .vb:hover,.vb.voted{border-color:var(--blue);color:var(--blue);background:var(--blue-l)}
 .vb svg{width:13px;height:13px}
 .ta{font-size:14px;color:#6B7280}
+.commentBtn{margin-left:auto}
 .loading{text-align:center;padding:40px;color:var(--sub)}
 /* TRACK */
 .tc{max-width:840px;margin:0 auto;padding:36px 20px}
@@ -243,7 +244,31 @@ select:focus{border-color:var(--blue)}
 .toast.show{transform:translateY(0);opacity:1}
 .toast.ok{background:#166534}
 .toast svg{width:17px;height:17px;color:#86efac}
+
+/* COMMENTS (Reddit-like) */
+.cdCommentsWrap{margin-top:14px;background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px;}
+.cdCommentsHeader{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px;}
+.cdCommentsHeader .title{font-size:13px;color:var(--sub);font-weight:900;display:flex;align-items:center;gap:8px;}
+.cdCommentsHeader .meta{font-size:11px;color:var(--sub);}
+.cdCommentComposer{display:flex;gap:10px;align-items:flex-start;margin-top:10px;flex-wrap:wrap;}
+.cdCommentComposer textarea{flex:1;min-width:220px;resize:vertical;min-height:80px;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:inherit;outline:none;transition:border .2s;}
+.cdCommentComposer textarea:focus{border-color:var(--blue)}
+.cdCommentComposer .btnRow{display:flex;gap:10px;align-items:center;justify-content:flex-end;min-width:160px;}
+.cdCommentList{display:flex;flex-direction:column;gap:10px;margin-top:8px;}
+.cdThread{border-left:2px solid var(--blue-l);padding-left:12px;margin-left:4px;}
+.cdComment{background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px 12px;}
+.cdCommentTop{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+.cdCommentAuthor{font-size:12px;font-weight:900;color:var(--text);}
+.cdCommentTime{font-size:11px;color:var(--sub);}
+.cdCommentText{font-size:13px;color:var(--sub);line-height:1.6;white-space:pre-wrap;margin-top:6px;}
+.cdCommentActions{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap;}
+.cdActionBtn{background:none;border:none;cursor:pointer;color:var(--blue);font-weight:700;font-size:12px;padding:6px 10px;border-radius:10px;}
+.cdActionBtn:hover{background:var(--bg)}
+.cdVoteBubble{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--sub);}
+.cdChildrenToggle{display:flex;align-items:center;gap:6px;}
+.cdSmallPill{font-size:11px;font-weight:800;padding:3px 9px;border-radius:9999px;background:var(--blue-l);color:var(--blue)}
 @media(max-width:860px){
+  .cdCommentComposer textarea{min-width:160px;}
   #pg-login{flex-direction:column!important}
   #pg-register{flex-direction:column!important}
   .ll,.lr{width:100%}
@@ -1213,9 +1238,20 @@ function renderCard(c) {
        </div>`
     : '';
 
+  const commentsCount = (typeof c.comments_count === 'number')
+    ? c.comments_count
+    : (typeof c.comments === 'number' ? c.comments : null);
+
   return `
-    <div class="cc" style="cursor:pointer" data-cid="${c.id}">
-      <div class="ct">${esc(c.title)}</div>
+    <div class="cc" data-cid="${c.id}">
+      <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;">
+        <div style="flex:1;min-width:0;">
+          <div class="ct">${esc(c.title)}</div>
+        </div>
+        <div style="font-size:13px;color:var(--sub);font-weight:700;white-space:nowrap;">
+          ${ta(c.days)}
+        </div>
+      </div>
       <div class="cd">${esc(c.desc)}</div>
       ${attHtml}
       <div class="ctags" style="margin-top:${firstAtt ? '10px' : '0'};">${sp(c.status)}<span class="pill p-cat">${esc(c.cat)}</span>${pp(c.pri)}</div>
@@ -1226,9 +1262,27 @@ function renderCard(c) {
           <svg fill="${c.voted ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905A3.61 3.61 0 017 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/></svg>
           <span id="vc-${c.id}">${c.votes}</span>
         </button>
-        <span class="ta" style="display:flex;gap:10px;align-items:center;">
-          ${ta(c.days)}
-        </span>
+
+        <button
+          class="vb commentBtn"
+          onclick="event.stopPropagation();toggleHomeComments(${c.id})"
+          aria-label="Toggle comments"
+          type="button"
+        >
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"></path>
+          </svg>
+          <span>${commentsCount === null ? 'Comments' : (commentsCount + '')}</span>
+        </button>
+      </div>
+
+      <!-- Home comments box (toggled by Comment button) -->
+      <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:12px;">
+        <div id="home_comments_${c.id}" style="display:none;">
+          <div class="cdCommentList">
+            <div class="loading" style="padding:10px 0;">Loading comments…</div>
+          </div>
+        </div>
       </div>
     </div>`;
 }
@@ -1236,7 +1290,8 @@ function renderCard(c) {
 function openComplaintDetail(id, opts = {}) {
   // Foundation modal: loads complaint details + timeline + (optionally) admin notes.
 
-  const showAdminNotes = !!opts.showAdminNotes;
+  // Admin notes removed from UI
+  const showAdminNotes = false;
 
   const existing = document.getElementById('compDetailModal');
   if (existing) existing.remove();
@@ -1270,7 +1325,7 @@ function openComplaintDetail(id, opts = {}) {
       <button onclick="closeComplaintDetail()" style="background:none;border:none;color:var(--blue);font-weight:800;cursor:pointer;font-size:13px;">Close</button>
     </div>
 
-    <div style="padding:16px;max-height:72vh;overflow:auto;">
+      <div style="padding:16px;max-height:72vh;overflow:auto;">
       <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start;">
         <div style="flex:1;min-width:320px;background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px;">
           <div id="cd_basic_title" style="font-size:16px;font-weight:800;margin-bottom:6px;color:var(--text);">Loading…</div>
@@ -1305,16 +1360,42 @@ function openComplaintDetail(id, opts = {}) {
         </div>
       </div>
 
-      <div id="cd_notes_section" style="margin-top:14px;background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px;display:${showAdminNotes ? 'block' : 'none'};">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
-          <div style="font-size:12px;color:var(--sub);font-weight:800;margin-bottom:4px;">Admin Notes</div>
-          <div style="display:flex;gap:10px;align-items:center;">
-            <input id="cd_note_text" type="text" placeholder="Add admin note…" style="flex:1;min-width:220px;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;outline:none;" />
-            <button onclick="cdAddNote()" class="btn-sub" style="padding:11px 16px;">Add</button>
+      <!-- Admin Notes removed -->
+
+      <!-- COMMENTS (Student can view, Admin can add) -->
+      <div id="cd_comments_section" class="cdCommentsWrap">
+        <div class="cdCommentsHeader">
+          <div>
+            <div class="title">
+              <span style="width:28px;height:28px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:var(--blue-l);color:var(--blue);">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15a4 4 0 0 1-4 4H7l-4 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"></path>
+                </svg>
+              </span>
+              Comments
+            </div>
+            <div class="meta" id="cd_comments_meta">Loading…</div>
+          </div>
+
+          <div class="meta" style="display:flex;gap:10px;align-items:center;">
+            <span class="cdSmallPill" id="cd_comments_privacy">Student view</span>
+            <span class="meta" id="cd_comments_endpoint_state"></span>
           </div>
         </div>
-        <div id="cd_notes" style="margin-top:10px;font-size:13px;color:var(--sub);line-height:1.6;white-space:pre-wrap;">
-          Loading notes…
+
+        <div id="cd_comments_list" class="cdCommentList">
+          <div class="loading">Loading comments…</div>
+        </div>
+
+        <div id="cd_comment_input_wrap" style="display:none;">
+          <div class="cdCommentComposer">
+            <textarea id="cd_comment_text" placeholder="Add a comment… (admin only)"></textarea>
+            <div class="btnRow">
+              <button onclick="cdAddComment()" class="btn-sub" style="padding:11px 16px;white-space:nowrap;">
+                Add Comment
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -1329,21 +1410,16 @@ function openComplaintDetail(id, opts = {}) {
   window.__cd_id = id;
   window.__cd_showAdminNotes = showAdminNotes;
 
-  // Gate admin-only UI: hide note input and status update if not admin
+  // Gate admin-only UI: hide status update if not admin. Comments should remain visible.
   const isAdmin = currentUser && currentUser.role === 'admin';
 
+  // Admin can add comments; students can only view
+  const commentWrap = card.querySelector('#cd_comment_input_wrap');
+  const privacyPill = card.querySelector('#cd_comments_privacy');
+  if (commentWrap) commentWrap.style.display = isAdmin ? 'block' : 'none';
+  if (privacyPill) privacyPill.textContent = isAdmin ? 'Admin can add' : 'Student view';
+
   if (!isAdmin) {
-    // Hide note input + add button (students can read notes, but cannot create them)
-    const noteInput = card.querySelector('#cd_note_text');
-    if (noteInput) noteInput.style.display = 'none';
-    card.querySelectorAll('button').forEach(b => {
-      if ((b.getAttribute('onclick') || '').includes('cdAddNote')) b.style.display = 'none';
-    });
-
-    // Hide comments input + add button (students can read comments, but cannot create them)
-    const commentWrap = card.querySelector('#cd_comment_input_wrap');
-    if (commentWrap) commentWrap.style.display = 'none';
-
     // Hide status update section only (do not break the rest of the modal)
     const cdStatus = card.querySelector('#cd_status');
     const updateBtn = Array.from(card.querySelectorAll('button')).find(b => (b.getAttribute('onclick') || '').includes('cdUpdateStatus'));
@@ -1357,6 +1433,9 @@ function openComplaintDetail(id, opts = {}) {
 
   // Load details
   cdLoadDetail(id);
+
+  // Load comments (best-effort)
+  cdLoadComments(id, { silent: false });
 }
 
 async function cdLoadDetail(id) {
@@ -1369,7 +1448,8 @@ async function cdLoadDetail(id) {
   const staffEl    = document.getElementById('cd_basic_staff');
   const badgeEl    = document.getElementById('cd_basic_badge');
 
-  const showAdminNotes = !!window.__cd_showAdminNotes;
+  // Admin Notes removed from UI
+  const showAdminNotes = false;
 
   try {
     // Fetch each section independently so Access denied on one endpoint
@@ -1393,15 +1473,6 @@ async function cdLoadDetail(id) {
       timelineEl.innerHTML = `<div style="color:var(--sub)">${esc(e.message || 'Access denied.')}</div>`;
     }
 
-    // Admin notes should never prevent details/timeline.
-    let notesData = { notes: [] };
-    if (showAdminNotes) {
-      try {
-        notesData = await apiFetch(`/complaints/${id}/admin/notes`);
-      } catch (_e) {
-        notesData = { notes: [] };
-      }
-    }
 
     // Complaint details render
     if (detailData?.complaint) {
@@ -1447,34 +1518,7 @@ async function cdLoadDetail(id) {
         }).join('')
       : (timelineEl.innerHTML || '<div style="color:var(--sub)">No timeline events yet.</div>');
 
-    // Notes render (only when showAdminNotes=true)
-    const notes = (notesData && notesData.notes) ? notesData.notes : [];
-    const notesSectionEl = document.getElementById('cd_notes_section');
-
-    if (!showAdminNotes) {
-      if (notesSectionEl) notesSectionEl.style.display = 'none';
-    } else {
-      if (notesEl) {
-        notesEl.innerHTML = notes.length
-          ? notes.map(n => {
-              const ts = n.created_at ? esc(n.created_at) : '';
-              return `
-                <div style="padding:10px 0;border-bottom:1px solid var(--border);">
-                  <div style="font-size:11px;color:var(--sub);font-weight:800;margin-bottom:4px;display:flex;justify-content:space-between;gap:10px;">
-                    <span>Admin note</span>
-                    <span style="font-weight:600;opacity:.9">${ts}</span>
-                  </div>
-                  <div style="font-size:13px;color:var(--sub);white-space:pre-wrap;line-height:1.6">${esc(n.text)}</div>
-                </div>
-              `;
-            }).join('')
-          : '';
-      }
-
-      if (notesSectionEl) {
-        notesSectionEl.style.display = notes.length ? 'block' : 'none';
-      }
-    }
+    // Admin Notes removed from UI; ignore notes rendering
 
   } catch (e) {
     // Last resort: do not crash modal
@@ -1507,24 +1551,7 @@ async function cdUpdateStatus() {
   }
 }
 
-async function cdAddNote() {
-  const id = window.__cd_id;
-  const input = document.getElementById('cd_note_text');
-  const txt = input?.value?.trim();
-  if (!id || !txt) return;
-  try {
-    await apiFetch(`/complaints/${id}/admin/notes`, {
-      method: 'POST',
-      body: JSON.stringify({ note: txt })
-    });
-    input.value = '';
-    toast('Admin note added');
-    // reload without breaking after-image complaints
-    await cdLoadDetail(id);
-  } catch (e) {
-    toast(e.message, false);
-  }
-}
+ // Admin Notes removed: no cdAddNote()
 
 async function cdAddComment() {
   const id = window.__cd_id;
@@ -1533,6 +1560,7 @@ async function cdAddComment() {
   if (!id || !txt) return;
 
   try {
+    // Best-effort: existing code posts here; keep that behavior.
     await apiFetch(`/comments/${id}/comments`, {
       method: 'POST',
       body: JSON.stringify({ comment: txt })
@@ -1540,9 +1568,197 @@ async function cdAddComment() {
     input.value = '';
     toast('Admin comment added');
     await cdLoadDetail(id);
+    await cdLoadComments(id, { silent: true });
   } catch (e) {
     toast(e.message, false);
   }
+}
+
+/**
+ * Load and render comments as a Reddit-like threaded list.
+ * Backend may not exist; this function is best-effort and will not crash the modal.
+ *
+ * Expected (best-effort) shapes we try to support:
+ * - { comments: [...] }
+ * - { thread: [...] }
+ * - [...] (direct array)
+ * Comment item may include:
+ * - id, text/message/comment
+ * - created_at
+ * - children OR replies (nested array)
+ */
+async function cdLoadComments(id, opts = {}) {
+  const silent = !!opts.silent;
+
+  const listEl = document.getElementById('cd_comments_list');
+  const metaEl = document.getElementById('cd_comments_meta');
+  const stateEl = document.getElementById('cd_comments_endpoint_state');
+
+  if (!listEl) return;
+
+  if (metaEl) metaEl.textContent = 'Loading…';
+  if (stateEl) stateEl.textContent = '';
+
+  listEl.innerHTML = '<div class="loading">Loading comments…</div>';
+
+  const tryEndpoints = [
+    `/comments/${id}`,
+    `/comments/${id}/comments`,
+  ];
+
+  for (const ep of tryEndpoints) {
+    try {
+      const data = await apiFetch(ep);
+      const possible = data?.comments ?? data?.thread ?? data?.data?.comments ?? data?.data?.thread ?? data?.items ?? data?.items?.comments;
+
+      const arr = Array.isArray(possible) ? possible
+        : Array.isArray(data) ? data
+        : Array.isArray(data?.comments) ? data.comments
+        : [];
+
+      const normalized = normalizeCommentList(arr);
+
+      if (metaEl) metaEl.textContent = `${normalized.length} comment${normalized.length === 1 ? '' : 's'}`;
+
+      if (!normalized.length) {
+        listEl.innerHTML = '<div style="font-size:13px;color:var(--sub);padding:10px 0;">No comments yet.</div>';
+      } else {
+        listEl.innerHTML = normalized.map(c => renderCommentNode(c, 0)).join('');
+      }
+
+      if (stateEl) stateEl.textContent = '✓';
+      return;
+    } catch (e) {
+      // continue to next endpoint
+    }
+  }
+
+  if (!silent) {
+    if (metaEl) metaEl.textContent = '0 comments';
+    if (stateEl) stateEl.textContent = 'endpoint missing';
+    listEl.innerHTML = '<div style="font-size:13px;color:var(--sub);padding:10px 0;">Comments are not available yet.</div>';
+  }
+}
+
+/**
+ * Home-page comments loader (Quick comments box).
+ * Renders into #home_comments_{id} without opening the complaint modal.
+ */
+async function cdLoadCommentsInto(containerId, id, opts = {}) {
+  const silent = !!opts.silent;
+  const container = document.getElementById(containerId);
+  if (!container) return;
+
+  container.innerHTML = '<div class="loading" style="padding:10px 0;">Loading comments…</div>';
+
+  const tryEndpoints = [
+    `/comments/${id}`,
+    `/comments/${id}/comments`,
+  ];
+
+  for (const ep of tryEndpoints) {
+    try {
+      const data = await apiFetch(ep);
+      const possible = data?.comments ?? data?.thread ?? data?.data?.comments ?? data?.data?.thread ?? data?.items ?? data?.items?.comments;
+
+      const arr = Array.isArray(possible) ? possible
+        : Array.isArray(data) ? data
+        : Array.isArray(data?.comments) ? data.comments
+        : [];
+
+      const normalized = normalizeCommentList(arr);
+
+      if (!normalized.length) {
+        container.innerHTML = '<div style="font-size:13px;color:var(--sub);padding:10px 0;">No comments yet.</div>';
+      } else {
+        container.innerHTML = normalized.map(c => renderCommentNode(c, 0)).join('');
+      }
+      return;
+    } catch (e) {
+      // continue
+    }
+  }
+
+  if (!silent) {
+    container.innerHTML = '<div style="font-size:13px;color:var(--sub);padding:10px 0;">Comments are not available yet.</div>';
+  }
+}
+
+function toggleHomeComments(id) {
+  const el = document.getElementById(`home_comments_${id}`);
+  if (!el) return;
+
+  const nextOpen = el.style.display === 'none' || !el.style.display;
+  el.style.display = nextOpen ? 'block' : 'none';
+
+  // Lazy-load on first open if placeholder is still there.
+  if (nextOpen && (el.dataset.loaded !== '1')) {
+    el.dataset.loaded = '1';
+    cdLoadCommentsInto(`home_comments_${id}`, id, { silent: true });
+  }
+}
+
+function normalizeCommentList(arr = []) {
+  // Ensure every node has: id, bodyText, created_at, children
+  const norm = (node) => {
+    const n = node || {};
+    const id = n.id ?? n.comment_id ?? ('c_' + Math.random().toString(16).slice(2));
+    const text = n.text ?? n.message ?? n.comment ?? n.body ?? '';
+    const created_at = n.created_at ?? n.timestamp ?? null;
+
+    const kids = n.children ?? n.replies ?? [];
+    const children = Array.isArray(kids) ? kids.map(norm) : [];
+    const up = typeof n.votes === 'number' ? n.votes : (typeof n.likes === 'number' ? n.likes : null);
+
+    return {
+      id,
+      bodyText: String(text),
+      created_at,
+      author: n.author ?? n.user?.email ?? n.user?.name ?? 'Community',
+      children,
+      votes: up
+    };
+  };
+
+  if (!Array.isArray(arr)) return [];
+  return arr.map(norm);
+}
+
+function renderCommentNode(node, depth) {
+  const children = node.children || [];
+  const time = node.created_at ? esc(node.created_at) : '';
+  const author = esc(node.author || 'Community');
+  const text = esc(node.bodyText || '');
+  const canReply = false; // UI-only threading; replying can be added later if backend supports it.
+
+  const depthPad = depth * 10;
+
+  const hasKids = children.length > 0;
+  const childHtml = hasKids
+    ? `<div class="cdThread" style="margin-top:10px;padding-left:12px;">
+         ${children.map(ch => renderCommentNode(ch, depth + 1)).join('')}
+       </div>`
+    : '';
+
+  return `
+    <div class="cdComment" style="margin-left:${depthPad}px;">
+      <div class="cdCommentTop">
+        <div>
+          <div class="cdCommentAuthor">${author}</div>
+          <div class="cdCommentTime">${time}</div>
+        </div>
+        <div class="cdVoteBubble" title="Upvotes (if supported)">
+          <span class="cdSmallPill">${typeof node.votes === 'number' ? node.votes : '•'}</span>
+        </div>
+      </div>
+      <div class="cdCommentText">${text}</div>
+      <div class="cdCommentActions">
+        ${canReply ? `<button class="cdActionBtn" onclick="cdToggleReply('${node.id}')">Reply</button>` : ''}
+        ${hasKids ? `<div class="cdChildrenToggle" style="margin-left:auto;color:var(--sub);font-size:12px;font-weight:700;">${children.length} repl${children.length===1?'y':'ies'}</div>` : ''}
+      </div>
+      ${childHtml}
+    </div>
+  `;
 }
 
 
@@ -1574,7 +1790,11 @@ async function rt() {
     document.getElementById('tr2').textContent  = list.filter(c => c.status === 'Under Review').length;
     document.getElementById('tres').textContent = list.filter(c => c.status === 'Resolved').length;
     document.getElementById('tlist').innerHTML = list.length
-      ? list.map(c => `
+      ? list.map(c => {
+          const commentsCount = (typeof c.comments_count === 'number')
+            ? c.comments_count
+            : (typeof c.comments === 'number' ? c.comments : null);
+          return `
         <div class="tcard" style="cursor:pointer" onclick="openComplaintDetail(${c.id}, { showAdminNotes: true })" data-cid="${c.id}">
           <div class="tch"><h3>${esc(c.title)}</h3>${sp(c.status)}</div>
           <p class="tdesc">${esc(c.desc)}</p>
@@ -1582,10 +1802,19 @@ async function rt() {
           <div class="tm">
             <span class="mi">Category: <span class="mv">${esc(c.cat)}</span></span>
             <span class="mi">Priority: <span class="${priCls(c.pri)}">${esc(c.pri)}</span></span>
+            <span class="mi">
+              <span style="display:inline-flex;align-items:center;gap:6px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--sub);">
+                  <path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"></path>
+                </svg>
+                <span class="mv">${commentsCount === null ? 'Comments' : commentsCount + ''}</span>
+              </span>
+            </span>
             <span class="mi">${c.votes} upvotes</span>
             <span class="mi">Updated ${ta(c.days)}</span>
           </div>
-        </div>`).join('')
+        </div>`;
+        }).join('')
       : '<div class="loading">No complaints found.</div>';
   } catch (e) {
     document.getElementById('tlist').innerHTML = `<div class="loading">Error: ${e.message}</div>`;

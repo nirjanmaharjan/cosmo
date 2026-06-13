@@ -14,6 +14,7 @@ require('./db');
 const authRouter       = require('./routes/auth');
 const complaintsRouter = require('./routes/complaints');
 const notificationsRouter = require('./routes/notifications');
+const commentsRouter = require('./routes/comments');
 const adminRouter = require('./routes/admin');
 
 
@@ -36,6 +37,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/api/auth',       authRouter);
 app.use('/api/complaints', complaintsRouter);
 app.use('/api/notifications', notificationsRouter);
+app.use('/api/comments', commentsRouter);
 app.use('/api/admin', adminRouter);
 
 
