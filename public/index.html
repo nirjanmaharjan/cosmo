@@ -1200,6 +1200,7 @@ async function rf() {
     document.getElementById('feed').innerHTML = complaints.length
       ? complaints.map(renderCard).join('')
       : '<div class="loading">No complaints found.</div>';
+
   } catch (e) {
     document.getElementById('feed').innerHTML = `<div class="loading">Error: ${e.message}</div>`;
   }
@@ -1213,7 +1214,7 @@ function renderCard(c) {
     : '';
 
   return `
-    <div class="cc" style="cursor:pointer" onclick="openComplaintDetail(${c.id})">
+    <div class="cc" style="cursor:pointer" data-cid="${c.id}">
       <div class="ct">${esc(c.title)}</div>
       <div class="cd">${esc(c.desc)}</div>
       ${attHtml}
@@ -1225,13 +1226,17 @@ function renderCard(c) {
           <svg fill="${c.voted ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905A3.61 3.61 0 017 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"/></svg>
           <span id="vc-${c.id}">${c.votes}</span>
         </button>
-        <span class="ta">${ta(c.days)}</span>
+        <span class="ta" style="display:flex;gap:10px;align-items:center;">
+          ${ta(c.days)}
+        </span>
       </div>
     </div>`;
 }
 
-function openComplaintDetail(id) {
-  // Foundation modal: loads complaint details + timeline + admin notes.
+function openComplaintDetail(id, opts = {}) {
+  // Foundation modal: loads complaint details + timeline + (optionally) admin notes.
+
+  const showAdminNotes = !!opts.showAdminNotes;
 
   const existing = document.getElementById('compDetailModal');
   if (existing) existing.remove();
@@ -1300,7 +1305,7 @@ function openComplaintDetail(id) {
         </div>
       </div>
 
-      <div id="cd_notes_section" style="margin-top:14px;background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px;display:none;">
+      <div id="cd_notes_section" style="margin-top:14px;background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px;display:${showAdminNotes ? 'block' : 'none'};">
         <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;">
           <div style="font-size:12px;color:var(--sub);font-weight:800;margin-bottom:4px;">Admin Notes</div>
           <div style="display:flex;gap:10px;align-items:center;">
@@ -1313,6 +1318,7 @@ function openComplaintDetail(id) {
         </div>
       </div>
 
+
     </div>
   `;
 
@@ -1321,8 +1327,9 @@ function openComplaintDetail(id) {
 
   // Store current complaint id for other handlers
   window.__cd_id = id;
+  window.__cd_showAdminNotes = showAdminNotes;
 
-    // Gate admin-only UI: hide note input and status update if not admin
+  // Gate admin-only UI: hide note input and status update if not admin
   const isAdmin = currentUser && currentUser.role === 'admin';
 
   if (!isAdmin) {
@@ -1332,6 +1339,10 @@ function openComplaintDetail(id) {
     card.querySelectorAll('button').forEach(b => {
       if ((b.getAttribute('onclick') || '').includes('cdAddNote')) b.style.display = 'none';
     });
+
+    // Hide comments input + add button (students can read comments, but cannot create them)
+    const commentWrap = card.querySelector('#cd_comment_input_wrap');
+    if (commentWrap) commentWrap.style.display = 'none';
 
     // Hide status update section only (do not break the rest of the modal)
     const cdStatus = card.querySelector('#cd_status');
@@ -1344,8 +1355,6 @@ function openComplaintDetail(id) {
     if (updateBtn) updateBtn.style.display = 'none';
   }
 
-
-
   // Load details
   cdLoadDetail(id);
 }
@@ -1356,15 +1365,15 @@ async function cdLoadDetail(id) {
   const basicTags  = document.getElementById('cd_basic_tags');
   const timelineEl = document.getElementById('cd_timeline');
   const notesEl    = document.getElementById('cd_notes');
-  const notesGatedEl = document.getElementById('cd_notes_gated');
   const photosWrap = document.getElementById('cd_photos');
   const staffEl    = document.getElementById('cd_basic_staff');
   const badgeEl    = document.getElementById('cd_basic_badge');
 
+  const showAdminNotes = !!window.__cd_showAdminNotes;
+
   try {
     // Fetch each section independently so Access denied on one endpoint
     // does NOT break rendering the rest.
-
     let detailData = null;
     let timelineData = null;
 
@@ -1386,10 +1395,12 @@ async function cdLoadDetail(id) {
 
     // Admin notes should never prevent details/timeline.
     let notesData = { notes: [] };
-    try {
-      notesData = await apiFetch(`/complaints/${id}/admin/notes`);
-    } catch (_e) {
-      notesData = { notes: [] };
+    if (showAdminNotes) {
+      try {
+        notesData = await apiFetch(`/complaints/${id}/admin/notes`);
+      } catch (_e) {
+        notesData = { notes: [] };
+      }
     }
 
     // Complaint details render
@@ -1436,50 +1447,41 @@ async function cdLoadDetail(id) {
         }).join('')
       : (timelineEl.innerHTML || '<div style="color:var(--sub)">No timeline events yet.</div>');
 
-    // Notes render
+    // Notes render (only when showAdminNotes=true)
     const notes = (notesData && notesData.notes) ? notesData.notes : [];
     const notesSectionEl = document.getElementById('cd_notes_section');
 
-    if (notesEl) {
-      notesEl.innerHTML = notes.length
-        ? notes.map(n => {
-            const ts = n.created_at ? esc(n.created_at) : '';
-            return `
-              <div style="padding:10px 0;border-bottom:1px solid var(--border);">
-                <div style="font-size:11px;color:var(--sub);font-weight:800;margin-bottom:4px;display:flex;justify-content:space-between;gap:10px;">
-                  <span>Admin note</span>
-                  <span style="font-weight:600;opacity:.9">${ts}</span>
+    if (!showAdminNotes) {
+      if (notesSectionEl) notesSectionEl.style.display = 'none';
+    } else {
+      if (notesEl) {
+        notesEl.innerHTML = notes.length
+          ? notes.map(n => {
+              const ts = n.created_at ? esc(n.created_at) : '';
+              return `
+                <div style="padding:10px 0;border-bottom:1px solid var(--border);">
+                  <div style="font-size:11px;color:var(--sub);font-weight:800;margin-bottom:4px;display:flex;justify-content:space-between;gap:10px;">
+                    <span>Admin note</span>
+                    <span style="font-weight:600;opacity:.9">${ts}</span>
+                  </div>
+                  <div style="font-size:13px;color:var(--sub);white-space:pre-wrap;line-height:1.6">${esc(n.text)}</div>
                 </div>
-                <div style="font-size:13px;color:var(--sub);white-space:pre-wrap;line-height:1.6">${esc(n.text)}</div>
-              </div>
-            `;
-          }).join('')
-        : '';
+              `;
+            }).join('')
+          : '';
+      }
+
+      if (notesSectionEl) {
+        notesSectionEl.style.display = notes.length ? 'block' : 'none';
+      }
     }
-
-    // Ensure admin note input/buttons are not accidentally hidden for image complaints.
-    // (Sometimes re-rendering + gating logic can race and leave them hidden.)
-    const isAdminNow = currentUser && currentUser.role === 'admin';
-    const inputEl = card.querySelector('#cd_note_text');
-    const addBtn = Array.from(card.querySelectorAll('button')).find(b => (b.getAttribute('onclick') || '').includes('cdAddNote'));
-    if (isAdminNow) {
-      if (inputEl) inputEl.style.display = '';
-      if (addBtn) addBtn.style.display = '';
-    }
-
-
-    if (notesSectionEl) {
-      notesSectionEl.style.display = notes.length ? 'block' : 'none';
-    }
-
-    if (notesGatedEl) notesGatedEl.style.display = 'none';
 
   } catch (e) {
     // Last resort: do not crash modal
     basicTitle.textContent = 'Error loading complaint';
     basicDesc.textContent = e.message;
     timelineEl.innerHTML = '<div style="color:var(--sub)">—</div>';
-    notesEl.textContent = '—';
+    if (notesEl) notesEl.textContent = '—';
   }
 }
 
@@ -1524,6 +1526,25 @@ async function cdAddNote() {
   }
 }
 
+async function cdAddComment() {
+  const id = window.__cd_id;
+  const input = document.getElementById('cd_comment_text');
+  const txt = input?.value?.trim();
+  if (!id || !txt) return;
+
+  try {
+    await apiFetch(`/comments/${id}/comments`, {
+      method: 'POST',
+      body: JSON.stringify({ comment: txt })
+    });
+    input.value = '';
+    toast('Admin comment added');
+    await cdLoadDetail(id);
+  } catch (e) {
+    toast(e.message, false);
+  }
+}
+
 
 async function vote(id) {
   try {
@@ -1554,12 +1575,10 @@ async function rt() {
     document.getElementById('tres').textContent = list.filter(c => c.status === 'Resolved').length;
     document.getElementById('tlist').innerHTML = list.length
       ? list.map(c => `
-        <div class="tcard">
+        <div class="tcard" style="cursor:pointer" onclick="openComplaintDetail(${c.id}, { showAdminNotes: true })" data-cid="${c.id}">
           <div class="tch"><h3>${esc(c.title)}</h3>${sp(c.status)}</div>
           <p class="tdesc">${esc(c.desc)}</p>
           <div class="pr"><span>Status</span><span>${c.status}</span></div>
-          
-          
           <div class="tm">
             <span class="mi">Category: <span class="mv">${esc(c.cat)}</span></span>
             <span class="mi">Priority: <span class="${priCls(c.pri)}">${esc(c.pri)}</span></span>

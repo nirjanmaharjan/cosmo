@@ -738,8 +738,9 @@ router.post('/:id/admin/notes', requireAuth, requireAdmin, async (req, res) => {
   }
 });
 
-// Timeline (admin + owner)
-router.get('/:id/timeline', requireAuth, async (req, res) => {
+
+ // Timeline (admin + owner)
+ router.get('/:id/timeline', requireAuth, async (req, res) => {
   try {
     const id = Number(req.params.id);
 
