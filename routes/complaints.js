@@ -170,7 +170,7 @@ router.post('/admin/ai-scan', requireAuth, requireAdmin, async (req, res) => {
 // Summary counts for admin dashboard
 router.get('/stats', requireAuth, requireAdmin, async (req, res) => {
   try {
-    const [total, pending, review, resolved, highPri, byCategory, bySensitivity] = await Promise.all([
+    const [total, pending, review, resolved, highPri, mediumPri, lowPri, sensitiveCount, byCategory, bySensitivity] = await Promise.all([
       new Promise((resolve, reject) => {
         db.get("SELECT COUNT(*) AS c FROM complaints", (err, row) => {
           if (err) reject(err);
@@ -202,6 +202,24 @@ router.get('/stats', requireAuth, requireAdmin, async (req, res) => {
         });
       }),
       new Promise((resolve, reject) => {
+        db.get("SELECT COUNT(*) AS c FROM complaints WHERE priority = 'Medium'", (err, row) => {
+          if (err) reject(err);
+          else resolve(row?.c || 0);
+        });
+      }),
+      new Promise((resolve, reject) => {
+        db.get("SELECT COUNT(*) AS c FROM complaints WHERE priority = 'Low'", (err, row) => {
+          if (err) reject(err);
+          else resolve(row?.c || 0);
+        });
+      }),
+      new Promise((resolve, reject) => {
+        db.get("SELECT COUNT(*) AS c FROM complaints WHERE is_sensitive = 1", (err, row) => {
+          if (err) reject(err);
+          else resolve(row?.c || 0);
+        });
+      }),
+      new Promise((resolve, reject) => {
         db.all(`
           SELECT faculty, COUNT(*) AS count
           FROM complaints GROUP BY faculty ORDER BY count DESC
@@ -221,7 +239,19 @@ router.get('/stats', requireAuth, requireAdmin, async (req, res) => {
       })
     ]);
 
-    res.json({ total, pending, review, resolved, highPri, byFaculty: byCategory, bySensitivity });
+    res.json({
+      total,
+      pending,
+      review,
+      resolved,
+      highPri,
+      mediumPri,
+      lowPri,
+      sensitiveCount,
+      byFaculty: byCategory,
+      bySensitivity,
+    });
+
   } catch (err) {
     console.error('Get stats error:', err);
     res.status(500).json({ error: 'Internal server error.' });

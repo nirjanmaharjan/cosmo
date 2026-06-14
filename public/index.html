@@ -566,12 +566,7 @@ select:focus{border-color:var(--blue)}
         Student List
       </button>
 
-      <button id="side_sensitive" class="sideItem" onclick="go('adminSensitive')" style="display:flex">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-        </svg>
-        Sensitive Complaints
-      </button>
+
 
 
 
@@ -594,6 +589,19 @@ select:focus{border-color:var(--blue)}
             </div>
           </div>
         </div>
+
+        <!-- Sensitive complaints (static UI block; page is currently removed in JS) -->
+        <div class="acs" style="margin-top:6px;" id="admin-sensitive-block">
+          <h2 style="margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
+            <span>Sensitive Complaints</span>
+            <span class="pill p-hi" style="margin-left:auto;">Admin Only</span>
+          </h2>
+          <div class="loading" id="sensitiveList" style="padding:22px 18px;min-height:420px;text-align:left;">Loading sensitive complaints…</div>
+        </div>
+
+
+
+
         <div class="acs"><h2 id="atitle">Complaints</h2><div id="alist"></div></div>
       </div>
 
@@ -628,39 +636,7 @@ select:focus{border-color:var(--blue)}
         </div>
       </div>
 
-      <!-- SENSITIVE COMPLAINTS -->
-      <div class="ac" id="admin-sensitive-page" style="display:none;">
-        <h1>Sensitive Complaints</h1>
-        <p class="sub">AI-flagged sensitive campus complaints requiring private review</p>
 
-        <div class="sb2" style="margin-bottom:14px;">
-          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="min-width:15px;">
-            <circle cx="11" cy="11" r="8"/>
-            <path d="m21 21-4.35-4.35"/>
-          </svg>
-          <input type="text" id="sens-search" placeholder="Search sensitive complaints..." oninput="loadSensitiveComplaints()">
-        </div>
-
-        <div class="fp" style="margin-bottom:18px; display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
-          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-            <div class="fg2"><label>Faculty</label><select id="sens-fac" onchange="loadSensitiveComplaints()"><option value="">All Faculties</option><option>Food</option><option>Library</option><option>Hostel</option><option>Infrastructure</option><option>Staff</option><option>Others</option></select></div>
-            <div class="fg2"><label>Status</label><select id="sens-status" onchange="loadSensitiveComplaints()"><option value="">All Status</option><option>Pending</option><option>Under Review</option><option>Resolved</option></select></div>
-            <div class="fg2"><label>Sort</label><select id="sens-sort" onchange="loadSensitiveComplaints()"><option value="votes">Most Upvoted</option><option value="new">Newest</option><option value="old">Oldest</option></select></div>
-          </div>
-          <button class="btn-sub" id="btn-ai-scan" onclick="runAIScan()" style="padding: 8px 16px; font-size: 13px; margin-top: 5px;">
-            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right: 4px; vertical-align: middle;">
-              <path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m11.314 11.314l-.707.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
-            </svg>
-            Scan with AI
-          </button>
-        </div>
-
-        <div class="acs" style="margin-top:8px;">
-          <h2 id="sensitiveTitle">Sensitive Complaints (0)</h2>
-          <div class="sub" id="sensitiveMeta" style="margin-top:-10px;margin-bottom:18px;">Showing 0 sensitive complaints</div>
-          <div id="sensitiveList"> <div class="loading">Loading sensitive complaints…</div></div>
-        </div>
-      </div>
     </main>
 
   </div>
@@ -748,8 +724,15 @@ function afterLogin() {
   // Go to admin dashboard for admins; otherwise home for students.
   go(isAdmin ? 'admin' : 'home');
 
-
+  // Ensure sensitive complaints list is populated.
+  if (isAdmin) {
+    // Slight delay so DOM blocks exist before fetching.
+    setTimeout(() => {
+      loadSensitiveComplaints();
+    }, 0);
+  }
 }
+
 function signOut() {
   token = null; currentUser = null; allComplaints = [];
   sessionStorage.removeItem('sv_token');
@@ -847,6 +830,7 @@ function go(p) {
   }
 
 
+
   if (p === 'adminStudents') {
     if (adminPage) adminPage.style.display = 'flex';
     const dash = document.getElementById('admin-dashboard-page');
@@ -864,35 +848,7 @@ function go(p) {
     loadStudents(true);
   }
 
-  if (p === 'adminSensitive') {
-    try {
-      if (adminPage) adminPage.style.display = 'flex';
-      document.getElementById('pg-admin').style.display = 'flex';
 
-      const dash = document.getElementById('admin-dashboard-page');
-      const stud = document.getElementById('admin-students-page');
-      const sens = document.getElementById('admin-sensitive-page');
-      if (dash) dash.style.display = 'none';
-      if (stud) stud.style.display = 'none';
-      if (sens) sens.style.display = 'block';
-
-      const sideAdmin = document.getElementById('side_admin');
-      const sideStudents = document.getElementById('side_students');
-      const sideSensitive = document.getElementById('side_sensitive');
-
-      if (sideAdmin) sideAdmin.classList.remove('act');
-      if (sideStudents) sideStudents.classList.remove('act');
-      if (sideSensitive) sideSensitive.classList.add('act');
-
-      const listEl = document.getElementById('sensitiveList');
-      if (listEl) listEl.innerHTML = '<div class="loading">Loading…</div>';
-
-      loadSensitiveComplaints();
-    } catch (e) {
-      const listEl = document.getElementById('sensitiveList');
-      if (listEl) listEl.innerHTML = '<div class="loading">Error loading sensitive complaints.</div>';
-    }
-  }
 
 
 
@@ -1808,15 +1764,16 @@ async function ra() {
     const s = statsData;
     document.getElementById('astats').innerHTML = `
 
-              <div class="stc"><div><div class="sl2" style="color:var(--red)">Sensitive</div><div class="sn2" style="color:var(--red)">${s.highPri}</div></div><div class="si re"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div></div>
+              <div class="stc"><div><div class="sl2" style="color:var(--red)">Sensitive</div><div class="sn2" style="color:var(--red)">${s.sensitiveCount}</div></div><div class="si re"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div></div>
               <div class="stc"><div><div class="sl2" style="color:var(--red)">High Priority</div><div class="sn2" style="color:var(--red)">${s.highPri}</div></div><div class="si re"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div></div>
 
-              <div class="stc"><div><div class="sl2" style="color:var(--orange)">Medium Priority</div><div class="sn2" style="color:var(--orange)">${s.highPri}</div></div><div class="si re"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div></div>
+              <div class="stc"><div><div class="sl2" style="color:var(--orange)">Medium Priority</div><div class="sn2" style="color:var(--orange)">${s.mediumPri}</div></div><div class="si re"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div></div>
 
 
-              <div class="stc"><div><div class="sl2" style="color:var(--green)">Low Priority</div><div class="sn2" style="color:var(--green)">${s.highPri}</div></div><div class="si re"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div></div>
+              <div class="stc"><div><div class="sl2" style="color:var(--green)">Low Priority</div><div class="sn2" style="color:var(--green)">${s.lowPri}</div></div><div class="si re"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div></div>
 
 `;
+
 
     const cats = s.byFaculty;
     const mx   = Math.max(...cats.map(c => c.count), 1);
@@ -1915,79 +1872,44 @@ function ta(d) {
 // ── Sensitive Complaints (Admin) ─────────────────────────────────────────
 async function loadSensitiveComplaints() {
   const listEl = document.getElementById('sensitiveList');
-  const titleEl = document.getElementById('sensitiveTitle');
-  const metaEl = document.getElementById('sensitiveMeta');
-
   if (!listEl) return;
 
-  const fac = document.getElementById('sens-fac')?.value || '';
-  const stat = document.getElementById('sens-status')?.value || '';
-  const sort = document.getElementById('sens-sort')?.value || 'votes';
-  const search = document.getElementById('sens-search')?.value || '';
+  listEl.innerHTML = '<div class="loading">Loading sensitive complaints…</div>';
 
-  listEl.innerHTML = '<div class="loading">Loading…</div>';
 
   try {
-    const params = new URLSearchParams(
-      Object.fromEntries(
-        [['faculty', fac], ['status', stat], ['sort', sort], ['search', search]].filter(([, v]) => v)
-      )
-    );
+    // Uses the existing admin-only endpoint.
+    const data = await apiFetch('/complaints/admin/sensitive');
+    const complaints = data.complaints || [];
 
-    const data = await apiFetch('/complaints/admin/sensitive?' + params.toString());
-    const complaints = data?.complaints || [];
-    const count = complaints.length;
-
-    if (titleEl) titleEl.textContent = `Sensitive Complaints (${count})`;
-    if (metaEl) {
-      metaEl.textContent = count > 0
-        ? `Showing ${count} sensitive complaints`
-        : 'No sensitive complaints match the current filters.';
-    }
-
-    if (count === 0) {
-      listEl.innerHTML = '<div class="loading">No sensitive complaints found.</div>';
+    if (!complaints.length) {
+      listEl.innerHTML = '<div style="font-size:13px;color:var(--sub);padding:10px 0;">No sensitive complaints found.</div>';
       return;
     }
 
     listEl.innerHTML = complaints.map(c => `
-      <div class="acard" data-cid="${c.id}">
-        <div class="at" style="cursor:pointer" onclick="openComplaintDetail(${c.id})">${esc(c.title)}</div>
-        <div class="ad" style="cursor:pointer" onclick="openComplaintDetail(${c.id})">${esc(c.desc)}</div>
-        <div class="atags">
-          ${sp(c.status)}
-          <span class="pill p-cat">${esc(c.faculty)}</span>
-          ${pp(c.pri)}
-        </div>
-        <div class="aa">Assigned to: <span>${esc(c.dept)}</span></div>
-        <div class="aa" style="margin-top:-4px">Admin notes: <span id="an-sens-${c.id}">—</span></div>
-        <div class="aft">
-          <div class="afl">${c.votes} upvotes &nbsp; ${ta(c.days)}</div>
-          <select class="ss" onchange="updStatus(${c.id}, this.value)">
-            <option ${c.status === 'Pending' ? 'selected' : ''}>Pending</option>
-            <option ${c.status === 'Under Review' ? 'selected' : ''}>Under Review</option>
-            <option ${c.status === 'Resolved' ? 'selected' : ''}>Resolved</option>
-          </select>
-        </div>
-      </div>`).join('');
+        <div class="acard" data-cid="${c.id}">
+          <div class="at" style="cursor:pointer" onclick="openComplaintDetail(${c.id})">${esc(c.title)}</div>
+          <div class="ad" style="cursor:pointer" onclick="openComplaintDetail(${c.id})">${esc(c.desc)}</div>
+          <div class="atags">${sp(c.status)}<span class="pill p-cat">${esc(c.faculty)}</span>${pp(c.pri)}</div>
+          <div class="aa">Assigned to: <span>${esc(c.dept)}</span></div>
+          <div class="aa" style="margin-top:-4px">Admin notes: <span id="an-${c.id}">—</span></div>
+          <div class="aft">
+            <div class="afl">${c.votes} upvotes &nbsp; ${ta(c.days)}</div>
+            <select class="ss" onchange="updStatus(${c.id}, this.value)">
+              <option ${c.status === 'Pending' ? 'selected' : ''}>Pending</option>
+              <option ${c.status === 'Under Review' ? 'selected' : ''}>Under Review</option>
+              <option ${c.status === 'Resolved' ? 'selected' : ''}>Resolved</option>
 
-    // Fetch admin notes count for each card
-    await Promise.all(complaints.map(async (c) => {
-      try {
-        const notes = await apiFetch(`/complaints/${c.id}/admin/notes`);
-        const count = notes?.notes?.length ?? 0;
-        const el = document.getElementById(`an-sens-${c.id}`);
-        if (el) el.textContent = String(count);
-      } catch {
-        const el = document.getElementById(`an-sens-${c.id}`);
-        if (el) el.textContent = '—';
-      }
-    }));
+            </select>
+          </div>
+        </div>
+    `).join('');
   } catch (e) {
-    if (titleEl) titleEl.textContent = 'Sensitive Complaints (0)';
-    listEl.innerHTML = `<div class="loading">Error loading sensitive complaints: ${esc(e.message)}</div>`;
+    listEl.innerHTML = `<div class="loading">Error: ${esc(e.message)}</div>`;
   }
 }
+
 
 async function runAIScan() {
   const btn = document.getElementById('btn-ai-scan');
