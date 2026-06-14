@@ -128,6 +128,44 @@ router.get('/admin/sensitive', requireAuth, requireAdmin, async (req, res) => {
 });
 
 
+// ── POST /api/complaints/admin/ai-scan ─────────────────────────────────────────
+// Admin only — scan all complaints with AI to find/flag sensitive ones
+router.post('/admin/ai-scan', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const complaints = await new Promise((resolve, reject) => {
+      db.all('SELECT id, title, description, is_sensitive FROM complaints', (err, rows) => {
+        if (err) reject(err);
+        else resolve(rows || []);
+      });
+    });
+
+    let updatedCount = 0;
+
+    for (const c of complaints) {
+      const aiResult = await categorizeComplaint(c.title, c.description);
+      const isSensitiveVal = aiResult.is_sensitive ? 1 : 0;
+      
+      if (c.is_sensitive !== isSensitiveVal) {
+        await new Promise((resolve, reject) => {
+          db.run(
+            'UPDATE complaints SET is_sensitive = ? WHERE id = ?',
+            [isSensitiveVal, c.id],
+            (err) => (err ? reject(err) : resolve())
+          );
+        });
+        updatedCount++;
+      }
+    }
+
+    res.json({ message: `AI scan completed. Sensitivity updated for ${updatedCount} complaints.`, updatedCount });
+  } catch (err) {
+    console.error('AI scan error:', err);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+});
+
+
+
 // ── GET /api/complaints/stats ─────────────────────────────────────────────────
 // Summary counts for admin dashboard
 router.get('/stats', requireAuth, requireAdmin, async (req, res) => {

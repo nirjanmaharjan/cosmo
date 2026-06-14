@@ -6,6 +6,8 @@
 <title>SafeVoice</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
+@keyframes spin { to { transform: rotate(360deg); } }
+.spin { animation: spin 1s linear infinite; }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --blue:#2563EB;--blue-d:#1D4ED8;--blue-l:#EFF6FF;--blue-m:#DBEAFE;
@@ -552,14 +554,7 @@ select:focus{border-color:var(--blue)}
         Admin
       </button>
 
-      <button id="side_sensitive" class="sideItem" onclick="go('adminSensitive')" style="display:flex">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path d="M12 9v4"/>
-          <path d="M12 17h.01"/>
-          <path d="M10.3 3.1l-7.5 13A2 2 0 004.6 19h14.8a2 2 0 001.8-2.9l-7.5-13a2 2 0 00-3.4 0z"/>
-        </svg>
-        Sensitive Complaint
-      </button>
+
 
       <button id="side_students" class="sideItem" onclick="go('adminStudents')" style="display:flex">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -570,6 +565,17 @@ select:focus{border-color:var(--blue)}
         </svg>
         Student List
       </button>
+
+      <button id="side_sensitive" class="sideItem" onclick="go('adminSensitive')" style="display:flex">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        Sensitive Complaints
+      </button>
+
+
+
+
 
 
     </aside>
@@ -591,62 +597,9 @@ select:focus{border-color:var(--blue)}
         <div class="acs"><h2 id="atitle">Complaints</h2><div id="alist"></div></div>
       </div>
 
-      <div class="ac" id="admin-sensitive-page" style="display:none;">
-        <h1>Sensitive Complaint</h1>
-        <p class="sub">View and manage sensitive complaints</p>
 
-        <div class="amid" style="margin-top:20px;">
-          <div class="ap" style="width:100%; max-width: none;">
-            <div class="pt">
-              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="16" height="16">
-                <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/>
-              </svg>
-              Filters &amp; Search
-            </div>
-            <div class="fp" style="flex-wrap: wrap; gap: 12px; margin-top: 10px;">
-              <div class="fg2" style="flex: 1; min-width: 150px;">
-                <label>Faculty</label>
-                <select id="sens-fac" onchange="loadSensitiveComplaints()">
-                  <option value="">All Faculties</option>
-                  <option>Food</option>
-                  <option>Library</option>
-                  <option>Hostel</option>
-                  <option>Infrastructure</option>
-                  <option>Staff</option>
-                  <option>Others</option>
-                </select>
-              </div>
-              <div class="fg2" style="flex: 1; min-width: 150px;">
-                <label>Status</label>
-                <select id="sens-status" onchange="loadSensitiveComplaints()">
-                  <option value="">All Status</option>
-                  <option>Pending</option>
-                  <option>Under Review</option>
-                  <option>Resolved</option>
-                </select>
-              </div>
-              <div class="fg2" style="flex: 1; min-width: 150px;">
-                <label>Sort</label>
-                <select id="sens-sort" onchange="loadSensitiveComplaints()">
-                  <option value="votes">Most Upvoted</option>
-                  <option value="new">Newest</option>
-                  <option value="old">Oldest</option>
-                </select>
-              </div>
-              <div class="fg2" style="flex: 2; min-width: 250px;">
-                <label>Search</label>
-                <input type="text" id="sens-search" placeholder="Search title or description..." oninput="loadSensitiveComplaints()" style="padding: 8px 12px; border: 1.5px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 13px; outline: none; width: 100%; box-sizing: border-box; background: #fff;" />
-              </div>
-            </div>
-          </div>
-        </div>
 
-        <div class="acs" style="margin-top:20px;">
-          <h2 id="sensitiveTitle">Sensitive Complaints</h2>
-          <div class="sub" id="sensitiveMeta" style="margin-top:-10px;margin-bottom:18px;"></div>
-          <div id="sensitiveList" class="loading">Loading…</div>
-        </div>
-      </div>
+
 
 
       <div class="ac" id="admin-students-page" style="display:none;">
@@ -654,6 +607,7 @@ select:focus{border-color:var(--blue)}
         <p class="sub">View registered students and manage passwords</p>
 
         <div class="sb2" style="margin-bottom:14px;">
+
           <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="min-width:15px;">
             <circle cx="11" cy="11" r="8"/>
             <path d="m21 21-4.35-4.35"/>
@@ -673,7 +627,42 @@ select:focus{border-color:var(--blue)}
           <div id="studentsList"> <div class="loading">Loading students…</div></div>
         </div>
       </div>
+
+      <!-- SENSITIVE COMPLAINTS -->
+      <div class="ac" id="admin-sensitive-page" style="display:none;">
+        <h1>Sensitive Complaints</h1>
+        <p class="sub">AI-flagged sensitive campus complaints requiring private review</p>
+
+        <div class="sb2" style="margin-bottom:14px;">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="min-width:15px;">
+            <circle cx="11" cy="11" r="8"/>
+            <path d="m21 21-4.35-4.35"/>
+          </svg>
+          <input type="text" id="sens-search" placeholder="Search sensitive complaints..." oninput="loadSensitiveComplaints()">
+        </div>
+
+        <div class="fp" style="margin-bottom:18px; display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <div class="fg2"><label>Faculty</label><select id="sens-fac" onchange="loadSensitiveComplaints()"><option value="">All Faculties</option><option>Food</option><option>Library</option><option>Hostel</option><option>Infrastructure</option><option>Staff</option><option>Others</option></select></div>
+            <div class="fg2"><label>Status</label><select id="sens-status" onchange="loadSensitiveComplaints()"><option value="">All Status</option><option>Pending</option><option>Under Review</option><option>Resolved</option></select></div>
+            <div class="fg2"><label>Sort</label><select id="sens-sort" onchange="loadSensitiveComplaints()"><option value="votes">Most Upvoted</option><option value="new">Newest</option><option value="old">Oldest</option></select></div>
+          </div>
+          <button class="btn-sub" id="btn-ai-scan" onclick="runAIScan()" style="padding: 8px 16px; font-size: 13px; margin-top: 5px;">
+            <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right: 4px; vertical-align: middle;">
+              <path d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m0-12.728l.707.707m11.314 11.314l-.707.707M12 8a4 4 0 100 8 4 4 0 000-8z" />
+            </svg>
+            Scan with AI
+          </button>
+        </div>
+
+        <div class="acs" style="margin-top:8px;">
+          <h2 id="sensitiveTitle">Sensitive Complaints (0)</h2>
+          <div class="sub" id="sensitiveMeta" style="margin-top:-10px;margin-bottom:18px;">Showing 0 sensitive complaints</div>
+          <div id="sensitiveList"> <div class="loading">Loading sensitive complaints…</div></div>
+        </div>
+      </div>
     </main>
+
   </div>
 </div>
 <!-- TOAST -->
@@ -753,9 +742,12 @@ function afterLogin() {
   if (sideStudents) sideStudents.style.display = isAdmin ? 'flex' : 'none';
   const sideAdmin = document.getElementById('side_admin');
   if (sideAdmin) sideAdmin.style.display = isAdmin ? 'flex' : 'none';
+  const sideSensitive = document.getElementById('side_sensitive');
+  if (sideSensitive) sideSensitive.style.display = isAdmin ? 'flex' : 'none';
 
   // Go to admin dashboard for admins; otherwise home for students.
   go(isAdmin ? 'admin' : 'home');
+
 
 }
 function signOut() {
@@ -805,87 +797,7 @@ async function register() {
     btn.textContent = prev;
   }
 }
-// ── Sensitive Complaints (Admin) ─────────────────────────────────────────
-let __sensitiveCache = null;
 
-async function loadSensitiveComplaints() {
-  const listEl = document.getElementById('sensitiveList');
-  const titleEl = document.getElementById('sensitiveTitle');
-  const metaEl = document.getElementById('sensitiveMeta');
-  
-  if (!listEl) return;
-  
-  const fac = document.getElementById('sens-fac')?.value || '';
-  const stat = document.getElementById('sens-status')?.value || '';
-  const sort = document.getElementById('sens-sort')?.value || 'votes';
-  const search = document.getElementById('sens-search')?.value || '';
-
-  listEl.innerHTML = '<div class="loading">Loading…</div>';
-
-  try {
-    const params = new URLSearchParams(
-      Object.fromEntries(
-        [['faculty', fac], ['status', stat], ['sort', sort], ['search', search]].filter(([, v]) => v)
-      )
-    );
-
-    const data = await apiFetch('/complaints/admin/sensitive?' + params.toString());
-    const complaints = data?.complaints || [];
-    const count = complaints.length;
-    
-    if (titleEl) titleEl.textContent = `Sensitive Complaints (${count})`;
-    if (metaEl) {
-      metaEl.textContent = count > 0 
-        ? `Showing ${count} sensitive complaints` 
-        : 'No sensitive complaints match the current filters.';
-    }
-
-    if (count === 0) {
-      listEl.innerHTML = '<div class="loading">No sensitive complaints found.</div>';
-      return;
-    }
-
-    listEl.innerHTML = complaints.map(c => {
-      return `
-        <div class="acard" data-cid="${c.id}">
-          <div class="at" style="cursor:pointer" onclick="openComplaintDetail(${c.id})">${esc(c.title)}</div>
-          <div class="ad" style="cursor:pointer" onclick="openComplaintDetail(${c.id})">${esc(c.desc)}</div>
-          <div class="atags">
-            ${sp(c.status)}
-            <span class="pill p-cat">${esc(c.faculty)}</span>
-            ${pp(c.pri)}
-          </div>
-          <div class="aa">Assigned to: <span>${esc(c.dept)}</span></div>
-          <div class="aa" style="margin-top:-4px">Admin notes: <span id="an-sens-${c.id}">—</span></div>
-          <div class="aft">
-            <div class="afl">${c.votes} upvotes &nbsp; ${ta(c.days)}</div>
-            <select class="ss" onchange="updStatus(${c.id}, this.value)">
-              <option ${c.status === 'Pending' ? 'selected' : ''}>Pending</option>
-              <option ${c.status === 'Under Review' ? 'selected' : ''}>Under Review</option>
-              <option ${c.status === 'Resolved' ? 'selected' : ''}>Resolved</option>
-            </select>
-          </div>
-        </div>`;
-    }).join('');
-
-    // Fetch admin notes count for each card
-    await Promise.all(complaints.map(async (c) => {
-      try {
-        const notes = await apiFetch(`/complaints/${c.id}/admin/notes`);
-        const count = notes?.notes?.length ?? 0;
-        const el = document.getElementById(`an-sens-${c.id}`);
-        if (el) el.textContent = String(count);
-      } catch {
-        const el = document.getElementById(`an-sens-${c.id}`);
-        if (el) el.textContent = '—';
-      }
-    }));
-
-  } catch (e) {
-    if (titleEl) titleEl.textContent = 'Sensitive Complaints (0)';
-    listEl.innerHTML = `<div class="loading">Error loading sensitive complaints: ${esc(e.message)}</div>`;
-  }
-}
 
 function go(p) {
 
@@ -922,13 +834,18 @@ function go(p) {
     ra();
     const sideAdmin = document.getElementById('side_admin');
     const sideStudents = document.getElementById('side_students');
+    const sideSensitive = document.getElementById('side_sensitive');
     if (sideAdmin) sideAdmin.classList.add('act');
     if (sideStudents) sideStudents.classList.remove('act');
+    if (sideSensitive) sideSensitive.classList.remove('act');
     const dash = document.getElementById('admin-dashboard-page');
     const stud = document.getElementById('admin-students-page');
+    const sens = document.getElementById('admin-sensitive-page');
     if (dash) dash.style.display = 'block';
     if (stud) stud.style.display = 'none';
+    if (sens) sens.style.display = 'none';
   }
+
 
   if (p === 'adminStudents') {
     if (adminPage) adminPage.style.display = 'flex';
@@ -950,6 +867,8 @@ function go(p) {
   if (p === 'adminSensitive') {
     try {
       if (adminPage) adminPage.style.display = 'flex';
+      document.getElementById('pg-admin').style.display = 'flex';
+
       const dash = document.getElementById('admin-dashboard-page');
       const stud = document.getElementById('admin-students-page');
       const sens = document.getElementById('admin-sensitive-page');
@@ -960,13 +879,18 @@ function go(p) {
       const sideAdmin = document.getElementById('side_admin');
       const sideStudents = document.getElementById('side_students');
       const sideSensitive = document.getElementById('side_sensitive');
+
       if (sideAdmin) sideAdmin.classList.remove('act');
       if (sideStudents) sideStudents.classList.remove('act');
       if (sideSensitive) sideSensitive.classList.add('act');
 
+      const listEl = document.getElementById('sensitiveList');
+      if (listEl) listEl.innerHTML = '<div class="loading">Loading…</div>';
+
       loadSensitiveComplaints();
     } catch (e) {
-      console.error('adminSensitive navigation error:', e);
+      const listEl = document.getElementById('sensitiveList');
+      if (listEl) listEl.innerHTML = '<div class="loading">Error loading sensitive complaints.</div>';
     }
   }
 
@@ -975,6 +899,7 @@ function go(p) {
 
 
   if (p === 'register') {
+
     if (adminPage) adminPage.style.display = 'none';
     const e = document.getElementById('reg-email');
     const p1 = document.getElementById('reg-pw');
@@ -1872,6 +1797,7 @@ async function ra() {
   const sort = document.getElementById('ap2').value || 'votes';
   try {
     const [statsData, listData] = await Promise.all([
+
       apiFetch('/complaints/stats'),
       apiFetch('/complaints?' + new URLSearchParams(
         Object.fromEntries(
@@ -1953,8 +1879,12 @@ async function updStatus(id, status) {
     toast('Status updated to ' + status);
     // Refresh admin views to reflect new progress bars
     ra();
-    loadSensitiveComplaints();
+    const sensPage = document.getElementById('admin-sensitive-page');
+    if (sensPage && sensPage.style.display !== 'none') {
+      loadSensitiveComplaints();
+    }
   } catch (e) {
+
     toast(e.message, false);
   }
 }
@@ -1966,10 +1896,6 @@ function sp(s) {
   if (s === 'Pending')      return `<span class="pill p-pend">Pending</span>`;
   if (s === 'Under Review') return `<span class="pill p-rev">Under Review</span>`;
   return `<span class="pill p-res">Resolved</span>`;
-}
-
-function esc(s = '') {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'<').replace(/>/g,'>');
 }
 
 function pp(p) {
@@ -1986,9 +1912,117 @@ function ta(d) {
   return d + ' day' + (d !== 1 ? 's' : '') + ' ago';
 }
 
+// ── Sensitive Complaints (Admin) ─────────────────────────────────────────
+async function loadSensitiveComplaints() {
+  const listEl = document.getElementById('sensitiveList');
+  const titleEl = document.getElementById('sensitiveTitle');
+  const metaEl = document.getElementById('sensitiveMeta');
+
+  if (!listEl) return;
+
+  const fac = document.getElementById('sens-fac')?.value || '';
+  const stat = document.getElementById('sens-status')?.value || '';
+  const sort = document.getElementById('sens-sort')?.value || 'votes';
+  const search = document.getElementById('sens-search')?.value || '';
+
+  listEl.innerHTML = '<div class="loading">Loading…</div>';
+
+  try {
+    const params = new URLSearchParams(
+      Object.fromEntries(
+        [['faculty', fac], ['status', stat], ['sort', sort], ['search', search]].filter(([, v]) => v)
+      )
+    );
+
+    const data = await apiFetch('/complaints/admin/sensitive?' + params.toString());
+    const complaints = data?.complaints || [];
+    const count = complaints.length;
+
+    if (titleEl) titleEl.textContent = `Sensitive Complaints (${count})`;
+    if (metaEl) {
+      metaEl.textContent = count > 0
+        ? `Showing ${count} sensitive complaints`
+        : 'No sensitive complaints match the current filters.';
+    }
+
+    if (count === 0) {
+      listEl.innerHTML = '<div class="loading">No sensitive complaints found.</div>';
+      return;
+    }
+
+    listEl.innerHTML = complaints.map(c => `
+      <div class="acard" data-cid="${c.id}">
+        <div class="at" style="cursor:pointer" onclick="openComplaintDetail(${c.id})">${esc(c.title)}</div>
+        <div class="ad" style="cursor:pointer" onclick="openComplaintDetail(${c.id})">${esc(c.desc)}</div>
+        <div class="atags">
+          ${sp(c.status)}
+          <span class="pill p-cat">${esc(c.faculty)}</span>
+          ${pp(c.pri)}
+        </div>
+        <div class="aa">Assigned to: <span>${esc(c.dept)}</span></div>
+        <div class="aa" style="margin-top:-4px">Admin notes: <span id="an-sens-${c.id}">—</span></div>
+        <div class="aft">
+          <div class="afl">${c.votes} upvotes &nbsp; ${ta(c.days)}</div>
+          <select class="ss" onchange="updStatus(${c.id}, this.value)">
+            <option ${c.status === 'Pending' ? 'selected' : ''}>Pending</option>
+            <option ${c.status === 'Under Review' ? 'selected' : ''}>Under Review</option>
+            <option ${c.status === 'Resolved' ? 'selected' : ''}>Resolved</option>
+          </select>
+        </div>
+      </div>`).join('');
+
+    // Fetch admin notes count for each card
+    await Promise.all(complaints.map(async (c) => {
+      try {
+        const notes = await apiFetch(`/complaints/${c.id}/admin/notes`);
+        const count = notes?.notes?.length ?? 0;
+        const el = document.getElementById(`an-sens-${c.id}`);
+        if (el) el.textContent = String(count);
+      } catch {
+        const el = document.getElementById(`an-sens-${c.id}`);
+        if (el) el.textContent = '—';
+      }
+    }));
+  } catch (e) {
+    if (titleEl) titleEl.textContent = 'Sensitive Complaints (0)';
+    listEl.innerHTML = `<div class="loading">Error loading sensitive complaints: ${esc(e.message)}</div>`;
+  }
+}
+
+async function runAIScan() {
+  const btn = document.getElementById('btn-ai-scan');
+  if (!btn) return;
+
+  const originalHtml = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = `
+    <svg class="spin" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right: 4px; display: inline-block; vertical-align: middle;">
+      <path d="M12 2v4m0 12v4M4.93 4.93l2.83 2.83m8.48 8.48l2.83 2.83M2 12h4m12 0h4M4.93 19.07l2.83-2.83m8.48-8.48l2.83-2.83"/>
+    </svg>
+    Scanning...
+  `;
+
+  try {
+    const res = await apiFetch('/complaints/admin/ai-scan', {
+      method: 'POST'
+    });
+    toast(res.message || 'AI Scan completed successfully!');
+    // Reload sensitive complaints list
+    loadSensitiveComplaints();
+    // Reload admin stats/dashboard in case any stats changed
+    ra();
+  } catch (e) {
+    toast(e.message || 'AI Scan failed.', false);
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = originalHtml;
+  }
+}
+
 // ── Admin: Student List ───────────────────────────────────────────────────
 let __studentsLoadTimer = null;
 let __studentsCache = null;
+
 
 function queueLoadStudents() {
   if (__studentsLoadTimer) clearTimeout(__studentsLoadTimer);
