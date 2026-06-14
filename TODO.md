@@ -1,0 +1,4 @@
+- [ ] Remove admin note count fetching + rendering from admin complaints list (ra())
+- [ ] Remove “Admin notes:” line(s) from sensitive complaints cards (loadSensitiveComplaints())
+- [ ] Ensure no leftover references to an-<complaintId> ids
+- [ ] Run a quick node check (optional)

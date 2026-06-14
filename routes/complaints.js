@@ -733,17 +733,17 @@ router.delete('/:id', requireAuth, requireAdmin, async (req, res) => {
 // (Attachments feature removed: no endpoints for listing/uploading/deleting files.)
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Admin Notes + Complaint Timeline + Staff Assignment + Escalation badge
+// Admin Notes + Staff Assignment + Escalation badge
 // Implemented using existing `notifications` table only (no schema changes).
 // Notification `type` conventions:
 // - admin_note: internal admin notes (message contains note text)
-// - timeline_event: generic timeline events (message contains event text)
 // - staff_assignment: staff assignment events (message contains staff identifier/name)
 // - escalation: escalation events (message contains reason/text)
 //
 // Admin Notes
 
 router.get('/:id/admin/notes', requireAuth, async (req, res) => {
+
   // Admins can view all notes.
   // Students can view notes for complaints they submitted.
   const isAdmin = req.user?.role === 'admin';
@@ -810,43 +810,10 @@ router.post('/:id/admin/notes', requireAuth, requireAdmin, async (req, res) => {
 });
 
 
- // Timeline (admin + owner)
- router.get('/:id/timeline', requireAuth, async (req, res) => {
-  try {
-    const id = Number(req.params.id);
-
-    const complaint = await new Promise((resolve, reject) => {
-      db.get('SELECT * FROM complaints WHERE id = ?', [id], (err, row) => (err ? reject(err) : resolve(row)));
-    });
-    if (!complaint) return res.status(404).json({ error: 'Complaint not found.' });
-
-    if (req.user?.role !== 'admin' && complaint.submitter_id !== req.user.id) {
-      return res.status(403).json({ error: 'Access denied.' });
-    }
-    if (req.user?.role !== 'admin' && complaint.is_sensitive) {
-      return res.status(403).json({ error: 'Sensitive complaints are for admin only.' });
-    }
-
-    const rows = await new Promise((resolve, reject) => {
-      db.all(
-        `SELECT id, title, message, type, created_at, user_id
-         FROM notifications
-         WHERE complaint_id = ?
-           AND type IN ('status_event','timeline_event','admin_note','staff_assignment','escalation','status')
-         ORDER BY created_at ASC`,
-        [id],
-        (err, rows) => (err ? reject(err) : resolve(rows || []))
-      );
-    });
-
-    res.json({ timeline: rows.map(r => ({ id: r.id, type: r.type, title: r.title, message: r.message, created_at: r.created_at })) });
-  } catch (err) {
-    console.error('Get timeline error:', err);
-    res.status(500).json({ error: 'Internal server error.' });
-  }
-});
+// (Timeline API removed)
 
 // Staff assignment display
+
 router.get('/:id/staff', requireAuth, async (req, res) => {
   try {
     const id = Number(req.params.id);
