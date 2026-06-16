@@ -345,8 +345,8 @@ select:focus{border-color:var(--blue)}
       </div>
       <div class="rrow">
         <label><input type="checkbox"> Remember me</label>
-        <a class="a-link" onclick="openResetPasswordFromLogin()" style="margin-left:auto;">Forget password?</a>
       </div>
+
       <button class="btn-blue" id="login-btn" onclick="login()">Sign In</button>
 
      </div>
@@ -668,12 +668,25 @@ select:focus{border-color:var(--blue)}
           <div class="fg2"><label>Degree/Faculty</label><select id="sfDegree" onchange="loadStudents()"><option value="">All Faculties</option></select></div>
         </div>
 
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin-bottom:12px;">
+          <div class="fh" style="margin:0;gap:4px;">
+            <h2 id="sttitle" style="margin-bottom:0;">Students</h2>
+            <div class="sub" id="stmeta" style="margin-top:-6px;"></div>
+          </div>
+          <button class="btn-sub" style="padding:11px 18px;white-space:nowrap;" onclick="openAdminAddStudent()">
+            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path d="M12 5v14"/>
+              <path d="M5 12h14"/>
+            </svg>
+            Add students
+          </button>
+        </div>
+
         <div class="acs" style="margin-top:8px;">
-          <h2 id="sttitle">Students</h2>
-          <div class="sub" id="stmeta" style="margin-top:-10px;margin-bottom:18px;"></div>
           <div id="studentsList"> <div class="loading">Loading students…</div></div>
         </div>
       </div>
+
 
 
     </main>
@@ -788,10 +801,34 @@ function showRegister() {
 }
 
 function openResetPasswordFromLogin() {
-  // Login page doesn't have a user context; force password reset via email is not supported.
-  // Instead, instruct user to sign in first (the real reset UI is available from the profile dropdown).
-  toast('Please sign in first to reset your password.');
+  // The backend reset endpoint is authenticated (requires JWT), so on the login page we can only reset
+  // for users who are already signed in (token present).
+  const existingToken = sessionStorage.getItem('sv_token');
+  if (!existingToken) {
+    toast('Please sign in first to reset your password.');
+    return;
+  }
+
+  if (!currentUser) {
+    // Best-effort: fetch current user, then open modal.
+    apiFetch('/auth/me')
+      .then(data => {
+        currentUser = data.user;
+        openResetPassword();
+      })
+      .catch(() => {
+        // Token invalid/expired.
+        sessionStorage.removeItem('sv_token');
+        token = null;
+        currentUser = null;
+        toast('Please sign in again to reset your password.', false);
+      });
+    return;
+  }
+
+  openResetPassword();
 }
+
 
 
 async function register() {
@@ -2353,8 +2390,135 @@ async function confirmRemoveAdminStudent(studentId, btnEl) {
   }
 }
 
+// ── Admin: Add Student ──────────────────────────────────────────────────────
+function openAdminAddStudent() {
+  const existing = document.getElementById('addStudentModal');
+  if (existing) existing.remove();
 
-// ── Keyboard ─────────────────────────────────────────────────────────────────
+  const modal = document.createElement('div');
+  modal.id = 'addStudentModal';
+  modal.style.position = 'fixed';
+  modal.style.inset = '0';
+  modal.style.background = 'rgba(0,0,0,.45)';
+  modal.style.zIndex = '2000';
+  modal.style.display = 'flex';
+  modal.style.alignItems = 'flex-start';
+  modal.style.justifyContent = 'center';
+  modal.style.paddingTop = '72px';
+
+  modal.innerHTML = `
+    <div style="width:100%;max-width:720px;background:#fff;border-radius:16px;border:1px solid var(--border);box-shadow:0 16px 60px rgba(0,0,0,.25);overflow:hidden;">
+      <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;">
+        <div>
+          <div style="font-size:13px;font-weight:900;color:var(--text);">Add Student</div>
+          <div style="font-size:11px;color:var(--sub);margin-top:2px;">Create a new student user</div>
+        </div>
+        <button onclick="closeAdminAddStudent()" style="background:none;border:none;color:var(--blue);font-weight:900;cursor:pointer;font-size:13px;">Close</button>
+      </div>
+
+      <div style="padding:16px;">
+        <div class="fp" style="gap:12px;">
+          <div class="fg2" style="margin-bottom:0;">
+            <label>Email</label>
+            <input id="as_email" type="email" placeholder="student@college.edu" style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;outline:none;" />
+          </div>
+
+          <div class="fg2" style="margin-bottom:0;">
+            <label>Temporary Password</label>
+            <input id="as_password" type="password" placeholder="Min 6 characters" style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;outline:none;" />
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="fg2" style="margin-bottom:0;">
+              <label>Name</label>
+              <input id="as_name" type="text" placeholder="Student name" style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;outline:none;" />
+            </div>
+            <div class="fg2" style="margin-bottom:0;">
+              <label>Roll Number</label>
+              <input id="as_roll" type="text" placeholder="e.g. 21A001" style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;outline:none;" />
+            </div>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="fg2" style="margin-bottom:0;">
+              <label>Class</label>
+              <input id="as_class" type="text" placeholder="e.g. BTech" style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;outline:none;" />
+            </div>
+            <div class="fg2" style="margin-bottom:0;">
+              <label>Section</label>
+              <input id="as_section" type="text" placeholder="e.g. A" style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;outline:none;" />
+            </div>
+          </div>
+
+          <div class="fg2" style="margin-bottom:0;">
+            <label>Degree/Faculty</label>
+            <input id="as_degree" type="text" placeholder="Food / Library / Hostel / …" style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;outline:none;" />
+          </div>
+
+          <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:6px;">
+            <button onclick="closeAdminAddStudent()" class="ss">Cancel</button>
+            <button class="btn-sub" style="padding:11px 18px;" onclick="addAdminStudent(this)">Add</button>
+          </div>
+
+          <div class="small-note" style="text-align:center;margin-top:4px;">
+            Required: email, password, roll number, class, section, degree/faculty.
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(modal);
+}
+
+function closeAdminAddStudent() {
+  const existing = document.getElementById('addStudentModal');
+  if (existing) existing.remove();
+}
+
+async function addAdminStudent(btnEl) {
+  const email = document.getElementById('as_email')?.value?.trim() || '';
+  const password = document.getElementById('as_password')?.value?.trim() || '';
+  const name = document.getElementById('as_name')?.value?.trim() || '';
+  const roll_number = document.getElementById('as_roll')?.value?.trim() || '';
+  const class_name = document.getElementById('as_class')?.value?.trim() || '';
+  const section = document.getElementById('as_section')?.value?.trim() || '';
+  const degree_faculty = document.getElementById('as_degree')?.value?.trim() || '';
+
+  if (!email) { toast('Email is required.', false); return; }
+  if (!password || password.length < 6) { toast('Password must be at least 6 characters.', false); return; }
+  if (!roll_number) { toast('Roll number is required.', false); return; }
+  if (!class_name) { toast('Class is required.', false); return; }
+  if (!section) { toast('Section is required.', false); return; }
+  if (!degree_faculty) { toast('Degree/Faculty is required.', false); return; }
+
+  try {
+    if (btnEl) { btnEl.disabled = true; btnEl.textContent = 'Adding…'; }
+
+    await apiFetch('/admin/students', {
+      method: 'POST',
+      body: JSON.stringify({
+        email,
+        password,
+        name: name || null,
+        roll_number,
+        class_name,
+        section,
+        degree_faculty,
+      })
+    });
+
+    toast('Student added successfully!');
+    closeAdminAddStudent();
+    loadStudents(false);
+  } catch (e) {
+    toast(e.message, false);
+  } finally {
+    if (btnEl) { btnEl.disabled = false; btnEl.textContent = 'Add'; }
+  }
+}
+
+// ── Keyboard
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     closeNotifPanel();
