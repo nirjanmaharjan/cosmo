@@ -1,4 +1,8 @@
-- [ ] Remove admin note count fetching + rendering from admin complaints list (ra())
-- [ ] Remove “Admin notes:” line(s) from sensitive complaints cards (loadSensitiveComplaints())
-- [ ] Ensure no leftover references to an-<complaintId> ids
-- [ ] Run a quick node check (optional)
+# TODO
+
+- [ ] Add student sidebar layout + CSS for student pages (Home + Track Status)
+- [ ] Add sidebar markup to `#pg-home` and `#pg-track`
+- [ ] Update `afterLogin()` to highlight/hide sidebar items correctly based on role
+- [ ] Update `go()` to set active sidebar state for student pages
+- [ ] Test by running app and manually verifying student UI
+
