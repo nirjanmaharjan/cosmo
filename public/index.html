@@ -225,7 +225,9 @@ select:focus{border-color:var(--blue)}
 .si{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center}
 .si.bl{background:#EFF6FF;color:var(--blue)}
 .si.ye{background:#FFFBEB;color:var(--yellow)}
-.si.re{background:#FEF2F2;color:var(--red)}
+ .si.re{background:#FEF2F2;color:var(--red)}
+.si.mo{background:#FFF7ED;color:var(--orange)}
+.si.lo{background:var(--green-bg);color:var(--green)}
 .si.gr{background:var(--green-bg);color:var(--green)}
 .si svg{width:19px;height:19px}
 .amid{display:grid;grid-template-columns:1fr 1.4fr;gap:18px;margin-bottom:26px}
@@ -622,7 +624,7 @@ select:focus{border-color:var(--blue)}
           <div class="ap"><div class="pt"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Category Breakdown</div><div class="cr" id="catb"></div></div>
           <div class="ap"><div class="pt"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>Filters</div>
             <div class="fp">
-              <div class="fg2"><label>Faculty</label><select id="at2" onchange="ra()"><option value="">All Faculties</option><option>Food</option><option>Library</option><option>Hostel</option><option>Infrastructure</option><option>Staff</option><option>Others</option></select></div>
+<div class="fg2"><label>Facilities</label><select id="at2" onchange="ra()"><option value="">All Facilities</option><option>Food</option><option>Library</option><option>Hostel</option><option>Infrastructure</option><option>Staff</option><option>Others</option></select></div>
               <div class="fg2"><label>Status</label><select id="as2" onchange="ra()"><option value="">All Status</option><option>Pending</option><option>Under Review</option><option>Resolved</option></select></div>
               <div class="fg2"><label>Sort</label><select id="ap2" onchange="ra()"><option value="votes">Most Upvoted</option><option value="new">Newest</option><option value="old">Oldest</option></select></div>
             </div>
@@ -1221,9 +1223,51 @@ async function submitComplaint() {
       body: fd
     });
 
+    // Put the newly submitted complaint at the top of the feed immediately,
+    // but DO NOT re-apply server-side filters/sorting right now.
+    // The existing filtered list should remain stable until page revisit.
     allComplaints.unshift(data.complaint);
-    closeM(); rf(); rt();
+
+    // If the user is currently on Home, re-render from the current cache
+    // without changing the active filters (keep UI stable).
+    // Re-apply filters only on reload/page revisit.
+    if (document.getElementById('pg-home')?.classList.contains('active')) {
+      const status   = document.getElementById('fs')?.value;
+      const category = document.getElementById('fc')?.value;
+      const sort     = document.getElementById('so')?.value;
+
+      const localComplaints = allComplaints.filter(x => {
+        if (status && x.status !== status) return false;
+        // backend uses `cat` for category on cards
+        if (category && x.cat !== category) return false;
+        return true;
+      });
+
+      // Ensure newest appears at top immediately after submission.
+      // Since we may not have `created_at`, keep `unshift` order for 'new'.
+      let sorted = [...localComplaints];
+      if (sort === 'votes') sorted.sort((a,b)=>(b.votes||0)-(a.votes||0));
+      if (sort === 'new') {
+        // already newest-first via unshift
+      }
+      if (sort === 'old') {
+        // best-effort: if created_at exists sort ascending, otherwise keep existing order
+        if (sorted.length && (sorted[0].created_at || sorted[0].createdAt || sorted[0].created)) {
+          sorted.sort((a,b)=>(a.created_at||0)-(b.created_at||0));
+        }
+      }
+
+      document.getElementById('cnt').textContent =
+        localComplaints.length + ' complaint' + (localComplaints.length !== 1 ? 's' : '');
+      document.getElementById('feed').innerHTML =
+        sorted.length ? sorted.map(renderCard).join('') : '<div class="loading">No complaints found.</div>';
+    }
+
+
+    closeM();
     toast('Complaint submitted successfully!');
+
+
   } catch (e) {
     toast(e.message, false);
   } finally {
@@ -1299,6 +1343,15 @@ function renderCard(c) {
           <span>${commentsCount === null ? 'Comments' : (commentsCount + '')}</span>
         </button>
       </div>
+
+      <div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <span id="home_comment_privacy_${c.id}" class="pill" style="margin-left:auto;background:transparent;color:var(--blue);border:none;padding:0;">Only admin can comment</span>
+
+
+
+      </div>
+
+
 
       <!-- Home comments box (toggled by Comment button) -->
       <div style="margin-top:12px;border-top:1px solid var(--border);padding-top:12px;">
@@ -1849,12 +1902,13 @@ async function ra() {
               <div class="stc"><div><div class="sl2" style="color:var(--red)">Sensitive</div><div class="sn2" style="color:var(--red)">${s.sensitiveCount}</div></div><div class="si re"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div></div>
               <div class="stc"><div><div class="sl2" style="color:var(--red)">High Priority</div><div class="sn2" style="color:var(--red)">${s.highPri}</div></div><div class="si re"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div></div>
 
-              <div class="stc"><div><div class="sl2" style="color:var(--orange)">Medium Priority</div><div class="sn2" style="color:var(--orange)">${s.mediumPri}</div></div><div class="si re"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div></div>
+              <div class="stc"><div><div class="sl2" style="color:var(--orange)">Medium Priority</div><div class="sn2" style="color:var(--orange)">${s.mediumPri}</div></div><div class="si mo"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div></div>
 
 
-              <div class="stc"><div><div class="sl2" style="color:var(--green)">Low Priority</div><div class="sn2" style="color:var(--green)">${s.lowPri}</div></div><div class="si re"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div></div>
+              <div class="stc"><div><div class="sl2" style="color:var(--green)">Low Priority</div><div class="sn2" style="color:var(--green)">${s.lowPri}</div></div><div class="si lo"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div></div>
 
 `;
+
 
 
     const cats = s.byFaculty;
