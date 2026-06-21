@@ -265,7 +265,7 @@ router.get('/my', requireAuth, async (req, res) => {
     // Student track-page currently supports `faculty`.
     // UI home filter sends `category` values (Food Services | Facilities | Library | Hostel | Security).
     // Map `category` -> DB faculty so the student track list can filter properly too.
-    const { status, faculty: facultyRaw, sort = 'votes', search, category } = req.query;
+    const { status, faculty: facultyRaw, sort = 'new', search, category } = req.query;
 
     let faculty = null;
     if (facultyRaw && VALID_FACULTIES.includes(facultyRaw)) {
