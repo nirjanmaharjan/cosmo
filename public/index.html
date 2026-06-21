@@ -419,8 +419,12 @@ select:focus{border-color:var(--blue)}
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="12" y2="15"/></svg>
         Track Status
       </button>
+      <button id="side_student_resolved" class="sideItem" onclick="go('studentResolved')" style="display:flex">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        Resolved
+      </button>
     </aside>
-
+    
     <main class="studentMain">
       <div class="hc">
         <div class="inp-bar" id="inp-bar" onclick="openM()">
@@ -516,6 +520,10 @@ select:focus{border-color:var(--blue)}
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="12" y2="15"/></svg>
         Track Status
       </button>
+      <button id="side_student_resolved2" class="sideItem" onclick="go('studentResolved')" style="display:flex">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        Resolved
+      </button>
     </aside>
 
     <main class="studentMain">
@@ -524,11 +532,90 @@ select:focus{border-color:var(--blue)}
         <p class="sub">Monitor the status and progress of all submitted complaints</p>
         <div class="sb2"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input type="text" id="ts" placeholder="Search complaints by title, description, or category..." oninput="rt()"></div>
         <div class="scards">
-          <div class="scard pend"><div><div class="slb">Pending</div><div class="sn" id="tp">—</div></div><div class="sico" style="color:var(--yellow)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div></div>
-          <div class="scard rev"><div><div class="slb">Under Review</div><div class="sn" id="tr2">—</div></div><div class="sico" style="color:var(--blue)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div></div>
-          <div class="scard reso"><div><div class="slb">Resolved</div><div class="sn" id="tres">—</div></div><div class="sico" style="color:var(--green)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div></div>
+          <div class="scard pend" onclick="filterTrackView('status','Pending')" style="cursor:pointer"><div><div class="slb">Pending</div><div class="sn" id="tp">—</div></div><div class="sico" style="color:var(--yellow)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div></div>
+          <div class="scard rev" onclick="filterTrackView('status','Under Review')" style="cursor:pointer"><div><div class="slb">Under Review</div><div class="sn" id="tr2">—</div></div><div class="sico" style="color:var(--blue)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div></div>
+          <div class="scard reso" onclick="filterTrackView('status','Resolved')" style="cursor:pointer"><div><div class="slb">Resolved</div><div class="sn" id="tres">—</div></div><div class="sico" style="color:var(--green)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div></div>
         </div>
         <div id="tlist"></div>
+      </div>
+    </main>
+  </div>
+</div>
+<!-- STUDENT RESOLVED -->
+<div id="pg-studentResolved" class="page">
+  <nav class="nav">
+    <div class="nb">
+      <div class="ni">
+        <svg width="16" height="16" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
+        </svg>
+      </div>
+      <div>
+        <h3>SafeVoice</h3>
+        <p>College Complaint System</p>
+      </div>
+    </div>
+    <div class="nls">
+      <button class="nl" id="alink4" onclick="go('admin')" style="display:none"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/></svg>Admin</button>
+    </div>
+    <div class="na">
+      <div class="av-wrap" style="margin-right:10px;">
+        <button class="av" id="bellBtn4" style="background:transparent;color:var(--sub)" onclick="toggleNotif(event)" aria-label="Notifications">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="18" height="18">
+            <path d="M18 8a6 6 0 10-12 0c0 7-3 7-3 7h18s-3 0-3-7"/>
+            <path d="M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+          <span id="notifDot4" class="notifDot"></span>
+        </button>
+        <div class="profile-dd" id="notifPanel4" style="display:none;min-width:320px;right:0;left:auto;animation:none">
+          <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;">
+            <span style="font-size:13px;font-weight:700;color:var(--text);">Notifications</span>
+            <button style="background:none;border:none;color:var(--blue);font-weight:700;cursor:pointer;font-size:13px" onclick="markAllRead()">Mark all read</button>
+          </div>
+          <div id="notifList4" style="max-height:340px;overflow:auto"></div>
+        </div>
+      </div>
+      <div class="av-wrap">
+        <button class="av" id="av4" onclick="toggleDD(event)">S</button>
+        <div class="profile-dd" id="dd4">
+          <div class="dd-email" id="dd-email4">student@college.edu</div>
+          <button class="dd-item" onclick="openResetPassword()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6"/><path d="M23 11h-6"/></svg>Reset Password</button>
+          <button class="dd-item" onclick="signOut()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="studentShell">
+    <aside class="studentSide">
+      <button id="side_student_home3" class="sideItem" onclick="go('home')" style="display:flex">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Home
+      </button>
+      <button id="side_student_track3" class="sideItem" onclick="go('track')" style="display:flex">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="12" y2="15"/></svg>
+        Track Status
+      </button>
+      <button id="side_student_resolved3" class="sideItem act" onclick="go('studentResolved')" style="display:flex">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        Resolved
+      </button>
+    </aside>
+
+    <main class="studentMain">
+      <div class="tc">
+        <h1>My Resolved Complaints</h1>
+        <p class="sub">View complaints that have been resolved</p>
+        <div class="sg" id="srstats"></div>
+        <div class="amid">
+          <div class="ap">
+            <div class="pt"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>Filters</div>
+            <div class="fp">
+              <div class="fg2"><label>Sort</label><select id="srp" onchange="onStudentResolvedFilter()"><option value="new">Newest</option><option value="old">Oldest</option><option value="votes">Most Upvoted</option></select></div>
+            </div>
+          </div>
+        </div>
+        <div id="srlist"></div>
       </div>
     </main>
   </div>
@@ -635,7 +722,7 @@ select:focus{border-color:var(--blue)}
         <div class="acs" style="margin-top:6px;" id="admin-sensitive-block">
           <h2 style="margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
             <span>Sensitive Complaints</span>
-            <span class="pill p-hi" style="margin-left:auto;">Admin Only</span>
+            <span class="pill p-hi">Admin Only</span>
           </h2>
           <div class="loading" id="sensitiveList" style="padding:22px 18px;min-height:420px;text-align:left;">Loading sensitive complaints…</div>
           <div style="font-size:12px;color:var(--sub);margin-top:10px;line-height:1.4;">
@@ -669,6 +756,13 @@ select:focus{border-color:var(--blue)}
           </div>
         </div>
         <div class="acs"><div id="rlist"></div></div>
+        <div class="acs" style="margin-top:6px;" id="admin-sensitive-resolved-block">
+          <h2 style="margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
+            <span>Sensitive Resolved</span>
+            <span class="pill p-hi">Admin Only</span>
+          </h2>
+          <div id="sensitiveResolvedList"></div>
+        </div>
       </div>
 
 
@@ -788,15 +882,15 @@ async function login() {
 }
 function afterLogin() {
   const initials = currentUser.role === 'admin' ? 'A' : 'S';
-  ['av1','av2','av3'].forEach(id => {
+  ['av1','av2','av3','av4'].forEach(id => {
     const el = document.getElementById(id); if (el) el.textContent = initials;
   });
-  ['dd-email1','dd-email2','dd-email3'].forEach(id => {
+  ['dd-email1','dd-email2','dd-email3','dd-email4'].forEach(id => {
     const el = document.getElementById(id); if (el) el.textContent = currentUser.email;
   });
   const isAdmin = currentUser.role === 'admin';
   // Show Admin navigation only for admins
-  ['alink','alink2'].forEach(id => {
+  ['alink','alink2','alink4'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = isAdmin ? 'flex' : 'none';
   });
@@ -930,13 +1024,24 @@ function go(p) {
 
     const shHome2 = document.getElementById('side_student_home2');
     const shTrack2 = document.getElementById('side_student_track2');
+    const shResolved2 = document.getElementById('side_student_resolved2');
     if (shHome2) shHome2.classList.add('act');
     if (shTrack2) shTrack2.classList.remove('act');
+    if (shResolved2) shResolved2.classList.remove('act');
 
     const shHome1 = document.getElementById('side_student_home');
     const shTrack1 = document.getElementById('side_student_track');
+    const shResolved1 = document.getElementById('side_student_resolved');
     if (shHome1) shHome1.classList.add('act');
     if (shTrack1) shTrack1.classList.remove('act');
+    if (shResolved1) shResolved1.classList.remove('act');
+
+    const shHome3 = document.getElementById('side_student_home3');
+    const shTrack3 = document.getElementById('side_student_track3');
+    const shResolved3 = document.getElementById('side_student_resolved3');
+    if (shHome3) shHome3.classList.add('act');
+    if (shTrack3) shTrack3.classList.remove('act');
+    if (shResolved3) shResolved3.classList.remove('act');
   }
   if (p === 'track') {
     if (adminPage) adminPage.style.display = 'none';
@@ -944,18 +1049,52 @@ function go(p) {
 
     const shHome2 = document.getElementById('side_student_home2');
     const shTrack2 = document.getElementById('side_student_track2');
+    const shResolved2 = document.getElementById('side_student_resolved2');
     if (shHome2) shHome2.classList.remove('act');
     if (shTrack2) shTrack2.classList.add('act');
+    if (shResolved2) shResolved2.classList.remove('act');
 
     const shHome1 = document.getElementById('side_student_home');
     const shTrack1 = document.getElementById('side_student_track');
+    const shResolved1 = document.getElementById('side_student_resolved');
     if (shHome1) shHome1.classList.remove('act');
     if (shTrack1) shTrack1.classList.add('act');
+    if (shResolved1) shResolved1.classList.remove('act');
+
+    const shHome3 = document.getElementById('side_student_home3');
+    const shTrack3 = document.getElementById('side_student_track3');
+    const shResolved3 = document.getElementById('side_student_resolved3');
+    if (shHome3) shHome3.classList.remove('act');
+    if (shTrack3) shTrack3.classList.add('act');
+    if (shResolved3) shResolved3.classList.remove('act');
   }
 
+  if (p === 'studentResolved') {
+    if (adminPage) adminPage.style.display = 'none';
+    closeM();
+    loadStudentResolvedComplaints();
 
+    const shHome = document.getElementById('side_student_home');
+    const shTrack = document.getElementById('side_student_track');
+    const shResolved = document.getElementById('side_student_resolved');
+    if (shHome) shHome.classList.remove('act');
+    if (shTrack) shTrack.classList.remove('act');
+    if (shResolved) shResolved.classList.add('act');
 
+    const shHome2 = document.getElementById('side_student_home2');
+    const shTrack2 = document.getElementById('side_student_track2');
+    const shResolved2 = document.getElementById('side_student_resolved2');
+    if (shHome2) shHome2.classList.remove('act');
+    if (shTrack2) shTrack2.classList.remove('act');
+    if (shResolved2) shResolved2.classList.add('act');
 
+    const shHome3 = document.getElementById('side_student_home3');
+    const shTrack3 = document.getElementById('side_student_track3');
+    const shResolved3 = document.getElementById('side_student_resolved3');
+    if (shHome3) shHome3.classList.remove('act');
+    if (shTrack3) shTrack3.classList.remove('act');
+    if (shResolved3) shResolved3.classList.add('act');
+  }
 
   if (p === 'admin') {
     if (adminPage) adminPage.style.display = 'flex';
@@ -1957,6 +2096,52 @@ async function vote(id) {
   }
 }
 // ── Track ────────────────────────────────────────────────────────────────────
+let __trackAllComplaints = [];
+let trackFilter = null;
+
+function filterTrackView(type, value) {
+  if (!value) { trackFilter = null; }
+  else if (trackFilter && trackFilter.type === type && trackFilter.value === value) { trackFilter = null; }
+  else { trackFilter = { type, value }; }
+  renderTrackList();
+}
+
+function renderTrackList() {
+  const list = trackFilter
+    ? __trackAllComplaints.filter(c => c[trackFilter.type] === trackFilter.value)
+    : __trackAllComplaints;
+  const backBtn = trackFilter
+    ? '<div style="margin-bottom:12px;"><button class="btn-back" onclick="filterTrackView()" style="background:none;border:none;color:var(--blue);cursor:pointer;font-size:13px;font-weight:600">← Back</button><span style="font-size:13px;color:var(--sub);margin-left:8px;">Filtered: ' + esc(trackFilter.value) + '</span></div>'
+    : '';
+  document.getElementById('tlist').innerHTML = backBtn + (list.length
+    ? list.map(c => {
+        const commentsCount = (typeof c.comments_count === 'number')
+          ? c.comments_count
+          : (typeof c.comments === 'number' ? c.comments : null);
+        return `
+       <div class="tcard" style="cursor:pointer" onclick="openComplaintDetail(${c.id}, { complaint: __trackComplaints[${c.id}] })" data-cid="${c.id}">
+        <div class="tch"><h3>${esc(c.title)}</h3><span onclick="event.stopPropagation();filterTrackView('status','${c.status}')" style="cursor:pointer">${sp(c.status)}</span></div>
+        <p class="tdesc">${esc(c.desc)}</p>
+        <div class="pr"><span>Status</span><span>${c.status}</span></div>
+        <div class="tm">
+          <span class="mi">Category: <span class="mv">${esc(c.cat)}</span></span>
+          <span class="mi">Priority: <span class="${priCls(c.pri)}">${esc(c.pri)}</span></span>
+          <span class="mi">
+            <span style="display:inline-flex;align-items:center;gap:6px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--sub);">
+                <path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"></path>
+              </svg>
+              <span class="mv">${commentsCount === null ? 'Comments' : (commentsCount + ' comment' + (commentsCount === 1 ? '' : 's'))}</span>
+            </span>
+          </span>
+          <span class="mi">${c.votes} upvotes</span>
+          <span class="mi">Updated ${ta(c.days)}</span>
+        </div>
+      </div>`;
+      }).join('')
+    : '<div class="loading">No complaints found.</div>');
+}
+
 async function rt() {
   const q = (document.getElementById('ts')?.value || '').toLowerCase();
   try {
@@ -1965,42 +2150,143 @@ async function rt() {
     if (q) params.set('search', q);
     const data = await apiFetch('/complaints/my?' + params);
     const list = data.complaints;
+    __trackAllComplaints = list;
     window.__trackComplaints = {};
     list.forEach(c => { window.__trackComplaints[c.id] = c; });
     document.getElementById('tp').textContent   = list.filter(c => c.status === 'Pending').length;
     document.getElementById('tr2').textContent  = list.filter(c => c.status === 'Under Review').length;
     document.getElementById('tres').textContent = list.filter(c => c.status === 'Resolved').length;
-    document.getElementById('tlist').innerHTML = list.length
-      ? list.map(c => {
-          const commentsCount = (typeof c.comments_count === 'number')
-            ? c.comments_count
-            : (typeof c.comments === 'number' ? c.comments : null);
-          return `
-         <div class="tcard" style="cursor:pointer" onclick="openComplaintDetail(${c.id}, { complaint: __trackComplaints[${c.id}] })" data-cid="${c.id}">
-          <div class="tch"><h3>${esc(c.title)}</h3>${sp(c.status)}</div>
-          <p class="tdesc">${esc(c.desc)}</p>
-          <div class="pr"><span>Status</span><span>${c.status}</span></div>
-          <div class="tm">
-            <span class="mi">Category: <span class="mv">${esc(c.cat)}</span></span>
-            <span class="mi">Priority: <span class="${priCls(c.pri)}">${esc(c.pri)}</span></span>
-            <span class="mi">
-              <span style="display:inline-flex;align-items:center;gap:6px;">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--sub);">
-                  <path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"></path>
-                </svg>
-                <span class="mv">${commentsCount === null ? 'Comments' : (commentsCount + ' comment' + (commentsCount === 1 ? '' : 's'))}</span>
-              </span>
-            </span>
-            <span class="mi">${c.votes} upvotes</span>
-            <span class="mi">Updated ${ta(c.days)}</span>
-          </div>
-        </div>`;
-        }).join('')
-      : '<div class="loading">No complaints found.</div>';
+    renderTrackList();
   } catch (e) {
     document.getElementById('tlist').innerHTML = `<div class="loading">Error: ${e.message}</div>`;
   }
 }
+// ── Admin dashboard filter state ─────────────────────────────────────────────
+let __adminAllComplaints = [];
+let adminFilter = null;
+
+function filterAdminView(type, value) {
+  if (!value) { adminFilter = null; }
+  else if (adminFilter && adminFilter.type === type && adminFilter.value === value) { adminFilter = null; }
+  else { adminFilter = { type, value }; }
+  renderAdminList();
+}
+
+function renderAdminList() {
+  const list = adminFilter
+    ? __adminAllComplaints.filter(c => c[adminFilter.type] === adminFilter.value)
+    : __adminAllComplaints;
+  document.getElementById('atitle').textContent = `Complaints (${list.length})`;
+  document.getElementById('alist').innerHTML = list.length
+    ? list.map(c => `
+        <div class="acard" data-cid="${c.id}">
+          <div class="at" style="cursor:pointer" onclick="openComplaintDetail(${c.id})">${esc(c.title)}</div>
+          <div class="ad" style="cursor:pointer" onclick="openComplaintDetail(${c.id})">${esc(c.desc)}</div>
+          <div class="atags"><span onclick="event.stopPropagation();filterAdminView('status','${c.status}')" style="cursor:pointer">${sp(c.status)}</span><span class="pill p-cat">${esc(c.faculty)}</span><span onclick="event.stopPropagation();filterAdminView('pri','${c.pri}')" style="cursor:pointer">${pp(c.pri)}</span></div>
+          <div class="aa">Assigned to: <span>${esc(c.dept)}</span></div>
+          <div class="aft">
+            <div class="afl">${c.votes} upvotes &nbsp; ${ta(c.days)}</div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <button class="btn-sub" style="padding:9px 14px;border-radius:10px;white-space:nowrap;background:transparent;color:var(--blue);border:1px solid var(--border);" onclick="event.stopPropagation();openComplaintDetail(${c.id})" type="button">${c.comments_count || 0} comment${(c.comments_count || 0) === 1 ? '' : 's'}</button>
+            <select class="ss" onchange="updStatus(${c.id}, this.value)">
+              <option ${c.status === 'Pending' ? 'selected' : ''}>Pending</option>
+              <option ${c.status === 'Under Review' ? 'selected' : ''}>Under Review</option>
+              <option ${c.status === 'Resolved' ? 'selected' : ''}>Resolved</option>
+            </select>
+            </div>
+          </div>
+        </div>`).join('')
+    : '<div class="loading">No complaints match the current filters.</div>';
+}
+
+// ── Sensitive complaints filter state ────────────────────────────────────────
+let __sensitiveAllComplaints = [];
+let sensitiveFilter = null;
+
+function filterSensitiveView(type, value) {
+  if (!value) { sensitiveFilter = null; }
+  else if (sensitiveFilter && sensitiveFilter.type === type && sensitiveFilter.value === value) { sensitiveFilter = null; }
+  else { sensitiveFilter = { type, value }; }
+  renderSensitiveList();
+}
+
+function renderSensitiveList() {
+  const listEl = document.getElementById('sensitiveList');
+  if (!listEl) return;
+  const list = sensitiveFilter
+    ? __sensitiveAllComplaints.filter(c => c[sensitiveFilter.type] === sensitiveFilter.value)
+    : __sensitiveAllComplaints;
+  const backBtn = sensitiveFilter
+    ? '<div style="margin-bottom:12px;"><button class="btn-back" onclick="filterSensitiveView()" style="background:none;border:none;color:var(--blue);cursor:pointer;font-size:13px;font-weight:600">← Back</button><span style="font-size:13px;color:var(--sub);margin-left:8px;">Filtered: ' + esc(sensitiveFilter.value) + '</span></div>'
+    : '';
+  if (!list.length) {
+    listEl.innerHTML = backBtn + '<div style="font-size:13px;color:var(--sub);padding:10px 0;">No sensitive complaints found.</div>';
+    return;
+  }
+  listEl.innerHTML = backBtn + list.map(c => `
+        <div class="acard" data-cid="${c.id}">
+          <div class="at" style="cursor:pointer" onclick="openComplaintDetail(${c.id})">${esc(c.title)}</div>
+          <div class="ad" style="cursor:pointer" onclick="openComplaintDetail(${c.id})">${esc(c.desc)}</div>
+          <div class="atags"><span onclick="event.stopPropagation();filterSensitiveView('status','${c.status}')" style="cursor:pointer">${sp(c.status)}</span><span class="pill p-cat">${esc(c.faculty)}</span><span onclick="event.stopPropagation();filterSensitiveView('pri','${c.pri}')" style="cursor:pointer">${pp(c.pri)}</span></div>
+          <div class="aa">Assigned to: <span>${esc(c.dept)}</span></div>
+          <div class="aft">
+            <div class="afl">${c.votes} upvotes &nbsp; ${ta(c.days)}</div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <button class="btn-sub" style="padding:9px 14px;border-radius:10px;white-space:nowrap;background:transparent;color:var(--blue);border:1px solid var(--border);" onclick="event.stopPropagation();openComplaintDetail(${c.id})" type="button">${c.comments_count || 0} comment${(c.comments_count || 0) === 1 ? '' : 's'}</button>
+              <button class="btn-sub" style="padding:9px 14px;border-radius:10px;white-space:nowrap;" onclick="event.stopPropagation();showToStudents(${c.id}, this)" type="button">Show to Students</button>
+              <select class="ss" onchange="updStatus(${c.id}, this.value)">
+                <option ${c.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                <option ${c.status === 'Under Review' ? 'selected' : ''}>Under Review</option>
+                <option ${c.status === 'Resolved' ? 'selected' : ''}>Resolved</option>
+              </select>
+            </div>
+          </div>
+        </div>
+    `).join('');
+}
+
+// ── Sensitive Resolved filter state ─────────────────────────────────────────
+let __sensitiveResolvedAll = [];
+let sensitiveResolvedFilter = null;
+
+function filterSensitiveResolvedView(type, value) {
+  if (!value) { sensitiveResolvedFilter = null; }
+  else if (sensitiveResolvedFilter && sensitiveResolvedFilter.type === type && sensitiveResolvedFilter.value === value) { sensitiveResolvedFilter = null; }
+  else { sensitiveResolvedFilter = { type, value }; }
+  renderSensitiveResolvedList();
+}
+
+function renderSensitiveResolvedList() {
+  const srEl = document.getElementById('sensitiveResolvedList');
+  if (!srEl) return;
+  const list = sensitiveResolvedFilter
+    ? __sensitiveResolvedAll.filter(c => c[sensitiveResolvedFilter.type] === sensitiveResolvedFilter.value)
+    : __sensitiveResolvedAll;
+  const backBtn = sensitiveResolvedFilter
+    ? '<div style="margin-bottom:12px;"><button class="btn-back" onclick="filterSensitiveResolvedView()" style="background:none;border:none;color:var(--blue);cursor:pointer;font-size:13px;font-weight:600">← Back</button><span style="font-size:13px;color:var(--sub);margin-left:8px;">Filtered: ' + esc(sensitiveResolvedFilter.value) + '</span></div>'
+    : '';
+  if (!list.length) {
+    srEl.innerHTML = backBtn + '<div style="font-size:13px;color:var(--sub);padding:10px 0;">No sensitive resolved complaints found.</div>';
+    return;
+  }
+  srEl.innerHTML = backBtn + list.map(function(c) {
+    return (
+      '<div class="acard" data-cid="' + c.id + '">' +
+        '<div class="at" style="cursor:pointer" onclick="openComplaintDetail(' + c.id + ')">' + esc(c.title) + '</div>' +
+        '<div class="ad" style="cursor:pointer" onclick="openComplaintDetail(' + c.id + ')">' + esc(c.desc) + '</div>' +
+        '<div class="atags"><span onclick="event.stopPropagation();filterSensitiveResolvedView(\'status\',\'' + c.status + '\')" style="cursor:pointer">' + sp(c.status) + '</span><span class="pill p-cat">' + esc(c.faculty) + '</span><span onclick="event.stopPropagation();filterSensitiveResolvedView(\'pri\',\'' + c.pri + '\')" style="cursor:pointer">' + pp(c.pri) + '</span></div>' +
+        '<div class="aa">Assigned to: <span>' + esc(c.dept) + '</span></div>' +
+        '<div class="aft">' +
+          '<div class="afl">' + c.votes + ' upvotes &nbsp; ' + ta(c.days) + '</div>' +
+          '<div style="display:flex;align-items:center;gap:10px;">' +
+            '<button class="btn-sub" style="padding:9px 14px;border-radius:10px;white-space:nowrap;background:transparent;color:var(--blue);border:1px solid var(--border);" onclick="event.stopPropagation();openComplaintDetail(' + c.id + ')" type="button">' + (c.comments_count || 0) + ' comment' + ((c.comments_count || 0) === 1 ? '' : 's') + '</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>'
+    );
+  }).join('');
+}
+
 // ── Admin ────────────────────────────────────────────────────────────────────
 async function ra() {
   const fac  = document.getElementById('at2').value;
@@ -2028,13 +2314,13 @@ async function ra() {
     const s = statsData;
     document.getElementById('astats').innerHTML = `
 
-              <div class="stc"><div><div class="sl2" style="color:var(--red)">Sensitive</div><div class="sn2" style="color:var(--red)">${s.sensitiveCount}</div></div><div class="si re"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div></div>
-              <div class="stc"><div><div class="sl2" style="color:var(--red)">High Priority</div><div class="sn2" style="color:var(--red)">${s.highPri}</div></div><div class="si re"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div></div>
+              <div class="stc" onclick="document.getElementById('admin-sensitive-block').scrollIntoView({behavior:'smooth'})" style="cursor:pointer"><div><div class="sl2" style="color:var(--red)">Sensitive</div><div class="sn2" style="color:var(--red)">${s.sensitiveCount}</div></div><div class="si re"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div></div>
+              <div class="stc" onclick="filterAdminView('pri','High');filterSensitiveView('pri','High')" style="cursor:pointer"><div><div class="sl2" style="color:var(--red)">High Priority</div><div class="sn2" style="color:var(--red)">${s.highPri}</div></div><div class="si re"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div></div>
 
-              <div class="stc"><div><div class="sl2" style="color:var(--orange)">Medium Priority</div><div class="sn2" style="color:var(--orange)">${s.mediumPri}</div></div><div class="si mo"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div></div>
+              <div class="stc" onclick="filterAdminView('pri','Medium');filterSensitiveView('pri','Medium')" style="cursor:pointer"><div><div class="sl2" style="color:var(--orange)">Medium Priority</div><div class="sn2" style="color:var(--orange)">${s.mediumPri}</div></div><div class="si mo"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div></div>
 
 
-              <div class="stc"><div><div class="sl2" style="color:var(--green)">Low Priority</div><div class="sn2" style="color:var(--green)">${s.lowPri}</div></div><div class="si lo"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div></div>
+              <div class="stc" onclick="filterAdminView('pri','Low');filterSensitiveView('pri','Low')" style="cursor:pointer"><div><div class="sl2" style="color:var(--green)">Low Priority</div><div class="sn2" style="color:var(--green)">${s.lowPri}</div></div><div class="si lo"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div></div>
 
 `;
 
@@ -2050,33 +2336,9 @@ async function ra() {
       </div>`).join('');
 
     const list = listData.complaints;
-    document.getElementById('atitle').textContent = `Complaints (${list.length})`;
-
-    // Render cards
-    document.getElementById('alist').innerHTML = list.length
-      ? list.map(c => `
-        <div class="acard" data-cid="${c.id}">
-          <div class="at" style="cursor:pointer" onclick="openComplaintDetail(${c.id})">${esc(c.title)}</div>
-          <div class="ad" style="cursor:pointer" onclick="openComplaintDetail(${c.id})">${esc(c.desc)}</div>
-          <div class="atags">${sp(c.status)}<span class="pill p-cat">${esc(c.faculty)}</span>${pp(c.pri)}</div>
-          <div class="aa">Assigned to: <span>${esc(c.dept)}</span></div>
-          <div class="aft">
-
-            <div class="afl">${c.votes} upvotes &nbsp; ${ta(c.days)}</div>
-          <div style="display:flex;align-items:center;gap:10px;">
-            <button class="btn-sub" style="padding:9px 14px;border-radius:10px;white-space:nowrap;background:transparent;color:var(--blue);border:1px solid var(--border);" onclick="event.stopPropagation();openComplaintDetail(${c.id})" type="button">💬 ${c.comments_count || 0} comment${(c.comments_count || 0) === 1 ? '' : 's'}</button>
-            <select class="ss" onchange="updStatus(${c.id}, this.value)">
-              <option ${c.status === 'Pending' ? 'selected' : ''}>Pending</option>
-              <option ${c.status === 'Under Review' ? 'selected' : ''}>Under Review</option>
-              <option ${c.status === 'Resolved' ? 'selected' : ''}>Resolved</option>
-
-
-
-            </select>
-            </div>
-          </div>
-        </div>`)`).join('')
-      : '<div class="loading">No complaints match the current filters.</div>';
+    __adminAllComplaints = list;
+    adminFilter = null;
+    renderAdminList();
 
   } catch (e) {
     toast(e.message, false);
@@ -2145,35 +2407,9 @@ async function loadSensitiveComplaints(filters = {}) {
     const url = qs ? `/complaints/admin/sensitive?${qs}` : '/complaints/admin/sensitive';
 
     const data = await apiFetch(url);
-    const complaints = data.complaints || [];
-
-    if (!complaints.length) {
-      listEl.innerHTML = '<div style="font-size:13px;color:var(--sub);padding:10px 0;">No sensitive complaints found.</div>';
-      return;
-    }
-
-    listEl.innerHTML = complaints.map(c => `
-        <div class="acard" data-cid="${c.id}">
-          <div class="at" style="cursor:pointer" onclick="openComplaintDetail(${c.id})">${esc(c.title)}</div>
-          <div class="ad" style="cursor:pointer" onclick="openComplaintDetail(${c.id})">${esc(c.desc)}</div>
-          <div class="atags">${sp(c.status)}<span class="pill p-cat">${esc(c.faculty)}</span>${pp(c.pri)}</div>
-          <div class="aa">Assigned to: <span>${esc(c.dept)}</span></div>
-
-          <div class="aft">
-            <div class="afl">${c.votes} upvotes &nbsp; ${ta(c.days)}</div>
-            <div style="display:flex;align-items:center;gap:10px;">
-              <button class="btn-sub" style="padding:9px 14px;border-radius:10px;white-space:nowrap;background:transparent;color:var(--blue);border:1px solid var(--border);" onclick="event.stopPropagation();openComplaintDetail(${c.id})" type="button">💬 ${c.comments_count || 0} comment${(c.comments_count || 0) === 1 ? '' : 's'}</button>
-              <button class="btn-sub" style="padding:9px 14px;border-radius:10px;white-space:nowrap;" onclick="event.stopPropagation();showToStudents(${c.id}, this)" type="button">Show to Students</button>
-
-              <select class="ss" onchange="updStatus(${c.id}, this.value)">
-                <option ${c.status === 'Pending' ? 'selected' : ''}>Pending</option>
-                <option ${c.status === 'Under Review' ? 'selected' : ''}>Under Review</option>
-                <option ${c.status === 'Resolved' ? 'selected' : ''}>Resolved</option>
-              </select>
-            </div>
-          </div>
-        </div>
-    `).join('');
+    __sensitiveAllComplaints = data.complaints || [];
+    sensitiveFilter = null;
+    renderSensitiveList();
   } catch (e) {
     listEl.innerHTML = `<div class="loading">Error: ${esc(e.message)}</div>`;
   }
@@ -2210,7 +2446,7 @@ async function loadResolvedComplaints(filters = {}) {
     const statsEl = document.getElementById('rstats');
     if (statsEl) {
       statsEl.innerHTML =
-        '<div class="stc"><div><div class="sl2" style="color:var(--green)">Total Resolved</div><div class="sn2" style="color:var(--green)">' + total + '</div></div><div class="si re"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><polyline points="22 4 12 14.01 9 11.01"/></svg></div></div>';
+        '<div class="stc"><div><div class="sl2" style="color:var(--green)">Total Resolved</div><div class="sn2" style="color:var(--green)">' + total + '</div></div><div class="si gr"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><polyline points="22 4 12 14.01 9 11.01"/></svg></div></div>';
     }
 
     // Render faculty breakdown chart
@@ -2222,28 +2458,34 @@ async function loadResolvedComplaints(filters = {}) {
       }).join('');
     }
 
-    if (!complaints.length) {
+    const regularResolved = complaints.filter(c => !c.is_sensitive);
+    const sensitiveResolved = complaints.filter(c => c.is_sensitive);
+
+    // Render regular resolved list
+    if (!regularResolved.length) {
       listEl.innerHTML = '<div style="font-size:13px;color:var(--sub);padding:10px 0;">No resolved complaints found.</div>';
-      return;
+    } else {
+      listEl.innerHTML = regularResolved.map(function(c) {
+        return (
+          '<div class="acard" data-cid="' + c.id + '">' +
+            '<div class="at" style="cursor:pointer" onclick="openComplaintDetail(' + c.id + ')">' + esc(c.title) + '</div>' +
+            '<div class="ad" style="cursor:pointer" onclick="openComplaintDetail(' + c.id + ')">' + esc(c.desc) + '</div>' +
+            '<div class="atags">' + sp(c.status) + '<span class="pill p-cat">' + esc(c.faculty) + '</span>' + pp(c.pri) + '</div>' +
+            '<div class="aa">Assigned to: <span>' + esc(c.dept) + '</span></div>' +
+            '<div class="aft">' +
+              '<div class="afl">' + c.votes + ' upvotes &nbsp; ' + ta(c.days) + '</div>' +
+              '<div style="display:flex;align-items:center;gap:10px;">' +
+                '<button class="btn-sub" style="padding:9px 14px;border-radius:10px;white-space:nowrap;background:transparent;color:var(--blue);border:1px solid var(--border);" onclick="event.stopPropagation();openComplaintDetail(' + c.id + ')" type="button">' + (c.comments_count || 0) + ' comment' + ((c.comments_count || 0) === 1 ? '' : 's') + '</button>' +
+              '</div>' +
+            '</div>' +
+          '</div>'
+        );
+      }).join('');
     }
 
-    // Render cards matching admin dashboard style
-    listEl.innerHTML = complaints.map(function(c) {
-      return (
-        '<div class="acard" data-cid="' + c.id + '">' +
-          '<div class="at" style="cursor:pointer" onclick="openComplaintDetail(' + c.id + ')">' + esc(c.title) + '</div>' +
-          '<div class="ad" style="cursor:pointer" onclick="openComplaintDetail(' + c.id + ')">' + esc(c.desc) + '</div>' +
-          '<div class="atags">' + sp(c.status) + '<span class="pill p-cat">' + esc(c.faculty) + '</span>' + pp(c.pri) + '</div>' +
-          '<div class="aa">Assigned to: <span>' + esc(c.dept) + '</span></div>' +
-          '<div class="aft">' +
-            '<div class="afl">' + c.votes + ' upvotes &nbsp; ' + ta(c.days) + '</div>' +
-            '<div style="display:flex;align-items:center;gap:10px;">' +
-              '<button class="btn-sub" style="padding:9px 14px;border-radius:10px;white-space:nowrap;background:transparent;color:var(--blue);border:1px solid var(--border);" onclick="event.stopPropagation();openComplaintDetail(' + c.id + ')" type="button">💬 ' + (c.comments_count || 0) + ' comment' + ((c.comments_count || 0) === 1 ? '' : 's') + '</button>' +
-            '</div>' +
-          '</div>' +
-        '</div>'
-      );
-    }).join('');
+    __sensitiveResolvedAll = sensitiveResolved;
+    sensitiveResolvedFilter = null;
+    renderSensitiveResolvedList();
   } catch (e) {
     listEl.innerHTML = '<div class="loading">Error: ' + esc(e.message) + '</div>';
   }
@@ -2255,7 +2497,85 @@ function onResolvedFilter() {
   loadResolvedComplaints({ faculty: fac, sort: sort });
 }
 
+async function loadStudentResolvedComplaints() {
+  const listEl = document.getElementById('srlist');
+  if (!listEl) return;
 
+  listEl.innerHTML = '<div class="loading">Loading resolved complaints…</div>';
+
+  try {
+    const sort = document.getElementById('srp')?.value || 'new';
+    const params = new URLSearchParams();
+    if (sort) params.set('sort', sort);
+    const qs = params.toString();
+    const url = qs ? '/complaints/resolved?' + qs : '/complaints/resolved';
+
+    const data = await apiFetch(url);
+    const complaints = data.complaints || [];
+
+    const statsEl = document.getElementById('srstats');
+    if (statsEl) {
+      statsEl.innerHTML =
+        '<div class="stc"><div><div class="sl2" style="color:var(--green)">Total Resolved</div><div class="sn2" style="color:var(--green)">' + complaints.length + '</div></div><div class="si gr"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><polyline points="22 4 12 14.01 9 11.01"/></svg></div></div>';
+    }
+
+    const sensitive = complaints.filter(c => c.is_sensitive);
+    const regular = complaints.filter(c => !c.is_sensitive);
+
+    if (!complaints.length) {
+      listEl.innerHTML = '<div style="font-size:13px;color:var(--sub);padding:10px 0;">No resolved complaints found.</div>';
+    } else {
+      var html = '';
+      if (sensitive.length) {
+        html += '<div style="margin-bottom:6px;"><h2 style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;"><span class="pill p-hi">Sensitive</span></h2></div>';
+        html += sensitive.map(function(c) {
+          return (
+            '<div class="acard" data-cid="' + c.id + '">' +
+              '<div class="at" style="cursor:pointer" onclick="openComplaintDetail(' + c.id + ')">' + esc(c.title) + '</div>' +
+              '<div class="ad" style="cursor:pointer" onclick="openComplaintDetail(' + c.id + ')">' + esc(c.desc) + '</div>' +
+              '<div class="atags">' + sp(c.status) + '<span class="pill p-cat">' + esc(c.faculty) + '</span>' + pp(c.pri) + '</div>' +
+              '<div class="aa">Assigned to: <span>' + esc(c.dept) + '</span></div>' +
+              '<div class="aft">' +
+                '<div class="afl">' + c.votes + ' upvotes &nbsp; ' + ta(c.days) + '</div>' +
+                '<div style="display:flex;align-items:center;gap:10px;">' +
+                  '<button class="btn-sub" style="padding:9px 14px;border-radius:10px;white-space:nowrap;background:transparent;color:var(--blue);border:1px solid var(--border);" onclick="event.stopPropagation();openComplaintDetail(' + c.id + ')" type="button">' + (c.comments_count || 0) + ' comment' + ((c.comments_count || 0) === 1 ? '' : 's') + '</button>' +
+                '</div>' +
+              '</div>' +
+            '</div>'
+          );
+        }).join('');
+      }
+      html += '<h2 style="font-size:15px;font-weight:700;margin:6px 0 6px;">All Resolved</h2>';
+      if (!regular.length) {
+        html += '<div style="font-size:13px;color:var(--sub);padding:10px 0;">No regular resolved complaints.</div>';
+      } else {
+        html += regular.map(function(c) {
+          return (
+            '<div class="acard" data-cid="' + c.id + '">' +
+              '<div class="at" style="cursor:pointer" onclick="openComplaintDetail(' + c.id + ')">' + esc(c.title) + '</div>' +
+              '<div class="ad" style="cursor:pointer" onclick="openComplaintDetail(' + c.id + ')">' + esc(c.desc) + '</div>' +
+              '<div class="atags">' + sp(c.status) + '<span class="pill p-cat">' + esc(c.faculty) + '</span>' + pp(c.pri) + '</div>' +
+              '<div class="aa">Assigned to: <span>' + esc(c.dept) + '</span></div>' +
+              '<div class="aft">' +
+                '<div class="afl">' + c.votes + ' upvotes &nbsp; ' + ta(c.days) + '</div>' +
+                '<div style="display:flex;align-items:center;gap:10px;">' +
+                  '<button class="btn-sub" style="padding:9px 14px;border-radius:10px;white-space:nowrap;background:transparent;color:var(--blue);border:1px solid var(--border);" onclick="event.stopPropagation();openComplaintDetail(' + c.id + ')" type="button">' + (c.comments_count || 0) + ' comment' + ((c.comments_count || 0) === 1 ? '' : 's') + '</button>' +
+                '</div>' +
+              '</div>' +
+            '</div>'
+          );
+        }).join('');
+      }
+      listEl.innerHTML = html;
+    }
+  } catch (e) {
+    listEl.innerHTML = '<div class="loading">Error: ' + esc(e.message) + '</div>';
+  }
+}
+
+function onStudentResolvedFilter() {
+  loadStudentResolvedComplaints();
+}
 
 function isAdminUser() {
   return currentUser && currentUser.role === 'admin';

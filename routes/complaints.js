@@ -91,8 +91,8 @@ router.get('/admin/sensitive', requireAuth, requireAdmin, async (req, res) => {
   try {
     const { faculty, status, sort = 'votes', search } = req.query;
 
-    let sql = 'SELECT *, (SELECT COUNT(*) FROM comments WHERE complaint_id = complaints.id) AS comments_count FROM complaints WHERE is_sensitive = 1';
-    const params = [];
+    let sql = 'SELECT *, (SELECT COUNT(*) FROM comments WHERE complaint_id = complaints.id) AS comments_count FROM complaints WHERE is_sensitive = 1 AND status != ?';
+    const params = ['Resolved'];
 
     if (faculty && VALID_FACULTIES.includes(faculty)) {
       sql += ' AND faculty = ?';
