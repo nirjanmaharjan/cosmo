@@ -654,7 +654,11 @@ select:focus{border-color:var(--blue)}
             <span class="pill p-hi" style="margin-left:auto;">Admin Only</span>
           </h2>
           <div class="loading" id="sensitiveList" style="padding:22px 18px;min-height:420px;text-align:left;">Loading sensitive complaints…</div>
+          <div style="font-size:12px;color:var(--sub);margin-top:10px;line-height:1.4;">
+
+          </div>
         </div>
+
 
 
 
@@ -1112,24 +1116,39 @@ document.addEventListener('click', () => {
   closeNotifPanel();
   closeNotifOverlay();
 });
+
+// Stop overlay clicks from bubbling to the document handler.
+// (Prevents immediate close on some browsers if event.stopPropagation() isn't applied on the nested elements.)
+const __notifOverlayEl = document.getElementById('notifOverlay');
+if (__notifOverlayEl) {
+  __notifOverlayEl.addEventListener('click', (ev) => {
+    ev.stopPropagation();
+  });
+}
 function closeNotifOverlay(){
   const ov=document.getElementById('notifOverlay');
   if (ov) ov.classList.remove('open');
 }
 function closeNotifPanel(){
-  const panel=document.getElementById('notifPanel');
-  if (!panel) return;
-  panel.style.display = 'none';
-  panel.classList.remove('open');
+  // There are multiple nav instances; just hide dropdown panels if present.
+  document.querySelectorAll('[id^="notifPanel"]').forEach(panel => {
+    if (!panel) return;
+    panel.style.display = 'none';
+    panel.classList.remove('open');
+  });
 }
 function toggleNotif(e) {
   e.stopPropagation();
   token = sessionStorage.getItem('sv_token') || null;
-  // Ensure dropdown panel is not visible while overlay is open
-  const panel=document.getElementById('notifPanel');
-  if (panel) { panel.style.display = 'none'; panel.classList.remove('open'); }
+  // Hide all dropdown panels on any page instance.
+  closeNotifPanel();
+
   const ov=document.getElementById('notifOverlay');
   if (!ov) return;
+
+  // Ensure overlay is clickable.
+  ov.style.pointerEvents = 'auto';
+
   const isOpen = ov.classList.contains('open');
   if (isOpen) {
     ov.classList.remove('open');
@@ -1153,9 +1172,9 @@ async function fetchNotifications() {
 function renderNotifications() {
   const list = document.getElementById('notifListOverlay');
   if (!list) return;
-  const unread = notifCache.filter(n => !n.is_read).length;
+  // Hide the red dot/badge everywhere (admin feedback requested).
   document.querySelectorAll('.notifDot').forEach(dot => {
-    dot.style.display = unread > 0 ? 'block' : 'none';
+    dot.style.display = 'none';
   });
   if (!notifCache.length) {
     list.innerHTML = `<div style="padding:14px 16px;color:var(--sub);font-size:13px;">No notifications yet.</div>`;
@@ -1903,14 +1922,22 @@ async function ra() {
   const sort = document.getElementById('ap2').value || 'votes';
   try {
     const [statsData, listData] = await Promise.all([
-
       apiFetch('/complaints/stats'),
       apiFetch('/complaints?' + new URLSearchParams(
         Object.fromEntries(
           [['faculty', fac], ['status', stat], ['sort', sort]].filter(([, v]) => v)
         )
-      ))
+      )),
     ]);
+
+    // Apply same filters + sorting to Sensitive Complaints section too.
+    // (Use admin-only endpoint; it already supports faculty/status/sort/search)
+    try {
+      await loadSensitiveComplaints({ faculty: fac, status: stat, sort });
+    } catch (_) {
+      // non-fatal
+    }
+
     const s = statsData;
     document.getElementById('astats').innerHTML = `
 
@@ -2008,16 +2035,24 @@ function ta(d) {
 }
 
 // ── Sensitive Complaints (Admin) ─────────────────────────────────────────
-async function loadSensitiveComplaints() {
+async function loadSensitiveComplaints(filters = {}) {
   const listEl = document.getElementById('sensitiveList');
   if (!listEl) return;
 
   listEl.innerHTML = '<div class="loading">Loading sensitive complaints…</div>';
 
-
   try {
     // Uses the existing admin-only endpoint.
-    const data = await apiFetch('/complaints/admin/sensitive');
+    // Respect the admin dashboard filter values (faculty/status/sort).
+    const params = new URLSearchParams();
+    if (filters?.faculty) params.set('faculty', filters.faculty);
+    if (filters?.status) params.set('status', filters.status);
+    if (filters?.sort) params.set('sort', filters.sort);
+
+    const qs = params.toString();
+    const url = qs ? `/complaints/admin/sensitive?${qs}` : '/complaints/admin/sensitive';
+
+    const data = await apiFetch(url);
     const complaints = data.complaints || [];
 
     if (!complaints.length) {
@@ -2034,12 +2069,15 @@ async function loadSensitiveComplaints() {
 
           <div class="aft">
             <div class="afl">${c.votes} upvotes &nbsp; ${ta(c.days)}</div>
-            <select class="ss" onchange="updStatus(${c.id}, this.value)">
-              <option ${c.status === 'Pending' ? 'selected' : ''}>Pending</option>
-              <option ${c.status === 'Under Review' ? 'selected' : ''}>Under Review</option>
-              <option ${c.status === 'Resolved' ? 'selected' : ''}>Resolved</option>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <button class="btn-sub" style="padding:9px 14px;border-radius:10px;white-space:nowrap;" onclick="event.stopPropagation();showToStudents(${c.id}, this)" type="button">Show to Students</button>
 
-            </select>
+              <select class="ss" onchange="updStatus(${c.id}, this.value)">
+                <option ${c.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                <option ${c.status === 'Under Review' ? 'selected' : ''}>Under Review</option>
+                <option ${c.status === 'Resolved' ? 'selected' : ''}>Resolved</option>
+              </select>
+            </div>
           </div>
         </div>
     `).join('');
@@ -2049,7 +2087,52 @@ async function loadSensitiveComplaints() {
 }
 
 
+
+function isAdminUser() {
+  return currentUser && currentUser.role === 'admin';
+}
+
+async function showToStudents(complaintId, btnEl) {
+  // Admin-only UI action.
+  if (!isAdminUser()) {
+    toast('Admin access required.', false);
+    return;
+  }
+
+  try {
+    if (btnEl) {
+      btnEl.disabled = true;
+      const prev = btnEl.textContent;
+      btnEl.dataset.prevLabel = prev;
+      btnEl.textContent = 'Showing…';
+    }
+
+    await apiFetch(`/complaints/${complaintId}/show-to-students`, {
+      method: 'PATCH',
+    });
+
+    toast('Complaint is now visible to students.');
+
+    // Refresh admin sensitive list and overall admin lists.
+    loadSensitiveComplaints();
+    ra();
+
+    // If admin is currently on normal complaints feed, it will filter out the newly un-hidden item.
+    // (Home feed is only for current user role; students will see it after refresh.)
+  } catch (e) {
+    toast(e.message || 'Failed to show to students.', false);
+  } finally {
+    if (btnEl) {
+      btnEl.disabled = false;
+      const prev = btnEl.dataset.prevLabel;
+      if (prev) btnEl.textContent = prev;
+      delete btnEl.dataset.prevLabel;
+    }
+  }
+}
+
 async function runAIScan() {
+
   const btn = document.getElementById('btn-ai-scan');
   if (!btn) return;
 
