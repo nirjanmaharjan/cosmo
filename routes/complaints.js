@@ -55,6 +55,15 @@ function fetchAttachments(complaintId) {
   });
 }
 
+function fetchCommentsCount(complaintId) {
+  return new Promise((resolve, reject) => {
+    db.get('SELECT COUNT(*) AS c FROM comments WHERE complaint_id = ?', [complaintId], (err, row) => {
+      if (err) reject(err);
+      else resolve(row?.c || 0);
+    });
+  });
+}
+
 function format(row, votedSet = new Set(), attachments = []) {
   return {
     id: row.id,
@@ -73,6 +82,7 @@ function format(row, votedSet = new Set(), attachments = []) {
     created_at: row.created_at,
     updated_at: row.updated_at,
     attachments,
+    comments_count: row.comments_count || 0,
   };
 }
 
@@ -81,7 +91,7 @@ router.get('/admin/sensitive', requireAuth, requireAdmin, async (req, res) => {
   try {
     const { faculty, status, sort = 'votes', search } = req.query;
 
-    let sql = 'SELECT * FROM complaints WHERE is_sensitive = 1';
+    let sql = 'SELECT *, (SELECT COUNT(*) FROM comments WHERE complaint_id = complaints.id) AS comments_count FROM complaints WHERE is_sensitive = 1';
     const params = [];
 
     if (faculty && VALID_FACULTIES.includes(faculty)) {
@@ -282,7 +292,7 @@ router.get('/my', requireAuth, async (req, res) => {
       if (facVal) faculty = facVal;
     }
 
-    let sql = 'SELECT * FROM complaints WHERE submitter_id = ?';
+    let sql = 'SELECT *, (SELECT COUNT(*) FROM comments WHERE complaint_id = complaints.id) AS comments_count FROM complaints WHERE submitter_id = ?';
     const params = [req.user.id];
 
     if (status && VALID_STATUSES.includes(status)) {
@@ -337,7 +347,7 @@ router.get('/', requireAuth, async (req, res) => {
   try {
     const { status, faculty, category, sort = 'votes', search } = req.query;
 
-    let sql = 'SELECT * FROM complaints WHERE 1=1';
+    let sql = 'SELECT *, (SELECT COUNT(*) FROM comments WHERE complaint_id = complaints.id) AS comments_count FROM complaints WHERE 1=1';
     const params = [];
 
     // All users (including admins) only see non-sensitive complaints in the regular feed
@@ -417,7 +427,7 @@ router.get('/resolved', requireAuth, requireAdmin, async (req, res) => {
   try {
     const { faculty, sort = 'new', search } = req.query;
 
-    let sql = 'SELECT * FROM complaints WHERE status = ?';
+    let sql = 'SELECT *, (SELECT COUNT(*) FROM comments WHERE complaint_id = complaints.id) AS comments_count FROM complaints WHERE status = ?';
     const params = ['Resolved'];
 
     if (faculty && VALID_FACULTIES.includes(faculty)) {
@@ -475,7 +485,7 @@ router.get('/:id', requireAuth, async (req, res) => {
     if (req.user?.role !== 'admin' && row.submitter_id !== req.user.id) {
       return res.status(403).json({ error: 'Access denied.' });
     }
-    if (req.user?.role !== 'admin' && row.is_sensitive) {
+    if (req.user?.role !== 'admin' && row.submitter_id !== req.user.id && row.is_sensitive) {
       return res.status(403).json({ error: 'Sensitive complaints are for admin only.' });
     }
 

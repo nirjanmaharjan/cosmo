@@ -19,7 +19,7 @@ async function getComplaintOrNull(complaintId) {
 function canStudentViewComplaint(complaintRow, user) {
   if (!user) return false;
   if (user.role === 'admin') return true;
-  // default: non-sensitive only
+  if (complaintRow?.submitter_id === user.id) return true;
   return !complaintRow?.is_sensitive;
 }
 

@@ -22,7 +22,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 #pg-login{flex-direction:row!important}
 
 /* Notifications */
-.notifDot{position:absolute;right:4px;top:4px;width:8px;height:8px;border-radius:9999;background:var(--red);display:none}
+.notifDot{display:none}
 /* Overlay notification page */
 #notifOverlay{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:1000;display:none;align-items:flex-start;justify-content:center;padding-top:70px;}
 #notifOverlay.open{display:flex;}
@@ -38,7 +38,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 #notifListOverlay{max-height:420px;overflow:auto;}
 .notifItem{padding:12px 16px;border-bottom:1px solid var(--border)}
 .notifItem:last-child{border-bottom:none}
-.notifItem.unread{background:var(--blue-l)}
+.notifItem.unread{background:transparent}
 .notifTitle{font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px}
 .notifMeta{font-size:11px;color:var(--sub);margin-bottom:8px}
 .notifSummary{font-size:12px;color:var(--sub);line-height:1.5;white-space:pre-wrap}
@@ -397,19 +397,6 @@ select:focus{border-color:var(--blue)}
           </div>
           <div id="notifList" style="max-height:340px;overflow:auto"></div>
         </div>
-        <!-- Overlay root (single source of truth) -->
-        <div id="notifOverlay" onclick="closeNotifOverlay()">
-          <div id="notifOverlayCard" onclick="event.stopPropagation()">
-            <div id="notifOverlayHeader">
-              <span class="title">Notifications</span>
-              <div style="display:flex;align-items:center;gap:28px;">
-                <button onclick="markAllRead()" style="background:none;border:none;color:var(--blue);font-weight:700;cursor:pointer;font-size:13px;">Mark all read</button>
-                <button aria-label="Close notifications" title="Close" style="background:none;border:none;color:var(--red);font-weight:900;cursor:pointer;font-size:18px;line-height:1;padding:0 2px;" onclick="event.stopPropagation();closeNotifOverlay();closeNotifPanel()">&times;</button>
-              </div>
-            </div>
-            <div id="notifListOverlay"></div>
-          </div>
-        </div>
       </div>
       <div class="av-wrap">
         <button class="av" id="av1" onclick="toggleDD(event)">S</button>
@@ -497,8 +484,15 @@ select:focus{border-color:var(--blue)}
             <path d="M18 8a6 6 0 10-12 0c0 7-3 7-3 7h18s-3 0-3-7"/>
             <path d="M13.73 21a2 2 0 01-3.46 0"/>
           </svg>
-          <span class="notifDot"></span>
+          <span id="notifDot2" class="notifDot"></span>
         </button>
+        <div class="profile-dd" id="notifPanel2" style="display:none;min-width:320px;right:0;left:auto;animation:none">
+          <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;">
+            <span style="font-size:13px;font-weight:700;color:var(--text);">Notifications</span>
+            <button style="background:none;border:none;color:var(--blue);font-weight:700;cursor:pointer;font-size:13px" onclick="markAllRead()">Mark all read</button>
+          </div>
+          <div id="notifList2" style="max-height:340px;overflow:auto"></div>
+        </div>
       </div>
       <div class="av-wrap">
         <button class="av" id="av2" onclick="toggleDD(event)">S</button>
@@ -570,19 +564,6 @@ select:focus{border-color:var(--blue)}
             <button style="background:none;border:none;color:var(--blue);font-weight:700;cursor:pointer;font-size:13px" onclick="markAllRead()">Mark all read</button>
           </div>
           <div id="notifList" style="max-height:340px;overflow:auto"></div>
-        </div>
-        <!-- Overlay root (single source of truth) -->
-        <div id="notifOverlay" onclick="closeNotifOverlay()">
-          <div id="notifOverlayCard" onclick="event.stopPropagation()">
-            <div id="notifOverlayHeader">
-              <span class="title">Notifications</span>
-              <div style="display:flex;align-items:center;gap:28px;">
-                <button onclick="markAllRead()" style="background:none;border:none;color:var(--blue);font-weight:700;cursor:pointer;font-size:13px;">Mark all read</button>
-                <button aria-label="Close notifications" title="Close" style="background:none;border:none;color:var(--red);font-weight:900;cursor:pointer;font-size:18px;line-height:1;padding:0 2px;" onclick="event.stopPropagation();closeNotifOverlay();closeNotifPanel()">&times;</button>
-              </div>
-            </div>
-            <div id="notifListOverlay"></div>
-          </div>
         </div>
       </div>
       <div class="av-wrap">
@@ -741,6 +722,19 @@ select:focus{border-color:var(--blue)}
 </div>
 <!-- TOAST -->
 <div class="toast" id="toast"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><span id="tmsg">Done!</span></div>
+<!-- Overlay root (shared across all pages) -->
+<div id="notifOverlay" onclick="closeNotifOverlay()">
+  <div id="notifOverlayCard" onclick="event.stopPropagation()">
+    <div id="notifOverlayHeader">
+      <span class="title">Notifications</span>
+      <div style="display:flex;align-items:center;gap:28px;">
+        <button onclick="markAllRead()" style="background:none;border:none;color:var(--blue);font-weight:700;cursor:pointer;font-size:13px;">Mark all read</button>
+        <button aria-label="Close notifications" title="Close" style="background:none;border:none;color:var(--red);font-weight:900;cursor:pointer;font-size:18px;line-height:1;padding:0 2px;" onclick="event.stopPropagation();closeNotifOverlay();closeNotifPanel()">&times;</button>
+      </div>
+    </div>
+    <div id="notifListOverlay"></div>
+  </div>
+</div>
 <script>
 // ── Config ───────────────────────────────────────────────────────────────────
 // Use same-origin API (works regardless of port / deployment)
@@ -1227,17 +1221,24 @@ async function fetchNotifications() {
     if (list) list.innerHTML = `<div style="padding:14px 16px;color:var(--sub);font-size:13px;">Error: ${esc(e.message)}</div>`;
   }
 }
+function syncNotifBadges() {
+  const unread = (notifCache || []).filter(n => !n.is_read).length;
+  document.querySelectorAll('.notifDot').forEach(dot => {
+    dot.style.display = unread > 0 ? 'block' : 'none';
+  });
+}
+
 function renderNotifications() {
   const list = document.getElementById('notifListOverlay');
   if (!list) return;
-  // Hide the red dot/badge everywhere (admin feedback requested).
-  document.querySelectorAll('.notifDot').forEach(dot => {
-    dot.style.display = 'none';
-  });
+  // Ensure unread badge state is always correct after any re-render.
+  syncNotifBadges();
   if (!notifCache.length) {
     list.innerHTML = `<div style="padding:14px 16px;color:var(--sub);font-size:13px;">No notifications yet.</div>`;
     return;
   }
+
+
   list.innerHTML = notifCache
     .slice(0, 50)
     .map(n => `
@@ -1357,7 +1358,11 @@ async function submitComplaint() {
 
 
     closeM();
-    toast('Complaint submitted successfully!');
+    if (data.complaint.is_sensitive) {
+      toast('It has directly gone to admin as it is sensitive complaint');
+    } else {
+      toast('Complaint submitted successfully!');
+    }
 
 
   } catch (e) {
@@ -1432,7 +1437,7 @@ function renderCard(c) {
           <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
             <path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"></path>
           </svg>
-          <span>${commentsCount === null ? 'Comments' : (commentsCount + '')}</span>
+          <span>${commentsCount === null ? 'Comments' : (commentsCount + ' comment' + (commentsCount === 1 ? '' : 's'))}</span>
         </button>
       </div>
 
@@ -1575,6 +1580,7 @@ function openComplaintDetail(id, opts = {}) {
   // Store current complaint id for other handlers
   window.__cd_id = id;
   window.__cd_showAdminNotes = showAdminNotes;
+  window.__cd_localData = opts.complaint || null;
 
   // Gate admin-only UI: hide status update if not admin. Comments should remain visible.
   const isAdmin = currentUser && currentUser.role === 'admin';
@@ -1627,11 +1633,25 @@ async function cdLoadDetail(id) {
     try {
       detailData = await apiFetch(`/complaints/${id}`);
     } catch (e) {
-      basicTitle.textContent = 'Error loading complaint';
-      basicDesc.textContent = e.message;
-      basicTags.innerHTML = '';
-      staffEl.textContent = '';
-      badgeEl.innerHTML = '';
+      const localComplaint = window.__cd_localData;
+      if (localComplaint) {
+        basicTitle.textContent = localComplaint.title;
+        basicDesc.textContent  = localComplaint.desc;
+        basicTags.innerHTML = `${sp(localComplaint.status)}<span class="pill p-cat">${esc(localComplaint.cat)}</span>${pp(localComplaint.pri)}<span class="pill" style="background:var(--blue-l);color:var(--blue);">${esc(localComplaint.faculty||'')}</span>`;
+        staffEl.textContent = localComplaint.staff ? `Assigned to: ${localComplaint.staff}` : '';
+        badgeEl.innerHTML = localComplaint.escalated ? '<span class="pill p-hi">Escalated</span>' : '';
+        const photosEl = document.getElementById('cd_photos');
+        if (photosEl) photosEl.innerHTML = '<div style="font-size:13px;color:var(--sub);">No photos available.</div>';
+      const statusRow = document.querySelector('#cd_status')?.closest('div');
+      if (statusRow) statusRow.style.display = 'none';
+      } else {
+        basicTitle.textContent = 'Error loading complaint';
+        basicDesc.textContent = e.message;
+        basicTags.innerHTML = '';
+        staffEl.textContent = '';
+        badgeEl.innerHTML = '';
+      }
+      return;
     }
 
     // Timeline removed
@@ -1770,8 +1790,9 @@ async function cdLoadComments(id, opts = {}) {
         : [];
 
       const normalized = normalizeCommentList(arr);
+      const totalCount = normalized.reduce((sum, c) => sum + 1 + countReplies(c), 0);
 
-      if (metaEl) metaEl.textContent = `${normalized.length} comment${normalized.length === 1 ? '' : 's'}`;
+      if (metaEl) metaEl.textContent = `${totalCount} comment${totalCount === 1 ? '' : 's'}`;
 
       if (!normalized.length) {
         listEl.innerHTML = '<div style="font-size:13px;color:var(--sub);padding:10px 0;">No comments yet.</div>';
@@ -1788,7 +1809,6 @@ async function cdLoadComments(id, opts = {}) {
 
   if (!silent) {
     if (metaEl) metaEl.textContent = '0 comments';
-    if (stateEl) stateEl.textContent = 'endpoint missing';
     listEl.innerHTML = '<div style="font-size:13px;color:var(--sub);padding:10px 0;">Comments are not available yet.</div>';
   }
 }
@@ -1877,6 +1897,11 @@ function normalizeCommentList(arr = []) {
   return arr.map(norm);
 }
 
+function countReplies(node) {
+  const kids = node.children || [];
+  return kids.reduce((sum, child) => sum + 1 + countReplies(child), 0);
+}
+
 function renderCommentNode(node, depth) {
   const children = node.children || [];
   const time = node.created_at ? esc(node.created_at) : '';
@@ -1940,6 +1965,8 @@ async function rt() {
     if (q) params.set('search', q);
     const data = await apiFetch('/complaints/my?' + params);
     const list = data.complaints;
+    window.__trackComplaints = {};
+    list.forEach(c => { window.__trackComplaints[c.id] = c; });
     document.getElementById('tp').textContent   = list.filter(c => c.status === 'Pending').length;
     document.getElementById('tr2').textContent  = list.filter(c => c.status === 'Under Review').length;
     document.getElementById('tres').textContent = list.filter(c => c.status === 'Resolved').length;
@@ -1949,7 +1976,7 @@ async function rt() {
             ? c.comments_count
             : (typeof c.comments === 'number' ? c.comments : null);
           return `
-        <div class="tcard" style="cursor:pointer" onclick="openComplaintDetail(${c.id}, { showAdminNotes: true })" data-cid="${c.id}">
+         <div class="tcard" style="cursor:pointer" onclick="openComplaintDetail(${c.id}, { complaint: __trackComplaints[${c.id}] })" data-cid="${c.id}">
           <div class="tch"><h3>${esc(c.title)}</h3>${sp(c.status)}</div>
           <p class="tdesc">${esc(c.desc)}</p>
           <div class="pr"><span>Status</span><span>${c.status}</span></div>
@@ -1961,7 +1988,7 @@ async function rt() {
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="color:var(--sub);">
                   <path d="M21 15a4 4 0 0 1-4 4H7l-4 4V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"></path>
                 </svg>
-                <span class="mv">${commentsCount === null ? 'Comments' : commentsCount + ''}</span>
+                <span class="mv">${commentsCount === null ? 'Comments' : (commentsCount + ' comment' + (commentsCount === 1 ? '' : 's'))}</span>
               </span>
             </span>
             <span class="mi">${c.votes} upvotes</span>
@@ -2036,6 +2063,8 @@ async function ra() {
           <div class="aft">
 
             <div class="afl">${c.votes} upvotes &nbsp; ${ta(c.days)}</div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <button class="btn-sub" style="padding:9px 14px;border-radius:10px;white-space:nowrap;background:transparent;color:var(--blue);border:1px solid var(--border);" onclick="event.stopPropagation();openComplaintDetail(${c.id})" type="button">💬 ${c.comments_count || 0} comment${(c.comments_count || 0) === 1 ? '' : 's'}</button>
             <select class="ss" onchange="updStatus(${c.id}, this.value)">
               <option ${c.status === 'Pending' ? 'selected' : ''}>Pending</option>
               <option ${c.status === 'Under Review' ? 'selected' : ''}>Under Review</option>
@@ -2044,8 +2073,9 @@ async function ra() {
 
 
             </select>
+            </div>
           </div>
-        </div>`).join('')
+        </div>`)`).join('')
       : '<div class="loading">No complaints match the current filters.</div>';
 
   } catch (e) {
@@ -2132,6 +2162,7 @@ async function loadSensitiveComplaints(filters = {}) {
           <div class="aft">
             <div class="afl">${c.votes} upvotes &nbsp; ${ta(c.days)}</div>
             <div style="display:flex;align-items:center;gap:10px;">
+              <button class="btn-sub" style="padding:9px 14px;border-radius:10px;white-space:nowrap;background:transparent;color:var(--blue);border:1px solid var(--border);" onclick="event.stopPropagation();openComplaintDetail(${c.id})" type="button">💬 ${c.comments_count || 0} comment${(c.comments_count || 0) === 1 ? '' : 's'}</button>
               <button class="btn-sub" style="padding:9px 14px;border-radius:10px;white-space:nowrap;" onclick="event.stopPropagation();showToStudents(${c.id}, this)" type="button">Show to Students</button>
 
               <select class="ss" onchange="updStatus(${c.id}, this.value)">
@@ -2206,6 +2237,9 @@ async function loadResolvedComplaints(filters = {}) {
           '<div class="aa">Assigned to: <span>' + esc(c.dept) + '</span></div>' +
           '<div class="aft">' +
             '<div class="afl">' + c.votes + ' upvotes &nbsp; ' + ta(c.days) + '</div>' +
+            '<div style="display:flex;align-items:center;gap:10px;">' +
+              '<button class="btn-sub" style="padding:9px 14px;border-radius:10px;white-space:nowrap;background:transparent;color:var(--blue);border:1px solid var(--border);" onclick="event.stopPropagation();openComplaintDetail(' + c.id + ')" type="button">💬 ' + (c.comments_count || 0) + ' comment' + ((c.comments_count || 0) === 1 ? '' : 's') + '</button>' +
+            '</div>' +
           '</div>' +
         '</div>'
       );
