@@ -340,9 +340,11 @@ router.get('/', requireAuth, async (req, res) => {
     let sql = 'SELECT * FROM complaints WHERE 1=1';
     const params = [];
 
-    if (req.user?.role !== 'admin') {
-      sql += ' AND is_sensitive = 0';
-    }
+    // All users (including admins) only see non-sensitive complaints in the regular feed
+    sql += ' AND is_sensitive = 0';
+    // Filter out resolved complaints (they go to resolved page)
+    sql += ' AND status != ?';
+    params.push('Resolved');
 
     if (status && VALID_STATUSES.includes(status)) {
       sql += ' AND status = ?';
@@ -410,6 +412,55 @@ router.get('/', requireAuth, async (req, res) => {
 });
 
 // ── GET /api/complaints/:id ─────────────────────────────────────────────────
+// GET /api/complaints/resolved
+router.get('/resolved', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const { faculty, sort = 'new', search } = req.query;
+
+    let sql = 'SELECT * FROM complaints WHERE status = ?';
+    const params = ['Resolved'];
+
+    if (faculty && VALID_FACULTIES.includes(faculty)) {
+      sql += ' AND faculty = ?';
+      params.push(faculty);
+    }
+
+    if (search) {
+      const like = `%${search}%`;
+      sql += ' AND (title LIKE ? OR description LIKE ?)';
+      params.push(like, like);
+    }
+
+    const orderMap = { votes: 'votes DESC', new: 'created_at DESC', old: 'created_at ASC' };
+    sql += ` ORDER BY ${orderMap[sort] || orderMap.new}`;
+
+    const rows = await new Promise((resolve, reject) => {
+      db.all(sql, params, (err, r) => (err ? reject(err) : resolve(r || [])));
+    });
+
+    const userVotes = await new Promise((resolve, reject) => {
+      db.all('SELECT complaint_id FROM votes WHERE user_id = ?', [req.user.id], (err, r) => {
+        if (err) reject(err);
+        else resolve(r || []);
+      });
+    });
+
+    const votedSet = new Set(userVotes.map(v => v.complaint_id));
+
+    const complaints = await Promise.all(
+      rows.map(async (r) => {
+        const attachments = await fetchAttachments(r.id);
+        return format(r, votedSet, attachments);
+      })
+    );
+
+    res.json({ complaints });
+  } catch (err) {
+    console.error('Get resolved complaints error:', err);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+});
+
 router.get('/:id', requireAuth, async (req, res) => {
   try {
     const row = await new Promise((resolve, reject) => {
@@ -476,7 +527,7 @@ router.get('/:id', requireAuth, async (req, res) => {
 const upload = require('../middleware/upload');
 router.post('/', requireAuth, upload.array('photos', 10), async (req, res) => {
   try {
-    const { title, description, faculty, category, priority } = req.body;
+    const { title, description, faculty, category } = req.body;
 
     if (!title?.trim()) return res.status(400).json({ error: 'Title is required.' });
     if (!description?.trim()) return res.status(400).json({ error: 'Description is required.' });
@@ -501,9 +552,7 @@ router.post('/', requireAuth, upload.array('photos', 10), async (req, res) => {
       ? fac
       : (VALID_FACULTIES.includes(aiFac) ? aiFac : 'Others');
 
-    const finalPri = (priority && VALID_PRIORITIES.includes(priority))
-      ? priority
-      : (VALID_PRIORITIES.includes(aiResult.priority) ? aiResult.priority : 'Medium');
+    const finalPri = VALID_PRIORITIES.includes(aiResult.priority) ? aiResult.priority : 'Medium';
 
     const sens = aiResult.is_sensitive;
 
@@ -605,6 +654,7 @@ router.patch('/:id/status', requireAuth, requireAdmin, async (req, res) => {
     res.status(500).json({ error: 'Internal server error.' });
   }
 });
+
 
 // POST /api/complaints/:id/vote
 router.post('/:id/vote', requireAuth, async (req, res) => {
@@ -728,8 +778,7 @@ router.delete('/:id', requireAuth, requireAdmin, async (req, res) => {
 // When is_sensitive becomes 0, it becomes visible in:
 // - Admin normal feed (GET /api/complaints)
 // - Student feed (GET /api/complaints) because students only see is_sensitive=0.
-router.patch('/show-to-students/:id', requireAuth, requireAdmin, async (req, res) => {
-
+async function showToStudentsHandler(req, res) {
   try {
     const id = Number(req.params.id);
 
@@ -749,7 +798,10 @@ router.patch('/show-to-students/:id', requireAuth, requireAdmin, async (req, res
     console.error('Show to students error:', err);
     res.status(500).json({ error: 'Internal server error.' });
   }
-});
+}
+
+router.patch('/show-to-students/:id', requireAuth, requireAdmin, showToStudentsHandler);
+router.patch('/:id/show-to-students', requireAuth, requireAdmin, showToStudentsHandler);
 
 module.exports = router;
 

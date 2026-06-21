@@ -462,12 +462,7 @@ select:focus{border-color:var(--blue)}
             <option>Hostel</option>
             <option>Security</option>
           </select>
-          <select id="cc-pri">
-            <option value="Medium">Priority: Medium</option>
-            <option value="High">Priority: High</option>
-            <option value="Low">Priority: Low</option>
-          </select>
-          <div class="anote"><strong>Anonymous &amp; Secure:</strong> Your complaint will be automatically categorized and sent to the relevant department.</div>
+          <div class="anote"><strong>Anonymous &amp; Secure:</strong> Your complaint will be automatically categorized by AI and sent to the relevant department. Priority is determined by AI.</div>
           <div class="mf">
             <button class="btn-sub" id="submit-btn" onclick="submitComplaint()">
               <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
@@ -623,6 +618,14 @@ select:focus{border-color:var(--blue)}
         Student List
       </button>
 
+      <button id="side_resolved" class="sideItem" onclick="go('adminResolved')" style="display:flex">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+          <polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+        Resolved
+      </button>
+
 
 
 
@@ -664,6 +667,27 @@ select:focus{border-color:var(--blue)}
 
 
         <div class="acs"><h2 id="atitle">Complaints</h2><div id="alist"></div></div>
+      </div>
+
+
+
+
+
+
+      <div class="ac" id="admin-resolved-page" style="display:none;">
+        <h1>Resolved Complaints</h1>
+        <p class="sub">View complaints that have been resolved</p>
+        <div class="sg" id="rstats"></div>
+        <div class="amid">
+          <div class="ap"><div class="pt"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Resolved by Faculty</div><div class="cr" id="rcatb"></div></div>
+          <div class="ap"><div class="pt"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>Filters</div>
+            <div class="fp">
+              <div class="fg2"><label>Facilities</label><select id="rt2" onchange="onResolvedFilter()"><option value="">All Facilities</option><option>Food</option><option>Library</option><option>Hostel</option><option>Infrastructure</option><option>Staff</option><option>Others</option></select></div>
+              <div class="fg2"><label>Sort</label><select id="rp2" onchange="onResolvedFilter()"><option value="new">Newest</option><option value="old">Oldest</option><option value="votes">Most Upvoted</option></select></div>
+            </div>
+          </div>
+        </div>
+        <div class="acs"><div id="rlist"></div></div>
       </div>
 
 
@@ -794,6 +818,8 @@ function afterLogin() {
   if (sideAdmin) sideAdmin.style.display = isAdmin ? 'flex' : 'none';
   const sideSensitive = document.getElementById('side_sensitive');
   if (sideSensitive) sideSensitive.style.display = isAdmin ? 'flex' : 'none';
+  const sideResolved = document.getElementById('side_resolved');
+  if (sideResolved) sideResolved.style.display = isAdmin ? 'flex' : 'none';
 
   // Go to admin dashboard for admins; otherwise home for students.
   // Also set sidebar active state.
@@ -896,8 +922,8 @@ function go(p) {
   if (adminPage) adminPage.style.display = 'none';
 
   document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
-  // 'adminStudents' is a sub-view inside #pg-admin, not a standalone #pg-* page.
-  if (p === 'adminStudents') {
+  // 'adminStudents' and 'adminResolved' are sub-views inside #pg-admin, not standalone #pg-* pages.
+  if (p === 'adminStudents' || p === 'adminResolved') {
     document.getElementById('pg-admin').classList.add('active');
   } else {
     document.getElementById('pg-' + p).classList.add('active');
@@ -943,15 +969,19 @@ function go(p) {
     const sideAdmin = document.getElementById('side_admin');
     const sideStudents = document.getElementById('side_students');
     const sideSensitive = document.getElementById('side_sensitive');
+    const sideResolved = document.getElementById('side_resolved');
     if (sideAdmin) sideAdmin.classList.add('act');
     if (sideStudents) sideStudents.classList.remove('act');
     if (sideSensitive) sideSensitive.classList.remove('act');
+    if (sideResolved) sideResolved.classList.remove('act');
     const dash = document.getElementById('admin-dashboard-page');
     const stud = document.getElementById('admin-students-page');
     const sens = document.getElementById('admin-sensitive-page');
+    const resv = document.getElementById('admin-resolved-page');
     if (dash) dash.style.display = 'block';
     if (stud) stud.style.display = 'none';
     if (sens) sens.style.display = 'none';
+    if (resv) resv.style.display = 'none';
   }
 
 
@@ -961,16 +991,44 @@ function go(p) {
     const dash = document.getElementById('admin-dashboard-page');
     const stud = document.getElementById('admin-students-page');
     const sens = document.getElementById('admin-sensitive-page');
+    const resv = document.getElementById('admin-resolved-page');
     if (dash) dash.style.display = 'none';
     if (stud) stud.style.display = 'block';
     if (sens) sens.style.display = 'none';
+    if (resv) resv.style.display = 'none';
     const sideAdmin = document.getElementById('side_admin');
     const sideStudents = document.getElementById('side_students');
+    const sideResolved = document.getElementById('side_resolved');
     if (sideAdmin) sideAdmin.classList.remove('act');
     if (sideStudents) sideStudents.classList.add('act');
+    if (sideResolved) sideResolved.classList.remove('act');
     const sideSensitive = document.getElementById('side_sensitive');
     if (sideSensitive) sideSensitive.classList.remove('act');
     loadStudents(true);
+  }
+
+  if (p === 'adminResolved') {
+    if (adminPage) adminPage.style.display = 'flex';
+    const dash = document.getElementById('admin-dashboard-page');
+    const stud = document.getElementById('admin-students-page');
+    const sens = document.getElementById('admin-sensitive-page');
+    const resv = document.getElementById('admin-resolved-page');
+    if (dash) dash.style.display = 'none';
+    if (stud) stud.style.display = 'none';
+    if (sens) sens.style.display = 'none';
+    if (resv) resv.style.display = 'block';
+    const sideAdmin = document.getElementById('side_admin');
+    const sideStudents = document.getElementById('side_students');
+    const sideResolved = document.getElementById('side_resolved');
+    if (sideAdmin) sideAdmin.classList.remove('act');
+    if (sideStudents) sideStudents.classList.remove('act');
+    if (sideResolved) sideResolved.classList.add('act');
+    const sideSensitive = document.getElementById('side_sensitive');
+    if (sideSensitive) sideSensitive.classList.remove('act');
+    // Load with resolved page's own filters
+    const rf = document.getElementById('rt2')?.value;
+    const rs = document.getElementById('rp2')?.value;
+    loadResolvedComplaints({ faculty: rf, sort: rs });
   }
 
 
@@ -1227,7 +1285,6 @@ async function submitComplaint() {
   const title       = document.getElementById('ct').value.trim();
   const description = document.getElementById('cd').value.trim();
   const category    = document.getElementById('cc-cat').value;
-  const priority    = document.getElementById('cc-pri').value;
   const photosInput = document.getElementById('cp-photos');
   const photoFiles  = photosInput?.files ? Array.from(photosInput.files) : [];
 
@@ -1245,7 +1302,6 @@ async function submitComplaint() {
     fd.append('title', title);
     fd.append('description', description);
     fd.append('category', category || '');
-    fd.append('priority', priority || '');
 
     for (const f of photoFiles) {
       fd.append('photos', f);
@@ -1257,9 +1313,10 @@ async function submitComplaint() {
     });
 
     // Put the newly submitted complaint at the top of the feed immediately,
-    // but DO NOT re-apply server-side filters/sorting right now.
-    // The existing filtered list should remain stable until page revisit.
-    allComplaints.unshift(data.complaint);
+    // but only if it is not sensitive (admins should use sensitive complaints list).
+    if (!data.complaint.is_sensitive) {
+      allComplaints.unshift(data.complaint);
+    }
 
     // If the user is currently on Home, re-render from the current cache
     // without changing the active filters (keep UI stable).
@@ -1270,6 +1327,8 @@ async function submitComplaint() {
       const sort     = document.getElementById('so')?.value;
 
       const localComplaints = allComplaints.filter(x => {
+        // All users (including admins) only see non-sensitive complaints in the regular feed
+        if (x.is_sensitive) return false;
         if (status && x.status !== status) return false;
         // backend uses `cat` for category on cards
         if (category && x.cat !== category) return false;
@@ -1378,7 +1437,7 @@ function renderCard(c) {
       </div>
 
       <div style="margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
-        <span id="home_comment_privacy_${c.id}" class="pill" style="margin-left:auto;background:transparent;color:var(--blue);border:none;padding:0;">Only admin can comment</span>
+<span id="home_comment_privacy_${c.id}" class="pill" style="margin-left:auto;background:transparent;color:var(--blue);border:none;padding:0;">Only admin can comment</span>
 
 
 
@@ -1938,6 +1997,7 @@ async function ra() {
       // non-fatal
     }
 
+
     const s = statsData;
     document.getElementById('astats').innerHTML = `
 
@@ -2001,6 +2061,8 @@ async function updStatus(id, status) {
     toast('Status updated to ' + status);
     // Refresh admin views to reflect new progress bars
     ra();
+    // Also refresh resolved list (in case it was resolved/unresolved)
+    loadResolvedComplaints();
     const sensPage = document.getElementById('admin-sensitive-page');
     if (sensPage && sensPage.style.display !== 'none') {
       loadSensitiveComplaints();
@@ -2084,6 +2146,79 @@ async function loadSensitiveComplaints(filters = {}) {
   } catch (e) {
     listEl.innerHTML = `<div class="loading">Error: ${esc(e.message)}</div>`;
   }
+}
+
+// ── Resolved Complaints (Admin) ─────────────────────────────────────────────────
+async function loadResolvedComplaints(filters = {}) {
+  const listEl = document.getElementById('rlist');
+  if (!listEl) return;
+
+  listEl.innerHTML = '<div class="loading">Loading resolved complaints…</div>';
+
+  try {
+    const params = new URLSearchParams();
+    if (filters?.faculty) params.set('faculty', filters.faculty);
+    if (filters?.sort) params.set('sort', filters.sort);
+
+    const qs = params.toString();
+    const url = qs ? '/complaints/resolved?' + qs : '/complaints/resolved';
+
+    const data = await apiFetch(url);
+    const complaints = data.complaints || [];
+
+    // Compute stats
+    const total = complaints.length;
+    const byFaculty = {};
+    for (const c of complaints) {
+      byFaculty[c.faculty] = (byFaculty[c.faculty] || 0) + 1;
+    }
+    const facultyList = Object.keys(byFaculty).sort();
+    const maxCount = Math.max(...Object.values(byFaculty), 1);
+
+    // Render stats
+    const statsEl = document.getElementById('rstats');
+    if (statsEl) {
+      statsEl.innerHTML =
+        '<div class="stc"><div><div class="sl2" style="color:var(--green)">Total Resolved</div><div class="sn2" style="color:var(--green)">' + total + '</div></div><div class="si re"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><polyline points="22 4 12 14.01 9 11.01"/></svg></div></div>';
+    }
+
+    // Render faculty breakdown chart
+    const catEl = document.getElementById('rcatb');
+    if (catEl) {
+      catEl.innerHTML = facultyList.map(function(f) {
+        var pct = (byFaculty[f] / maxCount) * 100;
+        return '<div class="ci"><span class="cn">' + esc(f) + '</span><div class="cbg"><div class="cf2" style="width:' + pct + '%"></div></div><span class="cc2">' + byFaculty[f] + '</span></div>';
+      }).join('');
+    }
+
+    if (!complaints.length) {
+      listEl.innerHTML = '<div style="font-size:13px;color:var(--sub);padding:10px 0;">No resolved complaints found.</div>';
+      return;
+    }
+
+    // Render cards matching admin dashboard style
+    listEl.innerHTML = complaints.map(function(c) {
+      return (
+        '<div class="acard" data-cid="' + c.id + '">' +
+          '<div class="at" style="cursor:pointer" onclick="openComplaintDetail(' + c.id + ')">' + esc(c.title) + '</div>' +
+          '<div class="ad" style="cursor:pointer" onclick="openComplaintDetail(' + c.id + ')">' + esc(c.desc) + '</div>' +
+          '<div class="atags">' + sp(c.status) + '<span class="pill p-cat">' + esc(c.faculty) + '</span>' + pp(c.pri) + '</div>' +
+          '<div class="aa">Assigned to: <span>' + esc(c.dept) + '</span></div>' +
+          '<div class="aft">' +
+            '<div class="afl">' + c.votes + ' upvotes &nbsp; ' + ta(c.days) + '</div>' +
+          '</div>' +
+        '</div>'
+      );
+    }).join('');
+  } catch (e) {
+    listEl.innerHTML = '<div class="loading">Error: ' + esc(e.message) + '</div>';
+  }
+}
+
+function onResolvedFilter() {
+  const fac = document.getElementById('rt2')?.value;
+  const sort = document.getElementById('rp2')?.value || 'new';
+  loadResolvedComplaints({ faculty: fac, sort: sort });
 }
 
 

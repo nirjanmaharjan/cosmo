@@ -15,15 +15,27 @@ const VALID_FACULTIES = ['Food', 'Library', 'Hostel', 'Infrastructure', 'Staff',
 const VALID_PRIORITIES = ['High', 'Medium', 'Low'];
 
 /**
+ * Local fallback scanner using sensitive keywords if AI API fails or is unavailable.
+ */
+function hasSensitiveKeywords(title, description) {
+  const text = `${title} ${description}`.toLowerCase();
+  const sensitiveKeywords = [
+    'harass', 'abuse', 'discrim', 'threat', 'bully', 'assault', 'sex', 
+    'mental', 'crisis', 'suicid', 'depress', 'violen', 'fight', 'drug',
+    'substance', 'alcohol', 'steal', 'theft', 'weapon', 'bribe', 'corruption'
+  ];
+  return sensitiveKeywords.some(keyword => text.includes(keyword));
+}
+
+/**
  * Categorize a complaint using Gemini API
  * Returns { is_sensitive, faculty, priority }
  */
 async function categorizeComplaint(title, description) {
   if (!ai) {
-    // Gemini not configured; fall back to safe defaults.
-    // Keep this explicit so you notice missing env/config during development.
+    // Gemini not configured; fall back to keyword-based detection.
     console.warn('[aiCategorizer] GEMINI_API_KEY not set; using fallback categorization.');
-    return { is_sensitive: false, faculty: 'Others', priority: 'Medium' };
+    return { is_sensitive: hasSensitiveKeywords(title, description), faculty: 'Others', priority: 'Medium' };
   }
 
 
@@ -76,7 +88,7 @@ Guidelines:
       console.error('[aiCategorizer] Gemini call failed for all candidate models:', {
         message: lastErr?.message,
       });
-      return { is_sensitive: false, faculty: 'Others', priority: 'Medium' };
+      return { is_sensitive: hasSensitiveKeywords(title, description), faculty: 'Others', priority: 'Medium' };
     }
 
     const text = response.text || '';
@@ -89,7 +101,7 @@ Guidelines:
         raw: String(text).slice(0, 500),
         error: e?.message,
       });
-      return { is_sensitive: false, faculty: 'Others', priority: 'Medium' };
+      return { is_sensitive: hasSensitiveKeywords(title, description), faculty: 'Others', priority: 'Medium' };
     }
 
 
@@ -101,7 +113,7 @@ Guidelines:
     return { is_sensitive, faculty, priority };
   } catch (err) {
     console.error('AI categorization error:', err);
-    return { is_sensitive: false, faculty: 'Others', priority: 'Medium' };
+    return { is_sensitive: hasSensitiveKeywords(title, description), faculty: 'Others', priority: 'Medium' };
   }
 }
 
