@@ -24,18 +24,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 /* Notifications */
 .notifDot{display:none}
 /* Overlay notification page */
-#notifOverlay{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:1000;display:none;align-items:flex-start;justify-content:center;padding-top:70px;}
-#notifOverlay.open{display:flex;}
-/* Prevent UI layering issues */
 #notifPanel{z-index:950;}
-/* Ensure body click doesn't keep overlays stuck */
-#notifOverlay{pointer-events:auto;}
 #notifPanel{pointer-events:auto;}
-#notifOverlayCard{width:100%;max-width:520px;background:#fff;border:1px solid var(--border);border-radius:16px;box-shadow:0 16px 60px rgba(0,0,0,.22);overflow:hidden;animation:dd .15s ease;}
-#notifOverlayHeader{padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;}
-#notifOverlayHeader .title{font-size:13px;font-weight:700;color:var(--text);}
-#notifOverlayHeader button{background:none;border:none;color:var(--blue);font-weight:700;cursor:pointer;font-size:13px;}
-#notifListOverlay{max-height:420px;overflow:auto;}
 .notifItem{padding:12px 16px;border-bottom:1px solid var(--border)}
 .notifItem:last-child{border-bottom:none}
 .notifItem.unread{background:transparent}
@@ -313,8 +303,8 @@ select:focus{border-color:var(--blue)}
 <div id="pg-login" class="page active">
   <div class="ll">
     <div class="brand" style="position:absolute;top:26px;left:34px;margin:0">
-      <div class="brand-ico">
-        <svg width="22" height="22" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+      <div class="brand-ico" style="background:transparent">
+        <img src="/College%20Complaint%20System.png" alt="SafeVoice" style="width:64px;height:64px;object-fit:contain">
       </div>
       <div>
         <h2 style="margin:0">SafeVoice</h2>
@@ -323,8 +313,8 @@ select:focus{border-color:var(--blue)}
     </div>
     <!-- brand duplicated in top-left; hide original -->
     <div class="brand" style="display:none">
-      <div class="brand-ico">
-        <svg width="22" height="22" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+      <div class="brand-ico" style="background:transparent">
+        <img src="/College%20Complaint%20System.png" alt="SafeVoice" style="width:64px;height:64px;object-fit:contain">
       </div>
       <div><h2>SafeVoice</h2><p>College Complaint System</p></div>
     </div>
@@ -377,7 +367,7 @@ select:focus{border-color:var(--blue)}
 <!-- HOME -->
 <div id="pg-home" class="page">
   <nav class="nav">
-    <div class="nb"><div class="ni"><svg width="16" height="16" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg></div><div><h3>SafeVoice</h3><p>College Complaint System</p></div></div>
+    <div class="nb"><div class="ni" style="background:transparent"><img src="/College%20Complaint%20System.png" alt="SafeVoice" style="width:52px;height:52px;object-fit:contain"></div><div><h3>SafeVoice</h3><p>College Complaint System</p></div></div>
     <div class="nls">
       <button class="nl" id="alink" onclick="go('admin')" style="display:none"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/></svg>Admin</button>
     </div>
@@ -393,7 +383,10 @@ select:focus{border-color:var(--blue)}
         <div class="profile-dd" id="notifPanel" style="display:none;min-width:320px;right:0;left:auto;animation:none">
           <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;">
             <span style="font-size:13px;font-weight:700;color:var(--text);">Notifications</span>
-            <button style="background:none;border:none;color:var(--blue);font-weight:700;cursor:pointer;font-size:13px" onclick="markAllRead()">Mark all read</button>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <button style="background:none;border:none;color:var(--blue);font-weight:700;cursor:pointer;font-size:13px" onclick="markAllRead()">Mark all read</button>
+              <button style="background:none;border:none;color:var(--red);font-weight:700;cursor:pointer;font-size:16px;line-height:1;" onclick="closeNotifPanel()" aria-label="Close">&times;</button>
+            </div>
           </div>
           <div id="notifList" style="max-height:340px;overflow:auto"></div>
         </div>
@@ -443,6 +436,7 @@ select:focus{border-color:var(--blue)}
             <label style="font-size:13px;font-weight:500;color:var(--sub);">Attach photos (optional)</label>
             <input id="cp-photos" type="file" accept="image/*" multiple style="margin-bottom:6px;" />
             <div style="font-size:12px;color:var(--sub);line-height:1.4;">Selected: <span id="cp-photos-count">0</span></div>
+            <div id="cp-photos-preview" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;"></div>
           </div>
 
           <select id="cc-cat">
@@ -454,11 +448,12 @@ select:focus{border-color:var(--blue)}
             <option>Security</option>
           </select>
           <div class="anote"><strong>Anonymous &amp; Secure:</strong> Your complaint will be automatically categorized by AI and sent to the relevant department. Priority is determined by AI.</div>
-          <div class="mf">
+          <div class="mf" style="gap:8px">
             <button class="btn-sub" id="submit-btn" onclick="submitComplaint()">
               <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
               Submit Complaint
             </button>
+            <button class="btn-sub" id="cancel-upload-btn" style="display:none;background:var(--red);" onclick="cancelUpload()" type="button">Cancel</button>
           </div>
         </div>
         <div class="fb">
@@ -477,7 +472,7 @@ select:focus{border-color:var(--blue)}
 <!-- TRACK -->
 <div id="pg-track" class="page">
   <nav class="nav">
-    <div class="nb"><div class="ni"><svg width="16" height="16" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg></div><div><h3>SafeVoice</h3><p>College Complaint System</p></div></div>
+    <div class="nb"><div class="ni" style="background:transparent"><img src="/College%20Complaint%20System.png" alt="SafeVoice" style="width:52px;height:52px;object-fit:contain"></div><div><h3>SafeVoice</h3><p>College Complaint System</p></div></div>
     <div class="nls">
       <button class="nl" id="alink2" onclick="go('admin')" style="display:none"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/></svg>Admin</button>
     </div>
@@ -493,7 +488,10 @@ select:focus{border-color:var(--blue)}
         <div class="profile-dd" id="notifPanel2" style="display:none;min-width:320px;right:0;left:auto;animation:none">
           <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;">
             <span style="font-size:13px;font-weight:700;color:var(--text);">Notifications</span>
-            <button style="background:none;border:none;color:var(--blue);font-weight:700;cursor:pointer;font-size:13px" onclick="markAllRead()">Mark all read</button>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <button style="background:none;border:none;color:var(--blue);font-weight:700;cursor:pointer;font-size:13px" onclick="markAllRead()">Mark all read</button>
+              <button style="background:none;border:none;color:var(--red);font-weight:700;cursor:pointer;font-size:16px;line-height:1;" onclick="closeNotifPanel()" aria-label="Close">&times;</button>
+            </div>
           </div>
           <div id="notifList2" style="max-height:340px;overflow:auto"></div>
         </div>
@@ -545,10 +543,8 @@ select:focus{border-color:var(--blue)}
 <div id="pg-studentResolved" class="page">
   <nav class="nav">
     <div class="nb">
-      <div class="ni">
-        <svg width="16" height="16" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24">
-          <path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
-        </svg>
+      <div class="ni" style="background:transparent">
+        <img src="/College%20Complaint%20System.png" alt="SafeVoice" style="width:52px;height:52px;object-fit:contain">
       </div>
       <div>
         <h3>SafeVoice</h3>
@@ -570,7 +566,10 @@ select:focus{border-color:var(--blue)}
         <div class="profile-dd" id="notifPanel4" style="display:none;min-width:320px;right:0;left:auto;animation:none">
           <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;">
             <span style="font-size:13px;font-weight:700;color:var(--text);">Notifications</span>
-            <button style="background:none;border:none;color:var(--blue);font-weight:700;cursor:pointer;font-size:13px" onclick="markAllRead()">Mark all read</button>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <button style="background:none;border:none;color:var(--blue);font-weight:700;cursor:pointer;font-size:13px" onclick="markAllRead()">Mark all read</button>
+              <button style="background:none;border:none;color:var(--red);font-weight:700;cursor:pointer;font-size:16px;line-height:1;" onclick="closeNotifPanel()" aria-label="Close">&times;</button>
+            </div>
           </div>
           <div id="notifList4" style="max-height:340px;overflow:auto"></div>
         </div>
@@ -604,13 +603,14 @@ select:focus{border-color:var(--blue)}
 
     <main class="studentMain">
       <div class="tc">
-        <h1>My Resolved Complaints</h1>
+        <h1>Resolved Complaints</h1>
         <p class="sub">View complaints that have been resolved</p>
-        <div class="sg" id="srstats"></div>
-        <div class="amid">
+        <div class="amid" style="grid-template-columns:1fr 1fr">
+          <div class="ap" id="srstats" style="padding:20px"></div>
           <div class="ap">
             <div class="pt"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>Filters</div>
-            <div class="fp">
+            <div class="fp" style="flex-direction:row;align-items:end">
+              <div class="fg2"><label>Facilities</label><select id="srf" onchange="onStudentResolvedFilter()"><option value="">All Facilities</option><option>Food</option><option>Library</option><option>Hostel</option><option>Infrastructure</option><option>Staff</option><option>Others</option></select></div>
               <div class="fg2"><label>Sort</label><select id="srp" onchange="onStudentResolvedFilter()"><option value="new">Newest</option><option value="old">Oldest</option><option value="votes">Most Upvoted</option></select></div>
             </div>
           </div>
@@ -624,10 +624,8 @@ select:focus{border-color:var(--blue)}
 <div id="pg-admin" class="page">
   <nav class="nav">
     <div class="nb">
-      <div class="ni">
-        <svg width="16" height="16" fill="none" stroke="white" stroke-width="2" viewBox="0 0 24 24">
-          <path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/>
-        </svg>
+      <div class="ni" style="background:transparent">
+        <img src="/College%20Complaint%20System.png" alt="SafeVoice" style="width:52px;height:52px;object-fit:contain">
       </div>
       <div>
         <h3>SafeVoice</h3>
@@ -648,7 +646,10 @@ select:focus{border-color:var(--blue)}
         <div class="profile-dd" id="notifPanel" style="display:none;min-width:320px;right:0;left:auto;animation:none">
           <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;">
             <span style="font-size:13px;font-weight:700;color:var(--text);">Notifications</span>
-            <button style="background:none;border:none;color:var(--blue);font-weight:700;cursor:pointer;font-size:13px" onclick="markAllRead()">Mark all read</button>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <button style="background:none;border:none;color:var(--blue);font-weight:700;cursor:pointer;font-size:13px" onclick="markAllRead()">Mark all read</button>
+              <button style="background:none;border:none;color:var(--red);font-weight:700;cursor:pointer;font-size:16px;line-height:1;" onclick="closeNotifPanel()" aria-label="Close">&times;</button>
+            </div>
           </div>
           <div id="notifList" style="max-height:340px;overflow:auto"></div>
         </div>
@@ -817,18 +818,6 @@ select:focus{border-color:var(--blue)}
 <!-- TOAST -->
 <div class="toast" id="toast"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><span id="tmsg">Done!</span></div>
 <!-- Overlay root (shared across all pages) -->
-<div id="notifOverlay" onclick="closeNotifOverlay()">
-  <div id="notifOverlayCard" onclick="event.stopPropagation()">
-    <div id="notifOverlayHeader">
-      <span class="title">Notifications</span>
-      <div style="display:flex;align-items:center;gap:28px;">
-        <button onclick="markAllRead()" style="background:none;border:none;color:var(--blue);font-weight:700;cursor:pointer;font-size:13px;">Mark all read</button>
-        <button aria-label="Close notifications" title="Close" style="background:none;border:none;color:var(--red);font-weight:900;cursor:pointer;font-size:18px;line-height:1;padding:0 2px;" onclick="event.stopPropagation();closeNotifOverlay();closeNotifPanel()">&times;</button>
-      </div>
-    </div>
-    <div id="notifListOverlay"></div>
-  </div>
-</div>
 <script>
 // ── Config ───────────────────────────────────────────────────────────────────
 // Use same-origin API (works regardless of port / deployment)
@@ -855,6 +844,39 @@ function toast(msg, ok = true) {
   t.className = 'toast ' + (ok ? 'ok' : '');
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 3200);
+}
+let selectedFiles = [];
+let uploadAbort = null;
+
+document.getElementById('cp-photos')?.addEventListener('change', function() {
+  for (const f of this.files) {
+    if (!selectedFiles.some(ex => ex.name === f.name && ex.size === f.size && ex.lastModified === f.lastModified)) {
+      selectedFiles.push(f);
+    }
+  }
+  this.value = '';
+  renderPhotoPreviews();
+});
+
+function renderPhotoPreviews() {
+  const preview = document.getElementById('cp-photos-preview');
+  const countEl = document.getElementById('cp-photos-count');
+  if (countEl) countEl.textContent = String(selectedFiles.length);
+  if (!preview) return;
+  preview.innerHTML = '';
+  selectedFiles.forEach((f, i) => {
+    const url = URL.createObjectURL(f);
+    const wrap = document.createElement('div');
+    wrap.style.cssText = 'position:relative;width:64px;height:64px;border-radius:8px;overflow:hidden;border:1px solid var(--border);flex-shrink:0';
+    wrap.innerHTML = '<img src="' + url + '" style="width:100%;height:100%;object-fit:cover">' +
+      '<button type="button" onclick="removePhoto(' + i + ')" style="position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:50%;border:none;background:rgba(0,0,0,.6);color:#fff;font-size:12px;line-height:18px;text-align:center;cursor:pointer;padding:0">&times;</button>';
+    preview.appendChild(wrap);
+  });
+}
+
+function removePhoto(index) {
+  selectedFiles.splice(index, 1);
+  renderPhotoPreviews();
 }
 // ── Auth ─────────────────────────────────────────────────────────────────────
 async function login() {
@@ -1001,9 +1023,8 @@ function go(p) {
 
 
 
-  // Close only notification overlays/panels.
+  // Close only notification panels.
   // Do NOT touch bell icon visibility; each page owns its own navbar.
-  closeNotifOverlay();
   closeNotifPanel();
 
   const adminPage = document.getElementById('pg-admin');
@@ -1305,7 +1326,6 @@ async function resetPassword(btnEl) {
 document.addEventListener('click', () => {
   document.querySelectorAll('.profile-dd').forEach(d => d.classList.remove('open'));
   closeNotifPanel();
-  closeNotifOverlay();
 });
 
 // Stop overlay clicks from bubbling to the document handler.
@@ -1315,10 +1335,6 @@ if (__notifOverlayEl) {
   __notifOverlayEl.addEventListener('click', (ev) => {
     ev.stopPropagation();
   });
-}
-function closeNotifOverlay(){
-  const ov=document.getElementById('notifOverlay');
-  if (ov) ov.classList.remove('open');
 }
 function closeNotifPanel(){
   // There are multiple nav instances; just hide dropdown panels if present.
@@ -1331,20 +1347,18 @@ function closeNotifPanel(){
 function toggleNotif(e) {
   e.stopPropagation();
   token = sessionStorage.getItem('sv_token') || null;
-  // Hide all dropdown panels on any page instance.
   closeNotifPanel();
 
-  const ov=document.getElementById('notifOverlay');
-  if (!ov) return;
+  // Find the dropdown panel next to the clicked bell button
+  const btn = e.currentTarget;
+  const panel = btn.parentElement?.querySelector('.profile-dd');
+  if (!panel) return;
 
-  // Ensure overlay is clickable.
-  ov.style.pointerEvents = 'auto';
-
-  const isOpen = ov.classList.contains('open');
-  if (isOpen) {
-    ov.classList.remove('open');
-  } else {
-    ov.classList.add('open');
+  const isOpen = panel.classList.contains('open');
+  closeNotifPanel();
+  if (!isOpen) {
+    panel.style.display = '';
+    panel.classList.add('open');
     fetchNotifications();
   }
 }
@@ -1368,31 +1382,23 @@ function syncNotifBadges() {
 }
 
 function renderNotifications() {
-  const list = document.getElementById('notifListOverlay');
-  if (!list) return;
-  // Ensure unread badge state is always correct after any re-render.
+  const lists = document.querySelectorAll('#notifListOverlay, [id^="notifList"]:not([id^="notifListOverlay"])');
   syncNotifBadges();
-  if (!notifCache.length) {
-    list.innerHTML = `<div style="padding:14px 16px;color:var(--sub);font-size:13px;">No notifications yet.</div>`;
-    return;
-  }
-
-
-  list.innerHTML = notifCache
-    .slice(0, 50)
-    .map(n => `
+  const html = !notifCache.length
+    ? `<div style="padding:14px 16px;color:var(--sub);font-size:13px;">No notifications yet.</div>`
+    : notifCache.slice(0, 50).map(n => `
       <div class="notifItem${n.is_read ? '' : ' unread'}" style="cursor:pointer" onclick="markRead(${n.id})">
-        <div class="notifTitle">${esc(n.title || 'Update')}</div>
+        <div class="notifTitle">${esc(n.complaint?.title || n.title || 'Update')}</div>
         <div class="notifMeta">${esc(n.created_at || '')}</div>
         <div class="notifSummary">${esc(n.message || '')}${n.summary ? `\n\nAdmin summary:\n${esc(n.summary)}` : ''}</div>
       </div>
-    `)
-    .join('');
+    `).join('');
+  lists.forEach(el => { if (el) el.innerHTML = html; });
 }
 async function markRead(id) {
   try {
     const n = notifCache.find(x => x.id === id);
-    const complaintTitle = n?.complaint_title || n?.title || 'Complaint';
+    const complaintTitle = n?.complaint?.title || n?.title || 'Complaint';
     await apiFetch(`/notifications/${id}/read`, { method: 'PATCH' });
     notifCache = notifCache.map(n => (n.id === id ? { ...n, is_read: 1 } : n));
     renderNotifications();
@@ -1420,23 +1426,25 @@ function closeM() {
   document.getElementById('inline-form').classList.remove('open');
   document.getElementById('inp-bar').style.display = 'flex';
   ['ct','cd'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  selectedFiles = [];
+  renderPhotoPreviews();
 }
 async function submitComplaint() {
   const title       = document.getElementById('ct').value.trim();
   const description = document.getElementById('cd').value.trim();
   const category    = document.getElementById('cc-cat').value;
-  const photosInput = document.getElementById('cp-photos');
-  const photoFiles  = photosInput?.files ? Array.from(photosInput.files) : [];
-
-  // Update selected counter
-  const countEl = document.getElementById('cp-photos-count');
-  if (countEl) countEl.textContent = String(photoFiles.length);
+  const photoFiles  = selectedFiles;
 
   if (!title)       { toast('Please enter a complaint title.', false); return; }
   if (!description) { toast('Please describe your complaint.', false); return; }
 
   const btn = document.getElementById('submit-btn');
+  const cancelBtn = document.getElementById('cancel-upload-btn');
   btn.disabled = true;
+  btn.style.display = 'none';
+  cancelBtn.style.display = '';
+
+  uploadAbort = new AbortController();
   try {
     const fd = new FormData();
     fd.append('title', title);
@@ -1449,7 +1457,8 @@ async function submitComplaint() {
 
     const data = await apiFetch('/complaints', {
       method: 'POST',
-      body: fd
+      body: fd,
+      signal: uploadAbort.signal
     });
 
     // Put the newly submitted complaint at the top of the feed immediately,
@@ -1505,9 +1514,23 @@ async function submitComplaint() {
 
 
   } catch (e) {
-    toast(e.message, false);
+    if (e.name === 'AbortError') {
+      toast('Upload cancelled.');
+    } else {
+      toast(e.message, false);
+    }
   } finally {
     btn.disabled = false;
+    btn.style.display = '';
+    cancelBtn.style.display = 'none';
+    uploadAbort = null;
+  }
+}
+
+function cancelUpload() {
+  if (uploadAbort) {
+    uploadAbort.abort();
+    uploadAbort = null;
   }
 }
 // ── Feed (Home) ──────────────────────────────────────────────────────────────
@@ -2381,11 +2404,11 @@ function pp(p) {
 }
 function priCls(p) { return p === 'High' ? 'phi' : p === 'Medium' ? 'pme' : 'plo'; }
 function ta(d) {
-  // Backend currently sends `days` only (integer, days since created_at).
-  // So we can’t accurately display minutes/hours without also having a timestamp.
-  // Keep human-friendly output for the existing data.
-  if (d === 0) return 'Today';
-  return d + ' day' + (d !== 1 ? 's' : '') + ' ago';
+  if (typeof d === 'number') {
+    if (d === 0) return 'Today';
+    return d + ' day' + (d !== 1 ? 's' : '') + ' ago';
+  }
+  return d;
 }
 
 // ── Sensitive Complaints (Admin) ─────────────────────────────────────────
@@ -2504,11 +2527,13 @@ async function loadStudentResolvedComplaints() {
   listEl.innerHTML = '<div class="loading">Loading resolved complaints…</div>';
 
   try {
+    const fac = document.getElementById('srf')?.value || '';
     const sort = document.getElementById('srp')?.value || 'new';
     const params = new URLSearchParams();
     if (sort) params.set('sort', sort);
+    if (fac) params.set('faculty', fac);
     const qs = params.toString();
-    const url = qs ? '/complaints/resolved?' + qs : '/complaints/resolved';
+    const url = qs ? '/complaints/resolved/public?' + qs : '/complaints/resolved/public';
 
     const data = await apiFetch(url);
     const complaints = data.complaints || [];
@@ -2516,7 +2541,7 @@ async function loadStudentResolvedComplaints() {
     const statsEl = document.getElementById('srstats');
     if (statsEl) {
       statsEl.innerHTML =
-        '<div class="stc"><div><div class="sl2" style="color:var(--green)">Total Resolved</div><div class="sn2" style="color:var(--green)">' + complaints.length + '</div></div><div class="si gr"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><polyline points="22 4 12 14.01 9 11.01"/></svg></div></div>';
+        '<div style="display:flex;align-items:center;justify-content:space-between;height:100%"><div><div class="sl2" style="color:var(--green);font-size:13px">Total Resolved</div><div class="sn2" style="color:var(--green);font-size:28px;font-weight:800;margin-top:4px">' + complaints.length + '</div></div><div class="si gr"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="28" height="28"><polyline points="22 4 12 14.01 9 11.01"/></svg></div></div>';
     }
 
     const sensitive = complaints.filter(c => c.is_sensitive);
@@ -3163,7 +3188,6 @@ async function addAdminStudent(btnEl) {
 document.addEventListener('keydown', (e) => {
   if (e.key === 'Escape') {
     closeNotifPanel();
-    closeNotifOverlay();
   }
 });
 const loginPw = document.getElementById('pw');

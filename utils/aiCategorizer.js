@@ -20,11 +20,25 @@ const VALID_PRIORITIES = ['High', 'Medium', 'Low'];
 function hasSensitiveKeywords(title, description) {
   const text = `${title} ${description}`.toLowerCase();
   const sensitiveKeywords = [
-    'harass', 'abuse', 'discrim', 'threat', 'bully', 'assault', 'sex', 
-    'mental', 'crisis', 'suicid', 'depress', 'violen', 'fight', 'drug',
-    'substance', 'alcohol', 'steal', 'theft', 'weapon', 'bribe', 'corruption'
+    'harass', 'abuse', 'discrim', 'threat', 'bulli', 'bully', 'assault',
+    'ragging', 'ragged', 'haze', 'hazing', 'misbehav', 'bad character',
+    'sex', 'sexual', 'mental', 'crisis', 'suicid', 'depress', 'anxiety',
+    'violen', 'fight', 'drug', 'substance', 'alcohol', 'steal', 'theft',
+    'weapon', 'bribe', 'corruption', 'unsafe', 'unsanitary', 'mold', 'pest',
+    'physical', 'verbal', 'misconduct', 'predator', 'stalk',
+    'intimidat', 'extort', 'blackmail', 'coercion', 'unsolicited',
+    'inappropriate', 'touching', 'grop', 'explicit', 'pornograph',
+    'nude', 'naked', 'private parts', 'toilet', 'bathroom', 'hygiene',
+    'filthy', 'broken', 'hazard', 'danger', 'emergency', 'injury',
+    'bleeding', 'attack', 'hostile', 'toxic', 'poison', 'contamin',
   ];
   return sensitiveKeywords.some(keyword => text.includes(keyword));
+}
+
+// Secondary guard: always run keyword check regardless of AI result
+function isSensitiveContent(title, description, aiResult) {
+  if (aiResult && aiResult.is_sensitive === true) return true;
+  return hasSensitiveKeywords(title, description);
 }
 
 /**
@@ -35,7 +49,7 @@ async function categorizeComplaint(title, description) {
   if (!ai) {
     // Gemini not configured; fall back to keyword-based detection.
     console.warn('[aiCategorizer] GEMINI_API_KEY not set; using fallback categorization.');
-    return { is_sensitive: hasSensitiveKeywords(title, description), faculty: 'Others', priority: 'Medium' };
+    return { is_sensitive: isSensitiveContent(title, description), faculty: 'Others', priority: 'Medium' };
   }
 
 
@@ -88,7 +102,7 @@ Guidelines:
       console.error('[aiCategorizer] Gemini call failed for all candidate models:', {
         message: lastErr?.message,
       });
-      return { is_sensitive: hasSensitiveKeywords(title, description), faculty: 'Others', priority: 'Medium' };
+      return { is_sensitive: isSensitiveContent(title, description), faculty: 'Others', priority: 'Medium' };
     }
 
     const text = response.text || '';
@@ -101,7 +115,7 @@ Guidelines:
         raw: String(text).slice(0, 500),
         error: e?.message,
       });
-      return { is_sensitive: hasSensitiveKeywords(title, description), faculty: 'Others', priority: 'Medium' };
+      return { is_sensitive: isSensitiveContent(title, description), faculty: 'Others', priority: 'Medium' };
     }
 
 
@@ -110,11 +124,13 @@ Guidelines:
     const faculty = VALID_FACULTIES.includes(result.faculty) ? result.faculty : 'Others';
     const priority = VALID_PRIORITIES.includes(result.priority) ? result.priority : 'Medium';
 
-    return { is_sensitive, faculty, priority };
+    // Secondary guard: keyword check overrides AI if it misses sensitive content
+    const finalSensitive = isSensitiveContent(title, description, { is_sensitive });
+    return { is_sensitive: finalSensitive, faculty, priority };
   } catch (err) {
     console.error('AI categorization error:', err);
-    return { is_sensitive: hasSensitiveKeywords(title, description), faculty: 'Others', priority: 'Medium' };
+    return { is_sensitive: isSensitiveContent(title, description), faculty: 'Others', priority: 'Medium' };
   }
 }
 
-module.exports = { categorizeComplaint };
+module.exports = { categorizeComplaint, hasSensitiveKeywords };

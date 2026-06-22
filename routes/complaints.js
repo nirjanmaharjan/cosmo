@@ -8,7 +8,7 @@ const fs = require('fs');
 const db = require('../db');
 const { requireAuth, requireAdmin } = require('../middleware/auth');
 
-const { categorizeComplaint } = require('../utils/aiCategorizer');
+const { categorizeComplaint, hasSensitiveKeywords } = require('../utils/aiCategorizer');
 
 const router = express.Router();
 
@@ -26,9 +26,16 @@ const DEPT_MAP = {
   'Others': 'Administration',
 };
 
-function daysSince(createdAt) {
+function timeAgo(createdAt) {
   const ms = Date.now() - new Date(createdAt + 'Z').getTime();
-  return Math.floor(ms / 86_400_000);
+  const minutes = Math.floor(ms / 60_000);
+  if (minutes < 1) return 'Just now';
+  if (minutes < 60) return minutes + ' min' + (minutes !== 1 ? 's' : '') + ' ago';
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return hours + ' hour' + (hours !== 1 ? 's' : '') + ' ago';
+  const days = Math.floor(hours / 24);
+  if (days === 0) return 'Today';
+  return days + ' day' + (days !== 1 ? 's' : '') + ' ago';
 }
 
 function fetchAttachments(complaintId) {
@@ -77,7 +84,7 @@ function format(row, votedSet = new Set(), attachments = []) {
     dept: row.department,
     votes: row.votes,
     progress: row.progress,
-    days: daysSince(row.created_at),
+    days: timeAgo(row.created_at),
     voted: votedSet.has(row.id),
     created_at: row.created_at,
     updated_at: row.updated_at,
@@ -407,8 +414,11 @@ router.get('/', requireAuth, async (req, res) => {
 
     const votedSet = new Set(userVotes.map(v => v.complaint_id));
 
+    // Defense-in-depth: filter complaints with sensitive keywords even if is_sensitive flag is 0
+    const filteredRows = rows.filter(r => !hasSensitiveKeywords(r.title, r.description));
+
     const complaints = await Promise.all(
-      rows.map(async (r) => {
+      filteredRows.map(async (r) => {
         const attachments = await fetchAttachments(r.id);
         return format(r, votedSet, attachments);
       })
@@ -422,7 +432,56 @@ router.get('/', requireAuth, async (req, res) => {
 });
 
 // ── GET /api/complaints/:id ─────────────────────────────────────────────────
-// GET /api/complaints/resolved
+// GET /api/complaints/resolved/public — non-sensitive resolved for all users
+router.get('/resolved/public', requireAuth, async (req, res) => {
+  try {
+    const { faculty, sort = 'new', search } = req.query;
+
+    let sql = "SELECT *, (SELECT COUNT(*) FROM comments WHERE complaint_id = complaints.id) AS comments_count FROM complaints WHERE status = ? AND is_sensitive = 0";
+    const params = ['Resolved'];
+
+    if (faculty && VALID_FACULTIES.includes(faculty)) {
+      sql += ' AND faculty = ?';
+      params.push(faculty);
+    }
+
+    if (search) {
+      const like = `%${search}%`;
+      sql += ' AND (title LIKE ? OR description LIKE ?)';
+      params.push(like, like);
+    }
+
+    const orderMap = { votes: 'votes DESC', new: 'created_at DESC', old: 'created_at ASC' };
+    sql += ` ORDER BY ${orderMap[sort] || orderMap.new}`;
+
+    const rows = await new Promise((resolve, reject) => {
+      db.all(sql, params, (err, r) => (err ? reject(err) : resolve(r || [])));
+    });
+
+    const userVotes = await new Promise((resolve, reject) => {
+      db.all('SELECT complaint_id FROM votes WHERE user_id = ?', [req.user.id], (err, r) => {
+        if (err) reject(err);
+        else resolve(r || []);
+      });
+    });
+
+    const votedSet = new Set(userVotes.map(v => v.complaint_id));
+
+    const complaints = await Promise.all(
+      rows.map(async (r) => {
+        const attachments = await fetchAttachments(r.id);
+        return format(r, votedSet, attachments);
+      })
+    );
+
+    res.json({ complaints });
+  } catch (err) {
+    console.error('Get public resolved complaints error:', err);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+});
+
+// GET /api/complaints/resolved (admin — all resolved complaints)
 router.get('/resolved', requireAuth, requireAdmin, async (req, res) => {
   try {
     const { faculty, sort = 'new', search } = req.query;
