@@ -2277,8 +2277,7 @@ function renderSensitiveList() {
           <div class="aft">
             <div class="afl">${c.votes} upvotes &nbsp; ${ta(c.days)}</div>
             <div style="display:flex;align-items:center;gap:10px;">
-              <button class="btn-sub" style="padding:9px 14px;border-radius:10px;white-space:nowrap;background:transparent;color:var(--blue);border:1px solid var(--border);" onclick="event.stopPropagation();openComplaintDetail(${c.id})" type="button">${c.comments_count || 0} comment${(c.comments_count || 0) === 1 ? '' : 's'}</button>
-              <button class="btn-sub" style="padding:9px 14px;border-radius:10px;white-space:nowrap;" onclick="event.stopPropagation();showToStudents(${c.id}, this)" type="button">Show to Students</button>
+               <button class="btn-sub" style="padding:9px 14px;border-radius:10px;white-space:nowrap;background:transparent;color:var(--blue);border:1px solid var(--border);" onclick="event.stopPropagation();openComplaintDetail(${c.id})" type="button">${c.comments_count || 0} comment${(c.comments_count || 0) === 1 ? '' : 's'}</button>
               <select class="ss" onchange="updStatus(${c.id}, this.value)">
                 <option ${c.status === 'Pending' ? 'selected' : ''}>Pending</option>
                 <option ${c.status === 'Under Review' ? 'selected' : ''}>Under Review</option>
@@ -2628,45 +2627,6 @@ function onStudentResolvedFilter() {
 
 function isAdminUser() {
   return currentUser && currentUser.role === 'admin';
-}
-
-async function showToStudents(complaintId, btnEl) {
-  // Admin-only UI action.
-  if (!isAdminUser()) {
-    toast('Admin access required.', false);
-    return;
-  }
-
-  try {
-    if (btnEl) {
-      btnEl.disabled = true;
-      const prev = btnEl.textContent;
-      btnEl.dataset.prevLabel = prev;
-      btnEl.textContent = 'Showing…';
-    }
-
-    await apiFetch(`/complaints/${complaintId}/show-to-students`, {
-      method: 'PATCH',
-    });
-
-    toast('Complaint is now visible to students.');
-
-    // Refresh admin sensitive list and overall admin lists.
-    loadSensitiveComplaints();
-    ra();
-
-    // If admin is currently on normal complaints feed, it will filter out the newly un-hidden item.
-    // (Home feed is only for current user role; students will see it after refresh.)
-  } catch (e) {
-    toast(e.message || 'Failed to show to students.', false);
-  } finally {
-    if (btnEl) {
-      btnEl.disabled = false;
-      const prev = btnEl.dataset.prevLabel;
-      if (prev) btnEl.textContent = prev;
-      delete btnEl.dataset.prevLabel;
-    }
-  }
 }
 
 async function runAIScan() {

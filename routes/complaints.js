@@ -866,35 +866,7 @@ router.delete('/:id', requireAuth, requireAdmin, async (req, res) => {
   }
 });
 
-// PATCH /api/complaints/:id/show-to-students
-// Admin action: moves a complaint from sensitive -> normal visibility.
-// When is_sensitive becomes 0, it becomes visible in:
-// - Admin normal feed (GET /api/complaints)
-// - Student feed (GET /api/complaints) because students only see is_sensitive=0.
-async function showToStudentsHandler(req, res) {
-  try {
-    const id = Number(req.params.id);
 
-    if (!Number.isInteger(id) || id <= 0) return res.status(400).json({ error: 'Invalid complaint id.' });
-
-    const info = await new Promise((resolve, reject) => {
-      db.run('UPDATE complaints SET is_sensitive = 0 WHERE id = ?', [id], function (err) {
-        if (err) reject(err);
-        else resolve(this);
-      });
-    });
-
-    if (info.changes === 0) return res.status(404).json({ error: 'Complaint not found.' });
-
-    res.json({ message: 'Complaint is now visible to students.' });
-  } catch (err) {
-    console.error('Show to students error:', err);
-    res.status(500).json({ error: 'Internal server error.' });
-  }
-}
-
-router.patch('/show-to-students/:id', requireAuth, requireAdmin, showToStudentsHandler);
-router.patch('/:id/show-to-students', requireAuth, requireAdmin, showToStudentsHandler);
 
 module.exports = router;
 
