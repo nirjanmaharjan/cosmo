@@ -8,6 +8,9 @@ const router = express.Router();
 // GET /api/notifications/me
 router.get('/me', requireAuth, async (req, res) => {
   try {
+    const userHash = hashId(req.user.id);
+    const isAdmin = req.user.role === 'admin';
+
     const rows = await new Promise((resolve, reject) => {
       db.all(
         `SELECT n.*,
@@ -26,10 +29,10 @@ router.get('/me', requireAuth, async (req, res) => {
            JOIN complaints c ON c.id = n.complaint_id
 
 
-          WHERE n.user_id = ?
+          WHERE n.user_id ${isAdmin ? "IN (?, 'admin')" : '= ?'}
           ORDER BY n.is_read ASC, n.created_at DESC
         `,
-        [hashId(req.user.id)],
+        isAdmin ? [userHash] : [userHash],
         (err, rows) => (err ? reject(err) : resolve(rows || []))
       );
     });

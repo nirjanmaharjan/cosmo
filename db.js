@@ -95,6 +95,14 @@ async function init() {
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
 
+    CREATE TABLE IF NOT EXISTS comments (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      complaint_id INTEGER NOT NULL REFERENCES complaints(id) ON DELETE CASCADE,
+      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      message TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
+
     CREATE TABLE IF NOT EXISTS notifications (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       user_id TEXT NOT NULL,
@@ -151,6 +159,28 @@ async function init() {
     FOR EACH ROW
     BEGIN
       UPDATE complaints SET updated_at = datetime('now') WHERE id = OLD.id;
+    END;
+  `);
+
+  // ── Trigger: notify admins when a sensitive complaint is created ──────────
+  await exec(`
+    CREATE TRIGGER IF NOT EXISTS complaint_sensitive_admin_notify
+    AFTER INSERT ON complaints
+    FOR EACH ROW
+    WHEN NEW.is_sensitive = 1
+    BEGIN
+      INSERT INTO notifications (user_id, complaint_id, title, message, type, is_read, created_at)
+      SELECT 'admin',
+             NEW.id,
+             'Sensitive complaint',
+             'A new sensitive complaint "' || NEW.title || '" has been submitted.',
+             'sensitive',
+             0,
+             datetime('now')
+      WHERE NOT EXISTS (
+        SELECT 1 FROM notifications n
+        WHERE n.complaint_id = NEW.id AND n.user_id = 'admin' AND n.type = 'sensitive'
+      );
     END;
   `);
 
