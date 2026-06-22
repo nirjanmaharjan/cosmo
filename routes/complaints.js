@@ -9,11 +9,12 @@ const db = require('../db');
 const { requireAuth, requireAdmin } = require('../middleware/auth');
 
 const { categorizeComplaint, hasSensitiveKeywords } = require('../utils/aiCategorizer');
+const { hashId } = require('../utils/anon');
 
 const router = express.Router();
 
 const VALID_CATEGORIES = ['Food Services', 'Facilities', 'Library', 'Hostel', 'Security'];
-const VALID_FACULTIES = ['Food', 'Library', 'Hostel', 'Infrastructure', 'Staff', 'Others'];
+const VALID_FACULTIES = ['Food', 'Library', 'Hostel', 'Infrastructure', 'Staff', 'IT', 'Transport', 'Administration', 'Others'];
 const VALID_STATUSES = ['Pending', 'Under Review', 'Resolved'];
 const VALID_PRIORITIES = ['High', 'Medium', 'Low'];
 
@@ -23,6 +24,9 @@ const DEPT_MAP = {
   'Hostel': 'Hostel Management',
   'Infrastructure': 'Facilities Management',
   'Staff': 'HR Services',
+  'IT': 'IT Services',
+  'Transport': 'Transport Department',
+  'Administration': 'Administration Office',
   'Others': 'Administration',
 };
 
@@ -149,7 +153,7 @@ router.get('/admin/sensitive', requireAuth, requireAdmin, async (req, res) => {
 router.post('/admin/ai-scan', requireAuth, requireAdmin, async (_req, res) => {
   try {
     const complaints = await new Promise((resolve, reject) => {
-      db.all('SELECT id, title, description, is_sensitive FROM complaints', (err, rows) => {
+      db.all('SELECT id, title, description, is_sensitive, priority FROM complaints', (err, rows) => {
         if (err) reject(err);
         else resolve(rows || []);
       });
@@ -160,7 +164,9 @@ router.post('/admin/ai-scan', requireAuth, requireAdmin, async (_req, res) => {
     for (const c of complaints) {
       const aiResult = await categorizeComplaint(c.title, c.description);
       const isSensitiveVal = aiResult.is_sensitive ? 1 : 0;
+      const priorityVal = aiResult.priority || 'Medium';
 
+      let updated = false;
       if (c.is_sensitive !== isSensitiveVal) {
         await new Promise((resolve, reject) => {
           db.run('UPDATE complaints SET is_sensitive = ? WHERE id = ?', [isSensitiveVal, c.id], (err) => {
@@ -168,12 +174,22 @@ router.post('/admin/ai-scan', requireAuth, requireAdmin, async (_req, res) => {
             else resolve();
           });
         });
-        updatedCount++;
+        updated = true;
       }
+      if (c.priority !== priorityVal) {
+        await new Promise((resolve, reject) => {
+          db.run('UPDATE complaints SET priority = ? WHERE id = ?', [priorityVal, c.id], (err) => {
+            if (err) reject(err);
+            else resolve();
+          });
+        });
+        if (!updated) updated = true;
+      }
+      if (updated) updatedCount++;
     }
 
     res.json({
-      message: `AI scan completed. Sensitivity updated for ${updatedCount} complaints.`,
+      message: `AI scan completed. ${updatedCount} complaints updated.`,
       updatedCount,
     });
   } catch (err) {
@@ -212,25 +228,25 @@ router.get('/stats', requireAuth, requireAdmin, async (_req, res) => {
           });
         }),
         new Promise((resolve, reject) => {
-          db.get("SELECT COUNT(*) AS c FROM complaints WHERE priority = 'High'", (err, row) => {
+          db.get("SELECT COUNT(*) AS c FROM complaints WHERE priority = 'High' AND status != 'Resolved'", (err, row) => {
             if (err) reject(err);
             else resolve(row?.c || 0);
           });
         }),
         new Promise((resolve, reject) => {
-          db.get("SELECT COUNT(*) AS c FROM complaints WHERE priority = 'Medium'", (err, row) => {
+          db.get("SELECT COUNT(*) AS c FROM complaints WHERE priority = 'Medium' AND status != 'Resolved'", (err, row) => {
             if (err) reject(err);
             else resolve(row?.c || 0);
           });
         }),
         new Promise((resolve, reject) => {
-          db.get("SELECT COUNT(*) AS c FROM complaints WHERE priority = 'Low'", (err, row) => {
+          db.get("SELECT COUNT(*) AS c FROM complaints WHERE priority = 'Low' AND status != 'Resolved'", (err, row) => {
             if (err) reject(err);
             else resolve(row?.c || 0);
           });
         }),
         new Promise((resolve, reject) => {
-          db.get('SELECT COUNT(*) AS c FROM complaints WHERE is_sensitive = 1', (err, row) => {
+          db.get("SELECT COUNT(*) AS c FROM complaints WHERE is_sensitive = 1 AND status != 'Resolved'", (err, row) => {
             if (err) reject(err);
             else resolve(row?.c || 0);
           });
@@ -300,7 +316,7 @@ router.get('/my', requireAuth, async (req, res) => {
     }
 
     let sql = 'SELECT *, (SELECT COUNT(*) FROM comments WHERE complaint_id = complaints.id) AS comments_count FROM complaints WHERE submitter_id = ?';
-    const params = [req.user.id];
+    const params = [hashId(req.user.id)];
 
     if (status && VALID_STATUSES.includes(status)) {
       sql += ' AND status = ?';
@@ -541,10 +557,12 @@ router.get('/:id', requireAuth, async (req, res) => {
 
     if (!row) return res.status(404).json({ error: 'Complaint not found.' });
 
-    if (req.user?.role !== 'admin' && row.submitter_id !== req.user.id) {
+    const viewerHash = req.user.id ? hashId(req.user.id) : null;
+
+    if (req.user?.role !== 'admin' && row.submitter_id !== viewerHash) {
       return res.status(403).json({ error: 'Access denied.' });
     }
-    if (req.user?.role !== 'admin' && row.submitter_id !== req.user.id && row.is_sensitive) {
+    if (req.user?.role !== 'admin' && row.submitter_id !== viewerHash && row.is_sensitive) {
       return res.status(403).json({ error: 'Sensitive complaints are for admin only.' });
     }
 
@@ -607,6 +625,9 @@ router.post('/', requireAuth, upload.array('photos', 10), async (req, res) => {
       'Library': 'Library',
       'Hostel': 'Hostel',
       'Security': 'Staff',
+      'IT Services': 'IT',
+      'Transport': 'Transport',
+      'Administration': 'Administration',
     };
 
     let fac = faculty;
@@ -633,7 +654,10 @@ router.post('/', requireAuth, upload.array('photos', 10), async (req, res) => {
       Library: 'Library',
       Hostel: 'Hostel',
       Staff: 'Security',
-      Others: 'Facilities',
+      IT: 'IT Services',
+      Transport: 'Transport',
+      Administration: 'Administration',
+      Others: 'Other',
     };
 
     const cat = facultyToCategory[finalFac] || 'Facilities';
@@ -644,7 +668,7 @@ router.post('/', requireAuth, upload.array('photos', 10), async (req, res) => {
         INSERT INTO complaints (title, description, status, category, faculty, priority, is_sensitive, department, submitter_id)
         VALUES (?, ?, 'Pending', ?, ?, ?, ?, ?, ?)
         `,
-        [title.trim(), description.trim(), cat, finalFac, finalPri, sens ? 1 : 0, dept, req.user.id],
+        [title.trim(), description.trim(), cat, finalFac, finalPri, sens ? 1 : 0, dept, hashId(req.user.id)],
         function (err) {
           if (err) reject(err);
           else resolve(this);

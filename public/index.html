@@ -234,6 +234,7 @@ select:focus{border-color:var(--blue)}
 .fg2 label{font-size:12px;color:var(--sub);font-weight:500;display:block;margin-bottom:4px}
 .fg2 select{width:100%}
 .acs h2{font-size:17px;font-weight:700;margin-bottom:14px}
+.adm-sep{height:1px;background:var(--border);margin:0 0 16px 0}
 .acard{background:#fff;border-radius:12px;border:1px solid var(--border);padding:18px 20px;margin-bottom:13px}
 .acard .at{font-size:15px;font-weight:600;margin-bottom:4px}
 .acard .ad{font-size:13px;color:var(--sub);margin-bottom:11px;line-height:1.5}
@@ -446,6 +447,9 @@ select:focus{border-color:var(--blue)}
             <option>Library</option>
             <option>Hostel</option>
             <option>Security</option>
+            <option>IT Services</option>
+            <option>Transport</option>
+            <option>Administration</option>
           </select>
           <div class="anote"><strong>Anonymous &amp; Secure:</strong> Your complaint will be automatically categorized by AI and sent to the relevant department. Priority is determined by AI.</div>
           <div class="mf" style="gap:8px">
@@ -459,7 +463,7 @@ select:focus{border-color:var(--blue)}
         <div class="fb">
           <span class="flbl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="13" height="13"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>Filters:</span>
           <select id="fs" onchange="rf()"><option value="">All Status</option><option>Pending</option><option>Under Review</option><option>Resolved</option></select>
-          <select id="fc" onchange="rf()"><option value="">All Categories</option><option>Food Services</option><option>Facilities</option><option>Library</option><option>Hostel</option><option>Security</option></select>
+          <select id="fc" onchange="rf()"><option value="">All Categories</option><option>Food Services</option><option>Facilities</option><option>Library</option><option>Hostel</option><option>Security</option><option>IT Services</option><option>Transport</option><option>Administration</option></select>
           <span class="slbl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="13" height="13"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>Sort by:</span>
           <select id="so" onchange="rf()"><option value="votes">Most Liked</option><option value="new">Newest</option><option value="old">Oldest</option></select>
         </div>
@@ -610,7 +614,7 @@ select:focus{border-color:var(--blue)}
           <div class="ap">
             <div class="pt"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>Filters</div>
             <div class="fp" style="flex-direction:row;align-items:end">
-              <div class="fg2"><label>Facilities</label><select id="srf" onchange="onStudentResolvedFilter()"><option value="">All Facilities</option><option>Food</option><option>Library</option><option>Hostel</option><option>Infrastructure</option><option>Staff</option><option>Others</option></select></div>
+              <div class="fg2"><label>Facilities</label><select id="srf" onchange="onStudentResolvedFilter()"><option value="">All Facilities</option><option>Food</option><option>Library</option><option>Hostel</option><option>Infrastructure</option><option>Staff</option><option>IT</option><option>Transport</option><option>Administration</option><option>Others</option></select></div>
               <div class="fg2"><label>Sort</label><select id="srp" onchange="onStudentResolvedFilter()"><option value="new">Newest</option><option value="old">Oldest</option><option value="votes">Most Upvoted</option></select></div>
             </div>
           </div>
@@ -712,7 +716,7 @@ select:focus{border-color:var(--blue)}
           <div class="ap"><div class="pt"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Category Breakdown</div><div class="cr" id="catb"></div></div>
           <div class="ap"><div class="pt"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>Filters</div>
             <div class="fp">
-<div class="fg2"><label>Facilities</label><select id="at2" onchange="ra()"><option value="">All Facilities</option><option>Food</option><option>Library</option><option>Hostel</option><option>Infrastructure</option><option>Staff</option><option>Others</option></select></div>
+<div class="fg2"><label>Facilities</label><select id="at2" onchange="ra()"><option value="">All Facilities</option><option>Food</option><option>Library</option><option>Hostel</option><option>Infrastructure</option><option>Staff</option><option>IT</option><option>Transport</option><option>Administration</option><option>Others</option></select></div>
               <div class="fg2"><label>Status</label><select id="as2" onchange="ra()"><option value="">All Status</option><option>Pending</option><option>Under Review</option><option>Resolved</option></select></div>
               <div class="fg2"><label>Sort</label><select id="ap2" onchange="ra()"><option value="votes">Most Upvoted</option><option value="new">Newest</option><option value="old">Oldest</option></select></div>
             </div>
@@ -751,18 +755,22 @@ select:focus{border-color:var(--blue)}
           <div class="ap"><div class="pt"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Resolved by Faculty</div><div class="cr" id="rcatb"></div></div>
           <div class="ap"><div class="pt"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>Filters</div>
             <div class="fp">
-              <div class="fg2"><label>Facilities</label><select id="rt2" onchange="onResolvedFilter()"><option value="">All Facilities</option><option>Food</option><option>Library</option><option>Hostel</option><option>Infrastructure</option><option>Staff</option><option>Others</option></select></div>
+              <div class="fg2"><label>Facilities</label><select id="rt2" onchange="onResolvedFilter()"><option value="">All Facilities</option><option>Food</option><option>Library</option><option>Hostel</option><option>Infrastructure</option><option>Staff</option><option>IT</option><option>Transport</option><option>Administration</option><option>Others</option></select></div>
               <div class="fg2"><label>Sort</label><select id="rp2" onchange="onResolvedFilter()"><option value="new">Newest</option><option value="old">Oldest</option><option value="votes">Most Upvoted</option></select></div>
             </div>
           </div>
         </div>
-        <div class="acs"><div id="rlist"></div></div>
-        <div class="acs" style="margin-top:6px;" id="admin-sensitive-resolved-block">
+        <div class="acs" id="admin-sensitive-resolved-block">
           <h2 style="margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
-            <span>Sensitive Resolved</span>
+            <span>Sensitive Resolved <span class="pill" id="sensitiveResolvedCount" style="background:var(--red-l);color:var(--red);font-size:11px;"></span></span>
             <span class="pill p-hi">Admin Only</span>
           </h2>
           <div id="sensitiveResolvedList"></div>
+        </div>
+        <div class="acs" style="margin-top:6px;" id="admin-regular-resolved-block">
+          <div class="adm-sep"></div>
+          <h2 style="margin-bottom:8px;font-size:17px;font-weight:700;">All Resolved</h2>
+          <div id="rlist"></div>
         </div>
       </div>
 
@@ -1264,6 +1272,9 @@ function openResetPassword() {
               <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
             </svg>
             <input type="password" id="rp-pw" placeholder="Create a new password" style="padding:10px 12px 10px 36px;width:100%;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;outline:none;" />
+            <span onclick="togglePw('rp-pw')" style="cursor:pointer;position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--sub);">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="18" height="18"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </span>
           </div>
         </div>
 
@@ -1274,17 +1285,26 @@ function openResetPassword() {
               <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
             </svg>
             <input type="password" id="rp-pw2" placeholder="Repeat new password" style="padding:10px 12px 10px 36px;width:100%;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;outline:none;" />
+            <span onclick="togglePw('rp-pw2')" style="cursor:pointer;position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--sub);">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="18" height="18"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </span>
           </div>
         </div>
 
         <button class="btn-blue" onclick="resetPassword(this)" style="width:100%;">Update Password</button>
 
-        <div class="small-note" style="text-align:center;margin-top:10px;">Use 6+ characters. This requires you to be signed in.</div>
+        <div class="small-note" style="text-align:center;margin-top:10px;">Min 8 chars, at least one number and one special character.</div>
       </div>
     </div>
   `;
 
   document.body.appendChild(modal);
+}
+
+function togglePw(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.type = el.type === 'password' ? 'text' : 'password';
 }
 
 function closeResetPassword() {
@@ -1298,7 +1318,9 @@ async function resetPassword(btnEl) {
   const pw2 = document.getElementById('rp-pw2')?.value || '';
 
   if (!pw1 || !pw2) { toast('Please enter the new password.', false); return; }
-  if (pw1.length < 6) { toast('Password must be at least 6 characters.', false); return; }
+  if (pw1.length < 8) { toast('Password must be at least 8 characters.', false); return; }
+  if (!/[0-9]/.test(pw1)) { toast('Password must contain at least one number.', false); return; }
+  if (!/[^a-zA-Z0-9]/.test(pw1)) { toast('Password must contain at least one special character.', false); return; }
   if (pw1 !== pw2) { toast('Passwords do not match.', false); return; }
 
   try {
@@ -2288,6 +2310,8 @@ function renderSensitiveResolvedList() {
   const backBtn = sensitiveResolvedFilter
     ? '<div style="margin-bottom:12px;"><button class="btn-back" onclick="filterSensitiveResolvedView()" style="background:none;border:none;color:var(--blue);cursor:pointer;font-size:13px;font-weight:600">← Back</button><span style="font-size:13px;color:var(--sub);margin-left:8px;">Filtered: ' + esc(sensitiveResolvedFilter.value) + '</span></div>'
     : '';
+  const countEl = document.getElementById('sensitiveResolvedCount');
+  if (countEl) countEl.textContent = __sensitiveResolvedAll.length + ' total';
   if (!list.length) {
     srEl.innerHTML = backBtn + '<div style="font-size:13px;color:var(--sub);padding:10px 0;">No sensitive resolved complaints found.</div>';
     return;
@@ -2827,6 +2851,9 @@ function openAdminResetStudentPassword(studentId) {
               <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
             </svg>
             <input type="password" id="rsp-pw" placeholder="Create a new password" style="padding:10px 12px 10px 36px;width:100%;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;outline:none;" />
+            <span onclick="togglePw('rsp-pw')" style="cursor:pointer;position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--sub);">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="18" height="18"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </span>
           </div>
         </div>
 
@@ -2837,11 +2864,14 @@ function openAdminResetStudentPassword(studentId) {
               <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
             </svg>
             <input type="password" id="rsp-pw2" placeholder="Repeat new password" style="padding:10px 12px 10px 36px;width:100%;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;outline:none;" />
+            <span onclick="togglePw('rsp-pw2')" style="cursor:pointer;position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--sub);">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="18" height="18"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </span>
           </div>
         </div>
 
         <button class="btn-blue" onclick="resetAdminStudentPassword(${studentId}, this)" style="width:100%;">Update Password</button>
-        <div class="small-note" style="text-align:center;margin-top:10px;">Use 6+ characters.</div>
+        <div class="small-note" style="text-align:center;margin-top:10px;">Min 8 chars, at least one number and one special character.</div>
       </div>
     </div>
   `;
@@ -2859,7 +2889,9 @@ async function resetAdminStudentPassword(studentId, btnEl) {
   const pw2 = document.getElementById('rsp-pw2')?.value || '';
 
   if (!pw1 || !pw2) { toast('Please enter the new password.', false); return; }
-  if (pw1.length < 6) { toast('Password must be at least 6 characters.', false); return; }
+  if (pw1.length < 8) { toast('Password must be at least 8 characters.', false); return; }
+  if (!/[0-9]/.test(pw1)) { toast('Password must contain at least one number.', false); return; }
+  if (!/[^a-zA-Z0-9]/.test(pw1)) { toast('Password must contain at least one special character.', false); return; }
   if (pw1 !== pw2) { toast('Passwords do not match.', false); return; }
 
   try {
@@ -2930,7 +2962,12 @@ function openAdminEditStudent(studentId) {
 
           <div class="fg2" style="margin-bottom:0;">
             <label>Reset Password</label>
-            <input id="es_reset_pw" type="password" placeholder="Enter new password (min 6 chars)" style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;outline:none;" />
+            <div style="position:relative;">
+              <input id="es_reset_pw" type="password" placeholder="Min 8 chars, 1 number, 1 special" style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;" />
+              <span onclick="togglePw('es_reset_pw')" style="cursor:pointer;position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--sub);">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="18" height="18"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+              </span>
+            </div>
           </div>
 
           <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:6px;">
@@ -2978,7 +3015,9 @@ async function confirmAdminEditStudent(studentId, btnEl) {
 
     // Optional reset password (POST)
     if (reset_pw) {
-      if (reset_pw.length < 6) { toast('Password must be at least 6 characters.', false); return; }
+      if (reset_pw.length < 8) { toast('Password must be at least 8 characters.', false); return; }
+      if (!/[0-9]/.test(reset_pw)) { toast('Password must contain at least one number.', false); return; }
+      if (!/[^a-zA-Z0-9]/.test(reset_pw)) { toast('Password must contain at least one special character.', false); return; }
       await apiFetch(`/admin/students/${studentId}/reset-password`, {
         method: 'POST',
         body: JSON.stringify({ password: reset_pw })
@@ -3118,7 +3157,7 @@ function openAdminAddStudent() {
 
           <div class="fg2" style="margin-bottom:0;">
             <label>Degree/Faculty</label>
-            <input id="as_degree" type="text" placeholder="Food / Library / Hostel / …" style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;outline:none;" />
+            <input id="as_degree" type="text" placeholder="e.g. Engineering, BSc, Arts" style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;outline:none;" />
           </div>
 
           <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:6px;">

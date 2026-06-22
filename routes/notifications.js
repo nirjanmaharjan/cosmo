@@ -1,6 +1,7 @@
 const express = require('express');
 const db = require('../db');
 const { requireAuth, requireAdmin } = require('../middleware/auth');
+const { hashId } = require('../utils/anon');
 
 const router = express.Router();
 
@@ -28,7 +29,7 @@ router.get('/me', requireAuth, async (req, res) => {
           WHERE n.user_id = ?
           ORDER BY n.is_read ASC, n.created_at DESC
         `,
-        [req.user.id],
+        [hashId(req.user.id)],
         (err, rows) => (err ? reject(err) : resolve(rows || []))
       );
     });
@@ -71,7 +72,7 @@ router.patch('/:id/read', requireAuth, async (req, res) => {
     const info = await new Promise((resolve, reject) => {
       db.run(
         `UPDATE notifications SET is_read = 1 WHERE id = ? AND user_id = ?`,
-        [id, req.user.id],
+        [id, hashId(req.user.id)],
         function (err) {
           if (err) reject(err);
           else resolve(this);
@@ -93,7 +94,7 @@ router.patch('/readAll', requireAuth, async (req, res) => {
     await new Promise((resolve, reject) => {
       db.run(
         `UPDATE notifications SET is_read = 1 WHERE user_id = ? AND is_read = 0`,
-        [req.user.id],
+        [hashId(req.user.id)],
         (err) => (err ? reject(err) : resolve())
       );
     });

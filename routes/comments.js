@@ -3,6 +3,7 @@
 const express = require('express');
 const db = require('../db');
 const { requireAuth, requireAdmin } = require('../middleware/auth');
+const { hashId } = require('../utils/anon');
 
 const router = express.Router();
 
@@ -19,7 +20,7 @@ async function getComplaintOrNull(complaintId) {
 function canStudentViewComplaint(complaintRow, user) {
   if (!user) return false;
   if (user.role === 'admin') return true;
-  if (complaintRow?.submitter_id === user.id) return true;
+  if (complaintRow?.submitter_id === hashId(user.id)) return true;
   return !complaintRow?.is_sensitive;
 }
 

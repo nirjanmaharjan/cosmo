@@ -79,8 +79,14 @@ router.post(
       if (!Number.isInteger(id) || id <= 0) {
         return res.status(400).json({ error: 'Invalid student id.' });
       }
-      if (!password || typeof password !== 'string' || password.length < 6) {
-        return res.status(400).json({ error: 'Password must be at least 6 characters.' });
+      if (!password || typeof password !== 'string' || password.length < 8) {
+        return res.status(400).json({ error: 'Password must be at least 8 characters.' });
+      }
+      if (!/[0-9]/.test(password)) {
+        return res.status(400).json({ error: 'Password must contain at least one number.' });
+      }
+      if (!/[^a-zA-Z0-9]/.test(password)) {
+        return res.status(400).json({ error: 'Password must contain at least one special character.' });
       }
 
       const student = await new Promise((resolve, reject) => {

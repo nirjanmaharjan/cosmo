@@ -67,14 +67,14 @@ async function init() {
         CHECK(status IN ('Pending','Under Review','Resolved')),
       category TEXT NOT NULL,
       faculty TEXT NOT NULL DEFAULT 'Others'
-        CHECK(faculty IN ('Food','Library','Hostel','Infrastructure','Staff','Others')),
+        CHECK(faculty IN ('Food','Library','Hostel','Infrastructure','Staff','IT','Transport','Administration','Others')),
       priority TEXT NOT NULL DEFAULT 'Medium'
         CHECK(priority IN ('High','Medium','Low')),
       is_sensitive BOOLEAN NOT NULL DEFAULT 0,
       department TEXT NOT NULL,
       votes INTEGER NOT NULL DEFAULT 0,
       progress INTEGER NOT NULL DEFAULT 10,
-      submitter_id INTEGER REFERENCES users(id) ON DELETE SET NULL,
+      submitter_id TEXT,
       created_at TEXT NOT NULL DEFAULT (datetime('now')),
       updated_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
@@ -97,7 +97,7 @@ async function init() {
 
     CREATE TABLE IF NOT EXISTS notifications (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
-      user_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+      user_id TEXT NOT NULL,
       complaint_id INTEGER NOT NULL REFERENCES complaints(id) ON DELETE CASCADE,
       title TEXT NOT NULL DEFAULT 'Update',
       message TEXT NOT NULL,
@@ -106,6 +106,44 @@ async function init() {
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
   `);
+
+  // ── Migration: add new faculty options (IT, Transport, Administration) ──────
+  const tbl = await new Promise((r, j) =>
+    db.get("SELECT sql FROM sqlite_master WHERE type='table' AND name='complaints'", (e, row) =>
+      e ? j(e) : r(row)
+    )
+  );
+  if (tbl && tbl.sql && !tbl.sql.includes("'IT'")) {
+    console.log('[db] Migrating complaints table to add new faculty options...');
+    await exec(`
+      PRAGMA foreign_keys = OFF;
+      BEGIN TRANSACTION;
+      ALTER TABLE complaints RENAME TO complaints__old;
+      CREATE TABLE complaints (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        title TEXT NOT NULL,
+        description TEXT NOT NULL,
+        status TEXT NOT NULL DEFAULT 'Pending'
+          CHECK(status IN ('Pending','Under Review','Resolved')),
+        category TEXT NOT NULL,
+        faculty TEXT NOT NULL DEFAULT 'Others'
+          CHECK(faculty IN ('Food','Library','Hostel','Infrastructure','Staff','IT','Transport','Administration','Others')),
+        priority TEXT NOT NULL DEFAULT 'Medium'
+          CHECK(priority IN ('High','Medium','Low')),
+        is_sensitive BOOLEAN NOT NULL DEFAULT 0,
+        department TEXT NOT NULL,
+        votes INTEGER NOT NULL DEFAULT 0,
+        progress INTEGER NOT NULL DEFAULT 10,
+        submitter_id TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+      INSERT INTO complaints SELECT * FROM complaints__old;
+      DROP TABLE complaints__old;
+      COMMIT;
+      PRAGMA foreign_keys = ON;
+    `);
+  }
 
   await exec(`
     CREATE TRIGGER IF NOT EXISTS complaints_updated_at
@@ -162,6 +200,7 @@ async function seed() {
     ['admin@college.edu', hash('password'), 'admin']
   );
 
+  const { hashId } = require('./utils/anon');
   const student = await get("SELECT id FROM users WHERE email = 'student@college.edu'");
 
   const complaints = [
@@ -178,7 +217,7 @@ async function seed() {
       `INSERT INTO complaints
         (title, description, status, faculty, category, priority, is_sensitive, department, votes, progress, submitter_id, created_at, updated_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
-      [...c, student.id]
+      [...c, hashId(student.id)]
     );
   }
 

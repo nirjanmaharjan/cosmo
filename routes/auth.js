@@ -17,8 +17,14 @@ router.post('/password-reset', requireAuth, async (req, res) => {
     if (!password) {
       return res.status(400).json({ error: 'New password is required.' });
     }
-    if (typeof password !== 'string' || password.length < 6) {
-      return res.status(400).json({ error: 'Password must be at least 6 characters.' });
+    if (typeof password !== 'string' || password.length < 8) {
+      return res.status(400).json({ error: 'Password must be at least 8 characters.' });
+    }
+    if (!/[0-9]/.test(password)) {
+      return res.status(400).json({ error: 'Password must contain at least one number.' });
+    }
+    if (!/[^a-zA-Z0-9]/.test(password)) {
+      return res.status(400).json({ error: 'Password must contain at least one special character.' });
     }
 
     const hashed = bcrypt.hashSync(password, 10);
@@ -83,8 +89,14 @@ router.post('/register', async (req, res) => {
     if (!email || !password) {
       return res.status(400).json({ error: 'Email and password are required.' });
     }
-    if (password.length < 6) {
-      return res.status(400).json({ error: 'Password must be at least 6 characters.' });
+    if (password.length < 8) {
+      return res.status(400).json({ error: 'Password must be at least 8 characters.' });
+    }
+    if (!/[0-9]/.test(password)) {
+      return res.status(400).json({ error: 'Password must contain at least one number.' });
+    }
+    if (!/[^a-zA-Z0-9]/.test(password)) {
+      return res.status(400).json({ error: 'Password must contain at least one special character.' });
     }
 
     const existing = await new Promise((resolve, reject) => {
