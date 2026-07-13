@@ -1,6 +1,7 @@
 // middleware/auth.js
 const jwt = require('jsonwebtoken');
 const { JWT_SECRET } = require('../config');
+const db = require('../db');
 
 /**
  * requireAuth — verifies Bearer JWT, attaches req.user = { id, email, role }
@@ -12,8 +13,6 @@ function requireAuth(req, res, next) {
   }
   const token = header.slice(7);
   try {
-    // jwt payload shape depends on how token was created (login/register)
-    // Normalize here so downstream routes can rely on req.user.id + req.user.role.
     const payload = jwt.verify(token, JWT_SECRET);
 
     req.user = {
@@ -26,6 +25,7 @@ function requireAuth(req, res, next) {
       return res.status(401).json({ error: 'Invalid token payload.' });
     }
 
+    db.run("UPDATE users SET last_active = datetime('now') WHERE id = ?", [req.user.id], () => {});
     next();
   } catch {
     return res.status(401).json({ error: 'Token invalid or expired.' });

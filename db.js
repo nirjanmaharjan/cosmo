@@ -210,6 +210,17 @@ async function init() {
     END;
   `);
 
+  // ── Migration: add last_active to users ──────────────────────────────────
+  const userTbl = await new Promise((r, j) =>
+    db.get("SELECT sql FROM sqlite_master WHERE type='table' AND name='users'", (e, row) =>
+      e ? j(e) : r(row)
+    )
+  );
+  if (userTbl && userTbl.sql && !userTbl.sql.includes('last_active')) {
+    console.log('[db] Migrating users table — adding last_active...');
+    await exec("ALTER TABLE users ADD COLUMN last_active TEXT");
+  }
+
   await seed();
 }
 

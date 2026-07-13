@@ -7,299 +7,485 @@
 <title>SafeVoice</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
+/* ── Design System ─────────────────────────────────────────────────── */
+:root {
+  --glass-bg: rgba(255,255,255,0.12);
+  --glass-border: rgba(255,255,255,0.20);
+  --glass-shadow: 0 8px 32px rgba(0,0,0,0.08);
+  --glass-blur: blur(14px);
+  --blue: #2563EB;
+  --blue-d: #1D4ED8;
+  --blue-l: #DBEAFE;
+  --indigo: #4F46E5;
+  --cyan: #06B6D4;
+  --text: #0F172A;
+  --sub: #64748B;
+  --border: #E2E8F0;
+  --bg: #F0F4FF;
+  --card-bg: rgba(255,255,255,0.65);
+  --green: #10B981;
+  --green-bg: #D1FAE5;
+  --yellow: #F59E0B;
+  --red: #EF4444;
+  --orange: #F97316;
+  --nav-h: 62px;
+  --sidebar-w: 230px;
+  --radius: 16px;
+  --radius-sm: 10px;
+  --radius-lg: 22px;
+}
+[data-theme="dark"] {
+  --glass-bg: rgba(15,23,42,0.55);
+  --glass-border: rgba(255,255,255,0.08);
+  --glass-shadow: 0 8px 32px rgba(0,0,0,0.35);
+  --text: #F1F5F9;
+  --sub: #94A3B8;
+  --border: rgba(255,255,255,0.08);
+  --bg: #0F172A;
+  --card-bg: rgba(30,41,59,0.65);
+  --green-bg: #064E3B;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 @keyframes spin { to { transform: rotate(360deg); } }
 .spin { animation: spin 1s linear infinite; }
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --blue:#2563EB;--blue-d:#1D4ED8;--blue-l:#EFF6FF;--blue-m:#DBEAFE;
-  --text:#111827;--sub:#6B7280;--border:#E5E7EB;--bg:#F3F4F6;
-  --green:#059669;--green-bg:#ECFDF5;--yellow:#D97706;
-  --red:#DC2626;--orange:#EA580C;
-}
-body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
-.page{display:none;min-height:100vh;flex-direction:column;align-items:stretch}
-.page.active{display:flex;}
-#pg-login{flex-direction:row!important}
+@keyframes float { 0%,100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-20px) scale(1.05); } }
+@keyframes float2 { 0%,100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-12px) scale(1.02); } }
+@keyframes pulse-subtle { 0%,100% { opacity: 0.4; } 50% { opacity: 0.7; } }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes slideIn { from { opacity: 0; transform: translateX(-10px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes glow-hi { 0%,100% { box-shadow: 0 0 12px rgba(239,68,68,0.15); } 50% { box-shadow: 0 0 24px rgba(239,68,68,0.30); } }
 
-/* Notifications */
+/* ── Background ────────────────────────────────────────────────────── */
+body {
+  font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, #EEF2FF 0%, #DBEAFE 30%, #C7D2FE 60%, #E0E7FF 100%);
+  color: var(--text);
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+}
+[data-theme="dark"] body {
+  background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 30%, #172554 60%, #0F172A 100%);
+}
+.bg-orb {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 0; overflow: hidden;
+}
+.bg-orb .orb {
+  position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.3;
+  animation: float 8s ease-in-out infinite;
+}
+.bg-orb .orb:nth-child(1) { width: 500px; height: 500px; background: #818CF8; top: -120px; right: -80px; animation-delay: 0s; }
+.bg-orb .orb:nth-child(2) { width: 400px; height: 400px; background: #60A5FA; bottom: -100px; left: -60px; animation-delay: -3s; }
+.bg-orb .orb:nth-child(3) { width: 300px; height: 300px; background: #A78BFA; top: 40%; left: 50%; animation-delay: -6s; }
+.bg-orb .orb:nth-child(4) { width: 250px; height: 250px; background: #67E8F9; bottom: 20%; right: 10%; animation-delay: -2s; opacity: 0.15; }
+
+/* ── Welcome Hero ───────────────────────────────────────────────────── */
+.welcome-hero{margin:28px 0 0;padding:32px 28px;border-radius:var(--radius);background:var(--glass-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);border:1px solid var(--glass-border);position:relative;overflow:hidden}
+.welcome-hero::before{content:'';position:absolute;top:-60px;right:-60px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(99,102,241,0.2),transparent 70%);pointer-events:none}
+.welcome-hero h1{font-size:22px;font-weight:700;margin:0 0 6px}
+.welcome-hero p{font-size:14px;color:var(--sub);margin:0;max-width:500px}
+
+/* ── Stats Cards ────────────────────────────────────────────────────── */
+.welcome-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin:20px 0}
+.stc{background:var(--glass-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);border:1px solid var(--glass-border);border-radius:var(--radius-sm);padding:18px 20px;display:flex;align-items:center;justify-content:space-between;transition:all .2s}
+.stc:hover{border-color:var(--blue);transform:translateY(-2px);box-shadow:0 8px 24px rgba(37,99,235,0.08)}
+.sl2{font-size:12px;color:var(--sub);font-weight:500;margin-bottom:4px}
+.sn2{font-size:26px;font-weight:800;background:linear-gradient(135deg,var(--blue),var(--indigo));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.si{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.si svg{width:18px;height:18px}
+.si.bl{background:rgba(37,99,235,0.12);color:var(--blue)}
+.si.ye{background:rgba(217,119,6,0.12);color:#D97706}
+.si.gr{background:rgba(5,150,105,0.12);color:#059669}
+.si.re{background:rgba(220,38,38,0.12);color:#DC2626}
+/* ── Analytics Bars ─────────────────────────────────────────────────── */
+.an-bar{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.an-lbl{font-size:12px;font-weight:600;color:var(--sub);width:80px;flex-shrink:0}
+.an-track{flex:1;height:8px;background:var(--glass-bg);border-radius:99px;overflow:hidden}
+.an-fill{height:100%;border-radius:99px;transition:width .4s ease}
+.an-val{font-size:13px;font-weight:700;color:var(--text);width:30px;text-align:right}
+
+/* ── Timeline ──────────────────────────────────────────────────────── */
+.tl-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;line-height:1.4}
+.tl-item:last-child{border-bottom:none}
+.tl-icon{font-size:16px;font-weight:700;flex-shrink:0;width:18px;text-align:center;margin-top:1px}
+.tl-text{color:var(--text);word-break:break-word}
+
+@media(max-width:860px){.welcome-stats{grid-template-columns:repeat(2,1fr)}}
+
+/* ── Base Layout ────────────────────────────────────────────────────── */
+.page{display:none;min-height:100vh;flex-direction:column;align-items:stretch;position:relative;z-index:1}
+.page.active{display:flex}
+
+/* ── Toast ──────────────────────────────────────────────────────────── */
+.toast{position:fixed;bottom:28px;right:28px;z-index:9999;background:rgba(15,23,42,0.9);backdrop-filter:blur(12px);color:#fff;padding:13px 20px;border-radius:var(--radius-sm);font-size:14px;box-shadow:0 8px 32px rgba(0,0,0,0.25);display:flex;align-items:center;gap:9px;transform:translateY(80px);opacity:0;transition:all .3s;pointer-events:none;border:1px solid rgba(255,255,255,0.08)}
+.toast.show{transform:translateY(0);opacity:1}
+.toast.ok{background:rgba(6,78,59,0.9);border-color:rgba(16,185,129,0.3)}
+.toast svg{width:17px;height:17px;color:#86efac}
+.toast.ok svg{color:#6EE7B7}
+
+/* ── Notifications ──────────────────────────────────────────────────── */
 .notifDot{display:none}
-/* Overlay notification page */
-#notifPanel{z-index:950;}
-#notifPanel{pointer-events:auto;}
+#notifPanel{z-index:9990;pointer-events:auto}
+#notifPanel > div { max-height: 80vh; overflow-y: auto; }
 .notifItem{padding:12px 16px;border-bottom:1px solid var(--border)}
 .notifItem:last-child{border-bottom:none}
 .notifItem.unread{background:transparent}
 .notifTitle{font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px}
 .notifMeta{font-size:11px;color:var(--sub);margin-bottom:8px}
 .notifSummary{font-size:12px;color:var(--sub);line-height:1.5;white-space:pre-wrap}
-/* LOGIN */
-.ll{width:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:76px 80px;background:#fff;position:relative}
-.brand{display:flex;align-items:center;gap:12px;margin-bottom:44px;align-self:flex-start}
-.brand-ico{width:46px;height:46px;border-radius:12px;background:var(--blue);display:flex;align-items:center;justify-content:center}
-.brand-ico svg{width:24px;height:24px}
-.brand h2{font-size:22px;font-weight:900;letter-spacing:-0.02em}
-.brand p{font-size:14px;color:var(--sub);margin-top:2px}
-.form-box{width:100%;max-width:370px}
-.form-box h1{font-size:26px;font-weight:700;margin-bottom:6px}
-.form-box .sub{font-size:14px;color:var(--sub);margin-bottom:28px}
-.fg{margin-bottom:18px}
-.fg label{display:block;font-size:13px;font-weight:500;margin-bottom:6px}
+
+/* ── LOGIN PAGE ─────────────────────────────────────────────────────── */
+#pg-login{flex-direction:row!important}
+.ll{width:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 70px;background:var(--card-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);position:relative}
+.brand{display:flex;align-items:center;gap:12px;margin-bottom:36px;align-self:flex-start}
+.brand-ico{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,var(--blue),var(--indigo));display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(37,99,235,0.3)}
+.brand-ico svg{width:24px;height:24px;color:#fff}
+.brand h2{font-size:22px;font-weight:900;letter-spacing:-0.02em;background:linear-gradient(135deg,var(--text),var(--indigo));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.brand p{font-size:13px;color:var(--sub);margin-top:1px}
+.form-box{width:100%;max-width:360px}
+.form-box h1{font-size:26px;font-weight:700;margin-bottom:4px}
+.form-box .sub{font-size:14px;color:var(--sub);margin-bottom:26px}
+.fg{margin-bottom:16px}
+.fg label{display:block;font-size:12px;font-weight:600;margin-bottom:5px;color:var(--sub)}
 .iw{position:relative}
-.iw svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--sub)}
-.iw input{width:100%;padding:10px 12px 10px 36px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;outline:none;transition:border .2s}
-.iw input:focus{border-color:var(--blue)}
-.rrow{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
+.iw svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--sub);z-index:2}
+.iw input{width:100%;padding:11px 14px 11px 38px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;font-family:inherit;outline:none;transition:all .2s;background:rgba(255,255,255,0.5);backdrop-filter:blur(4px)}
+[data-theme="dark"] .iw input { background: rgba(30,41,59,0.4); }
+.iw input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.15)}
+.rrow{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
 .rrow label{font-size:13px;color:var(--sub);display:flex;align-items:center;gap:6px;cursor:pointer}
 .rrow a{font-size:13px;color:var(--blue);text-decoration:none;font-weight:500}
-.btn-blue{width:100%;padding:11px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;transition:background .2s}
-.btn-blue:hover{background:var(--blue-d)}
-.btn-blue:disabled{opacity:.6;cursor:not-allowed}
-.sl{text-align:center;font-size:13px;color:var(--sub);margin-top:18px}
+.btn-blue{width:100%;padding:12px;background:linear-gradient(135deg,var(--blue),var(--indigo));color:#fff;border:none;border-radius:var(--radius-sm);font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;transition:all .2s;box-shadow:0 4px 14px rgba(37,99,235,0.25)}
+.btn-blue:hover{box-shadow:0 6px 20px rgba(37,99,235,0.35);transform:translateY(-1px)}
+.btn-blue:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.sl{text-align:center;font-size:13px;color:var(--sub);margin-top:16px}
 .sl a{color:var(--blue);font-weight:600;text-decoration:none;cursor:pointer}
-.demo{margin-top:24px;background:var(--blue-l);border:1px solid var(--blue-m);border-radius:10px;padding:14px;font-size:13px}
-.demo strong{display:block;margin-bottom:5px}
+.demo{margin-top:22px;background:rgba(219,234,254,0.5);backdrop-filter:blur(8px);border:1px solid rgba(37,99,235,0.15);border-radius:var(--radius-sm);padding:14px 16px;font-size:13px}
+.demo strong{display:block;margin-bottom:5px;color:var(--text)}
 .demo span{color:var(--blue);display:block}
 .demo .pwd{color:var(--sub)}
-.lr{width:50%;background:linear-gradient(135deg,#2563EB,#7C3AED);display:flex;align-items:center;justify-content:center;padding:60px;position:relative;overflow:hidden}
-.lr::before{content:'';position:absolute;width:400px;height:400px;border-radius:50%;background:rgba(255,255,255,.05);top:-100px;right:-100px}
-.lr::after{content:'';position:absolute;width:280px;height:280px;border-radius:50%;background:rgba(255,255,255,.04);bottom:-80px;left:-60px}
-.rc{position:relative;z-index:1;color:#fff;max-width:400px}
+.lr{width:50%;background:linear-gradient(135deg,#2563EB,#4F46E5,#7C3AED);display:flex;align-items:center;justify-content:center;padding:60px;position:relative;overflow:hidden}
+.lr::before{content:'';position:absolute;width:500px;height:500px;border-radius:50%;background:rgba(255,255,255,.06);top:-120px;right:-100px;animation:float 10s ease-in-out infinite}
+.lr::after{content:'';position:absolute;width:350px;height:350px;border-radius:50%;background:rgba(255,255,255,.04);bottom:-80px;left:-80px;animation:float2 12s ease-in-out infinite}
+.rc{position:relative;z-index:1;color:#fff;max-width:420px}
 .rc h2{font-size:32px;font-weight:700;line-height:1.25;margin-bottom:12px}
 .rc .tag{font-size:14px;opacity:.85;margin-bottom:36px;line-height:1.6}
-.fl{display:flex;flex-direction:column;gap:18px;margin-bottom:36px}
+.fl{display:flex;flex-direction:column;gap:16px;margin-bottom:36px}
 .fi{display:flex;align-items:flex-start;gap:14px}
-.fic{width:40px;height:40px;min-width:40px;border-radius:10px;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center}
+.fic{width:40px;height:40px;min-width:40px;border-radius:12px;background:rgba(255,255,255,.15);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center}
 .ft h4{font-size:14px;font-weight:600;margin-bottom:2px}
 .ft p{font-size:12px;opacity:.75;line-height:1.5}
 .sr{display:flex;gap:14px;margin-bottom:28px}
-.sb{flex:1;background:rgba(255,255,255,.15);border-radius:10px;padding:14px;text-align:center}
-.sb .v{font-size:24px;font-weight:700}
+.sb{flex:1;background:rgba(255,255,255,.12);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.10);border-radius:var(--radius-sm);padding:14px;text-align:center}
+.sb .v{font-size:22px;font-weight:700}
 .sb .l{font-size:11px;opacity:.75;margin-top:2px}
-.sc{background:#fff;border-radius:12px;padding:16px;color:var(--text)}
+.sc{background:var(--card-bg);backdrop-filter:var(--glass-blur);border:1px solid var(--glass-border);border-radius:var(--radius);padding:16px;color:var(--text)}
 .sc h4{font-size:13px;font-weight:600;margin-bottom:4px}
 .sc p{font-size:12px;color:var(--sub);margin-bottom:8px}
 .sc .tags{display:flex;gap:6px;margin-bottom:6px}
 .sc .tag2{font-size:11px;padding:3px 8px;border-radius:20px;font-weight:500}
-.t-rev{background:#EFF6FF;color:var(--blue)}
-.t-lib{background:#EDE9FE;color:#7C3AED}
+.t-rev{background:rgba(37,99,235,0.15);color:var(--blue)}
+.t-lib{background:rgba(124,58,237,0.15);color:#7C3AED}
 .sc .meta{font-size:11px;color:var(--sub)}
-/* NAVBAR */
-.nav{background:#fff;border-bottom:1px solid var(--border);padding:0 28px;height:58px;display:flex;align-items:center;position:sticky;top:0;z-index:100}
-.nb{display:flex;align-items:center;gap:9px;margin-right:auto}
-.nb .ni{width:34px;height:34px;border-radius:8px;background:var(--blue);display:flex;align-items:center;justify-content:center}
+
+/* ── HAMBURGER TOGGLE ──────────────────────────────────────────────── */
+.ham-toggle{display:none;background:none;border:none;color:var(--text);cursor:pointer;padding:6px;margin-right:6px;border-radius:8px;transition:background .15s}
+.ham-toggle:hover{background:rgba(255,255,255,0.08)}
+@media(max-width:860px){.ham-toggle{display:flex;align-items:center;justify-content:center}}
+
+/* ── DARK MODE TOGGLE ────────────────────────────────────────────────── */
+.theme-toggle{background:var(--glass-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);border:1px solid var(--glass-border);border-radius:50%;width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--sub);transition:all .2s}
+.theme-toggle:hover{color:var(--blue);border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
+
+/* ── NAVBAR ──────────────────────────────────────────────────────────── */
+.nav{background:var(--card-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);border-bottom:1px solid var(--glass-border);padding:0 24px;height:var(--nav-h);display:flex;align-items:center;position:sticky;top:0;z-index:100}
+.nb{display:flex;align-items:center;gap:10px;margin-right:auto}
+.nb .ni{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center}
+.nb .ni svg { width:18px; height:18px; }
 .nb h3{font-size:15px;font-weight:700}
 .nb p{font-size:11px;color:var(--sub)}
-.nls{display:flex;align-items:center;gap:3px}
-.nl{padding:7px 14px;border-radius:8px;font-size:14px;font-weight:500;color:var(--sub);cursor:pointer;border:none;background:none;display:flex;align-items:center;gap:6px;transition:all .15s;font-family:inherit}
-.nl:hover{background:var(--bg);color:var(--text)}
-.nl.act{background:var(--blue-l);color:var(--blue)}
+.nls{display:flex;align-items:center;gap:2px}
+.nl{padding:7px 14px;border-radius:8px;font-size:13px;font-weight:500;color:var(--sub);cursor:pointer;border:none;background:none;display:flex;align-items:center;gap:6px;transition:all .15s;font-family:inherit}
+.nl:hover{background:rgba(255,255,255,0.1);color:var(--text)}
+[data-theme="dark"] .nl:hover{background:rgba(255,255,255,0.05)}
+.nl.act{background:var(--glass-bg);color:var(--blue);font-weight:600}
 .nl svg{width:15px;height:15px}
-.na{display:flex;align-items:center;gap:8px;margin-left:14px}
+.na{display:flex;align-items:center;gap:10px;margin-left:14px}
 .av-wrap{position:relative}
-.av{width:34px;height:34px;border-radius:50%;background:var(--blue);border:none;cursor:pointer;color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center}
-.profile-dd{display:none;position:absolute;top:calc(100% + 10px);right:0;background:#fff;border:1px solid var(--border);border-radius:12px;box-shadow:0 8px 28px rgba(0,0,0,.12);min-width:220px;z-index:300;overflow:hidden;animation:dd .15s ease}
+.av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--blue),var(--indigo));border:none;cursor:pointer;color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(37,99,235,0.2)}
+.profile-dd{display:none;position:absolute;top:calc(100% + 10px);right:0;background:var(--bg);border:1px solid var(--glass-border);border-radius:var(--radius);box-shadow:var(--glass-shadow);min-width:220px;z-index:300;overflow:hidden;animation:dd .15s ease}
 @keyframes dd{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
 .profile-dd.open{display:block}
 .dd-email{padding:14px 16px;font-size:13px;font-weight:600;color:var(--text);border-bottom:1px solid var(--border);word-break:break-all}
-.dd-item{display:flex;align-items:center;gap:10px;padding:12px 16px;font-size:14px;color:var(--text);cursor:pointer;transition:background .15s;border:none;background:none;width:100%;font-family:inherit;text-align:left}
-.dd-item:hover{background:var(--bg)}
+.dd-item{display:flex;align-items:center;gap:10px;padding:12px 16px;font-size:13px;color:var(--text);cursor:pointer;transition:all .15s;border:none;background:none;width:100%;font-family:inherit;text-align:left}
+.dd-item:hover{background:rgba(255,255,255,0.08)}
 .dd-item svg{width:16px;height:16px;color:var(--sub)}
-/* HOME */
-.hc{max-width:740px;margin:0 auto;padding:28px 20px 80px}
-.inline-form{background:#fff;border-radius:14px;padding:32px 36px;width:100%;border:1px solid var(--border);box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:22px;display:none}
-.inline-form.open{display:block;animation:fd .2s ease}
-@keyframes fd{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
-.ifh{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
-.ifh h3{font-size:17px;font-weight:600}
-.ifc{background:none;border:none;cursor:pointer;color:var(--sub);font-size:22px;line-height:1;padding:0}
-.inline-form input,.inline-form textarea,.inline-form select{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;outline:none;transition:border .2s;margin-bottom:14px;background:#fff}
-.inline-form input:focus,.inline-form textarea:focus,.inline-form select:focus{border-color:var(--blue)}
-.inline-form textarea{resize:vertical;min-height:120px}
-.anote{background:var(--blue-l);border:1px solid var(--blue-m);border-radius:10px;padding:13px 15px;margin-bottom:20px;font-size:13px;color:#1e40af;line-height:1.55}
-.anote strong{color:var(--blue)}
-.mf{display:flex;justify-content:flex-end}
-.btn-sub{padding:11px 24px;background:var(--blue);color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:7px;transition:background .15s}
-.btn-sub:hover{background:var(--blue-d)}
-.btn-sub:disabled{opacity:.6;cursor:not-allowed}
-.inp-bar{background:#fff;border-radius:12px;padding:14px 18px;border:1.5px solid var(--border);margin-bottom:22px;cursor:pointer;transition:border .2s;display:flex;align-items:center;gap:10px}
-.inp-bar:hover{border-color:var(--blue)}
-.inp-bar span{color:var(--sub);font-size:14px}
-.fb{background:#fff;border-radius:10px;padding:11px 15px;border:1px solid var(--border);display:flex;align-items:center;gap:10px;margin-bottom:22px;flex-wrap:wrap}
+
+/* ── WELCOME HERO ────────────────────────────────────────────────────── */
+.welcome-hero {
+  background: var(--card-bg);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: 32px 36px;
+  margin-bottom: 24px;
+  box-shadow: var(--glass-shadow);
+  position: relative;
+  overflow: hidden;
+}
+.welcome-hero::before {
+  content: '';
+  position: absolute; top: -60%; right: -10%;
+  width: 300px; height: 300px;
+  background: radial-gradient(circle, rgba(37,99,235,0.08), transparent);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.welcome-hero h1 { font-size: 24px; font-weight: 700; margin-bottom: 4px; }
+.welcome-hero p { font-size: 14px; color: var(--sub); line-height: 1.6; }
+
+/* ── STATS CARDS ────────────────────────────────────────────────────── */
+.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.stc{background:var(--card-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);border:1px solid var(--glass-border);border-radius:var(--radius);padding:18px 20px;display:flex;justify-content:space-between;align-items:flex-start;box-shadow:var(--glass-shadow);transition:all .2s}
+.stc:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,0,0,0.10)}
+.stc .sl2{font-size:12px;color:var(--sub);margin-bottom:4px;font-weight:500}
+.stc .sn2{font-size:26px;font-weight:800;background:linear-gradient(135deg,var(--text),var(--blue));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.si{width:42px;height:42px;min-width:42px;border-radius:var(--radius-sm);display:flex;align-items:center;justify-content:center}
+.si.bl{background:rgba(37,99,235,0.15);color:var(--blue);box-shadow:0 0 12px rgba(37,99,235,0.15)}
+.si.ye{background:rgba(245,158,11,0.15);color:var(--yellow);box-shadow:0 0 12px rgba(245,158,11,0.15)}
+.si.re{background:rgba(239,68,68,0.15);color:var(--red);box-shadow:0 0 12px rgba(239,68,68,0.15)}
+.si.mo{background:rgba(249,115,22,0.15);color:var(--orange);box-shadow:0 0 12px rgba(249,115,22,0.15)}
+.si.lo{background:rgba(234,179,8,0.15);color:#EAB308;box-shadow:0 0 12px rgba(234,179,8,0.15)}
+.si.gr{background:rgba(16,185,129,0.15);color:var(--green);box-shadow:0 0 12px rgba(16,185,129,0.15)}
+.si svg{width:19px;height:19px}
+
+/* ── WELCOME STATS (student home) ───────────────────────────────────── */
+.welcome-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}
+.welcome-stats .stc{background:var(--card-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);border:1px solid var(--glass-border);border-radius:var(--radius);padding:18px 20px;display:flex;justify-content:space-between;align-items:flex-start;box-shadow:var(--glass-shadow);transition:all .2s}
+.welcome-stats .stc:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(0,0,0,0.10)}
+
+/* ── FILTER / SEARCH (floating glass) ───────────────────────────────── */
+.fb{background:var(--card-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);border:1px solid var(--glass-border);border-radius:var(--radius);padding:14px 18px;display:flex;align-items:center;gap:12px;margin-bottom:24px;flex-wrap:wrap;box-shadow:var(--glass-shadow)}
 .flbl{font-size:13px;color:var(--sub);display:flex;align-items:center;gap:5px}
-select{padding:6px 9px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;font-family:inherit;color:var(--text);background:#fff;cursor:pointer;outline:none}
-select:focus{border-color:var(--blue)}
+select{padding:7px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;color:var(--text);background:rgba(255,255,255,0.5);backdrop-filter:blur(4px);cursor:pointer;outline:none;transition:all .15s}
+[data-theme="dark"] select { background: rgba(30,41,59,0.4); }
+select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
 .slbl{margin-left:auto;font-size:13px;color:var(--sub);display:flex;align-items:center;gap:5px}
 .fh{display:flex;flex-direction:column;gap:4px;margin-bottom:14px}
 .fh h2{font-size:19px;font-weight:700}
 .fh span{font-size:13px;color:var(--sub)}
-.cc{background:#fff;border-radius:12px;border:1px solid var(--border);padding:18px 22px;margin-bottom:14px;transition:box-shadow .2s}
-.cc:hover{box-shadow:0 4px 18px rgba(0,0,0,.08)}
-.ct{font-size:15px;font-weight:600;margin-bottom:5px}
-.cd{font-size:13px;color:var(--sub);line-height:1.55;margin-bottom:11px}
+
+/* ── COMPLAINT FEED ─────────────────────────────────────────────────── */
+.hc{margin:0 auto;padding:24px 20px 80px}
+.inline-form{background:var(--card-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);border:1px solid var(--glass-border);border-radius:var(--radius-lg);padding:28px 32px;width:100%;box-shadow:var(--glass-shadow);margin-bottom:24px;display:none}
+.inline-form.open{display:block;animation:fadeUp .25s ease}
+.ifh{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.ifh h3{font-size:17px;font-weight:700}
+.ifc{background:none;border:none;cursor:pointer;color:var(--sub);font-size:22px;line-height:1;padding:0;transition:color .15s}
+.ifc:hover{color:var(--text)}
+.inline-form input,.inline-form textarea,.inline-form select{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:14px;font-family:inherit;outline:none;transition:all .2s;margin-bottom:14px;background:rgba(255,255,255,0.5)}
+[data-theme="dark"] .inline-form input,[data-theme="dark"] .inline-form textarea,[data-theme="dark"] .inline-form select { background: rgba(30,41,59,0.4); }
+.inline-form input:focus,.inline-form textarea:focus,.inline-form select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
+.inline-form textarea{resize:vertical;min-height:120px}
+.anote{background:rgba(219,234,254,0.4);backdrop-filter:blur(8px);border:1px solid rgba(37,99,235,0.12);border-radius:var(--radius-sm);padding:13px 15px;margin-bottom:20px;font-size:13px;color:var(--sub);line-height:1.55}
+.anote strong{color:var(--blue)}
+.mf{display:flex;justify-content:flex-end}
+.btn-sub{padding:11px 22px;background:linear-gradient(135deg,var(--blue),var(--indigo));color:#fff;border:none;border-radius:var(--radius-sm);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:7px;transition:all .15s;box-shadow:0 4px 14px rgba(37,99,235,0.2)}
+.btn-sub:hover{box-shadow:0 6px 20px rgba(37,99,235,0.3);transform:translateY(-1px)}
+.btn-sub:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.inp-bar{background:var(--card-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);border:1.5px solid var(--glass-border);border-radius:var(--radius);padding:14px 18px;margin-bottom:22px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:10px;box-shadow:var(--glass-shadow)}
+.inp-bar:hover{border-color:var(--blue);box-shadow:0 8px 32px rgba(37,99,235,0.10)}
+.inp-bar span{color:var(--sub);font-size:14px}
+
+/* ── COMPLAINT CARDS (glass) ────────────────────────────────────────── */
+.cc{background:var(--card-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);border:1px solid var(--glass-border);border-radius:var(--radius);padding:18px 22px;margin-bottom:14px;transition:all .2s;box-shadow:var(--glass-shadow);position:relative;overflow:hidden;animation:fadeUp .3s ease}
+.cc:hover{box-shadow:0 12px 48px rgba(0,0,0,0.10);transform:translateY(-2px)}
+.cc::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:0 4px 4px 0}
+.cc[data-priority="High"]::before{background:var(--red);box-shadow:0 0 12px rgba(239,68,68,0.25)}
+.cc[data-priority="Medium"]::before{background:var(--orange);box-shadow:0 0 12px rgba(249,115,22,0.2)}
+.cc[data-priority="Low"]::before{background:#EAB308;box-shadow:0 0 12px rgba(234,179,8,0.25)}
+.ct{font-size:15px;font-weight:700;margin-bottom:5px;color:var(--text)}
+.cd{font-size:13px;color:var(--sub);line-height:1.6;margin-bottom:11px}
 .ctags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:9px}
-.pill{font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;display:inline-flex;align-items:center;gap:3px}
-.p-pend{background:#FEF9C3;color:#A16207}
-.p-rev{background:#EFF6FF;color:var(--blue)}
-.p-res{background:var(--green-bg);color:var(--green)}
-.p-cat{background:#F3F4F6;color:#374151}
-.p-hi{background:#FEF2F2;color:var(--red)}
-.p-med{background:#FFF7ED;color:var(--orange)}
-.p-lo{background:var(--green-bg);color:var(--green)}
+.pill{font-size:11px;font-weight:600;padding:4px 10px;border-radius:20px;display:inline-flex;align-items:center;gap:3px;backdrop-filter:blur(4px)}
+.p-pend{background:rgba(245,158,11,0.15);color:#B45309}
+.p-rev{background:rgba(37,99,235,0.12);color:var(--blue)}
+.p-res{background:rgba(16,185,129,0.12);color:var(--green)}
+.p-cat{background:rgba(100,116,139,0.08);color:var(--sub)}
+.p-hi{background:rgba(239,68,68,0.10);color:var(--red);animation:glow-hi 2s ease-in-out infinite}
+.p-med{background:rgba(249,115,22,0.10);color:var(--orange)}
+.p-lo{background:rgba(234,179,8,0.10);color:#EAB308}
 .ca{font-size:12px;color:var(--sub);margin-bottom:11px}
 .ca span{font-weight:600;color:var(--text)}
 .cdiv{border:none;border-top:1px solid var(--border);margin-bottom:11px}
 .cf{display:flex;align-items:center;gap:9px}
-.vb{display:flex;align-items:center;gap:5px;padding:5px 11px;border:1.5px solid var(--border);border-radius:7px;background:none;font-size:13px;cursor:pointer;font-family:inherit;color:var(--sub);transition:all .15s}
-.vb:hover,.vb.voted{border-color:var(--blue);color:var(--blue);background:var(--blue-l)}
+.vb{display:flex;align-items:center;gap:5px;padding:6px 12px;border:1.5px solid var(--border);border-radius:8px;background:rgba(255,255,255,0.3);backdrop-filter:blur(4px);font-size:13px;cursor:pointer;font-family:inherit;color:var(--sub);transition:all .15s}
+[data-theme="dark"] .vb{background:rgba(30,41,59,0.3)}
+.vb:hover,.vb.voted{border-color:var(--blue);color:var(--blue);background:rgba(37,99,235,0.08)}
 .vb svg{width:13px;height:13px}
-.ta{font-size:14px;color:#6B7280}
+.ta{font-size:14px;color:var(--sub)}
 .commentBtn{margin-left:auto}
 .loading{text-align:center;padding:40px;color:var(--sub)}
-/* TRACK */
-.tc{max-width:840px;margin:0 auto;padding:36px 20px}
-.tc h1{font-size:24px;font-weight:700;margin-bottom:4px}
+
+/* ── TRACK PAGE ─────────────────────────────────────────────────────── */
+.tc{margin:0 auto;padding:28px 20px}
+.tc h1{font-size:22px;font-weight:700;margin-bottom:4px}
 .tc .sub{font-size:14px;color:var(--sub);margin-bottom:22px}
-.sb2{display:flex;align-items:center;gap:9px;background:#fff;border:1.5px solid var(--border);border-radius:10px;padding:10px 15px;margin-bottom:26px;transition:border .2s}
-.sb2:focus-within{border-color:var(--blue)}
+.sb2{display:flex;align-items:center;gap:9px;background:var(--card-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);border:1.5px solid var(--glass-border);border-radius:var(--radius);padding:10px 16px;margin-bottom:26px;transition:all .2s;box-shadow:var(--glass-shadow)}
+.sb2:focus-within{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
 .sb2 svg{color:var(--sub);width:15px;height:15px;min-width:15px}
 .sb2 input{border:none;outline:none;font-size:14px;font-family:inherit;color:var(--text);width:100%;background:transparent}
 .scards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:26px}
-.scard{background:#fff;border-radius:12px;padding:18px 20px;border:1.5px solid var(--border);display:flex;align-items:center;justify-content:space-between}
-.scard.pend{border-color:#FDE68A;background:#FFFBEB}
-.scard.rev{border-color:#BFDBFE;background:#EFF6FF}
-.scard.reso{border-color:#A7F3D0;background:var(--green-bg)}
+.scard{background:var(--card-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);border-radius:var(--radius);padding:18px 20px;border:1.5px solid var(--glass-border);display:flex;align-items:center;justify-content:space-between;box-shadow:var(--glass-shadow);transition:all .2s}
+.scard:hover{transform:translateY(-2px)}
+.scard.pend{border-color:rgba(245,158,11,0.3);background:rgba(255,251,235,0.4)}
+[data-theme="dark"] .scard.pend{background:rgba(245,158,11,0.08)}
+.scard.rev{border-color:rgba(37,99,235,0.2);background:rgba(239,246,255,0.4)}
+[data-theme="dark"] .scard.rev{background:rgba(37,99,235,0.08)}
+.scard.reso{border-color:rgba(16,185,129,0.2);background:rgba(236,253,245,0.4)}
+[data-theme="dark"] .scard.reso{background:rgba(16,185,129,0.08)}
 .slb{font-size:12px;font-weight:500;margin-bottom:3px}
 .sn{font-size:26px;font-weight:700}
 .scard.pend .slb,.scard.pend .sn{color:var(--yellow)}
 .scard.rev .slb,.scard.rev .sn{color:var(--blue)}
 .scard.reso .slb,.scard.reso .sn{color:var(--green)}
-.sico{width:40px;height:40px;border-radius:50%;opacity:.6;display:flex;align-items:center;justify-content:center}
-.sico svg{width:20px;height:20px}
-.tcard{background:#fff;border-radius:12px;border:1px solid var(--border);padding:20px 24px;margin-bottom:14px}
+.sico{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.3);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center}
+.sico svg{width:20px;height:20px;opacity:0.7}
+.tcard{background:var(--card-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);border:1px solid var(--glass-border);border-radius:var(--radius);padding:20px 24px;margin-bottom:14px;box-shadow:var(--glass-shadow);transition:all .2s;position:relative;overflow:hidden}
+.tcard::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;border-radius:0 4px 4px 0}
+.tcard[data-priority="High"]::before{background:var(--red);box-shadow:0 0 12px rgba(239,68,68,0.25)}
+.tcard[data-priority="Medium"]::before{background:var(--orange);box-shadow:0 0 12px rgba(249,115,22,0.2)}
+.tcard[data-priority="Low"]::before{background:#EAB308;box-shadow:0 0 12px rgba(234,179,8,0.25)}
+.tcard:hover{box-shadow:0 12px 40px rgba(0,0,0,0.08)}
 .tch{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:7px}
-.tch h3{font-size:15px;font-weight:600}
+.tch h3{font-size:15px;font-weight:700}
 .tdesc{font-size:13px;color:var(--sub);margin-bottom:14px;line-height:1.5}
 .pr{display:flex;justify-content:space-between;margin-bottom:5px}
-.pr span{font-size:12px;color:var(--sub)}
-.pb{background:var(--blue)}.py{background:#F59E0B}.pg{background:var(--green)}
-.tm{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--sub);justify-content:space-between}
+.pr .mv{font-size:12px;color:var(--sub)}
+.pb{background:linear-gradient(135deg,var(--blue),var(--indigo))}.py{background:linear-gradient(135deg,#F59E0B,#D97706)}.pg{background:linear-gradient(135deg,var(--green),#059669)}
+[data-theme="dark"] .py{background:linear-gradient(135deg,#F59E0B,#B45309)}
+[data-theme="dark"] .pg{background:linear-gradient(135deg,#059669,#047857)}
+.tm{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--sub);justify-content:space-between;margin-top:12px}
 .tm .mi{display:flex;gap:3px}
 .tm .mi .mv{font-weight:600;color:var(--text)}
 .phi{color:var(--red)!important;font-weight:600}
 .pme{color:var(--orange)!important;font-weight:600}
 .plo{color:var(--green)!important;font-weight:600}
-/* ADMIN */
-.adminShell{display:flex;gap:0;min-height:calc(100vh - 58px);}
-.adminSide{width:240px;flex:0 0 240px;background:#fff;border-right:1px solid var(--border);padding:18px 10px;}
-.adminSide .sideItem{width:100%;padding:10px 12px;border-radius:10px;border:none;background:none;cursor:pointer;font-family:inherit;font-size:14px;color:var(--sub);display:flex;align-items:center;gap:10px;}
-.adminSide .sideItem:hover{background:var(--bg);color:var(--text)}
-.adminSide .sideItem.act{background:var(--blue-l);color:var(--blue);font-weight:600;}
-.adminMain{flex:1;}
 
-/* STUDENT */
-.studentShell{display:flex;gap:0;min-height:calc(100vh - 58px);}
-.studentSide{width:240px;flex:0 0 240px;background:#fff;border-right:1px solid var(--border);padding:18px 10px;}
-.studentSide .sideItem{width:100%;padding:10px 12px;border-radius:10px;border:none;background:none;cursor:pointer;font-family:inherit;font-size:14px;color:var(--sub);display:flex;align-items:center;gap:10px;}
-.studentSide .sideItem:hover{background:var(--bg);color:var(--text)}
-.studentSide .sideItem.act{background:var(--blue-l);color:var(--blue);font-weight:600;}
-.studentMain{flex:1;}
+/* ── SIDEBARS (glass) ────────────────────────────────────────────────── */
+.adminShell{display:flex;gap:0;min-height:calc(100vh - var(--nav-h))}
+.adminSide{width:var(--sidebar-w);flex:0 0 var(--sidebar-w);background:var(--card-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);border-right:1px solid var(--glass-border);padding:16px 8px;position:sticky;top:var(--nav-h);height:calc(100vh - var(--nav-h));align-self:flex-start;overflow-y:auto}
+.adminSide .sideItem{width:100%;padding:10px 14px;border-radius:var(--radius-sm);border:none;background:none;cursor:pointer;font-family:inherit;font-size:13px;color:var(--sub);display:flex;align-items:center;gap:10px;transition:all .15s}
+.adminSide .sideItem:hover{background:rgba(255,255,255,0.08);color:var(--text)}
+[data-theme="dark"] .adminSide .sideItem:hover{background:rgba(255,255,255,0.04)}
+.adminSide .sideItem.act{background:rgba(37,99,235,0.10);color:var(--blue);font-weight:600}
+.adminMain{flex:1;padding:24px 28px}
 
-.ac{max-width:1080px;margin:0 auto;padding:36px 20px}
-.ac h1{font-size:24px;font-weight:700;margin-bottom:4px}
-.ac .sub{font-size:14px;color:var(--sub);margin-bottom:26px}
-.sg{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:26px}
+.studentShell{display:flex;gap:0;min-height:calc(100vh - var(--nav-h))}
+.studentSide{width:var(--sidebar-w);flex:0 0 var(--sidebar-w);background:var(--card-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);border-right:1px solid var(--glass-border);padding:16px 8px;position:sticky;top:var(--nav-h);height:calc(100vh - var(--nav-h));align-self:flex-start;overflow-y:auto;display:flex;flex-direction:column}
+.studentSide .sideItem{width:100%;padding:10px 14px;border-radius:var(--radius-sm);border:none;background:none;cursor:pointer;font-family:inherit;font-size:13px;color:var(--sub);display:flex;align-items:center;gap:10px;transition:all .15s}
+.studentSide .sideItem:hover{background:rgba(255,255,255,0.08);color:var(--text)}
+[data-theme="dark"] .studentSide .sideItem:hover{background:rgba(255,255,255,0.04)}
+.studentSide .sideItem.act{background:rgba(37,99,235,0.10);color:var(--blue);font-weight:600}
+.studentSide .sideItem.add-btn{margin-top:auto;background:linear-gradient(135deg,var(--blue),var(--indigo));color:#fff;border-radius:var(--radius-sm);font-weight:600;justify-content:center;padding:12px 14px;box-shadow:0 4px 14px rgba(37,99,235,0.2)}.studentSide .sideItem.add-btn:hover{opacity:.9;box-shadow:0 4px 14px rgba(37,99,235,0.35)}
+.live-stat{display:flex;align-items:center;gap:12px;background:var(--glass-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);border:1px solid var(--glass-border);border-radius:var(--radius-sm);padding:6px 14px;font-size:12px;margin-right:4px}.live-stat .ls-dot{width:7px;height:7px;border-radius:50%;background:#22C55E;animation:pulse 2s infinite}.live-stat .ls-item{display:flex;align-items:center;gap:4px;color:var(--sub)}.live-stat .ls-item .ls-num{font-weight:700;color:var(--text);font-size:13px}.live-stat .ls-divider{width:1px;height:20px;background:var(--glass-border)}@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+.ls-trigger{background:var(--glass-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);border:1px solid var(--glass-border);border-radius:var(--radius-sm);padding:6px 12px;cursor:pointer;display:flex;align-items:center;gap:6px;font-size:12px;color:var(--sub);margin-right:4px;transition:all .15s;font-family:inherit}.ls-trigger:hover{background:var(--card-bg);color:var(--text);border-color:var(--blue)}.ls-trigger .ls-dot{width:7px;height:7px;border-radius:50%;background:#22C55E;animation:pulse 2s infinite;flex-shrink:0}.ls-popout{display:none;position:fixed;top:var(--nav-h);right:24px;z-index:200;background:var(--bg);border:1px solid var(--glass-border);border-radius:var(--radius);box-shadow:var(--glass-shadow);min-width:260px;padding:18px 20px;animation:dd .15s ease}.ls-popout.open{display:block}.ls-popout h4{margin:0 0 12px;font-size:14px;font-weight:700;color:var(--text);display:flex;align-items:center;gap:8px}.ls-popout .ls-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;color:var(--sub)}.ls-popout .ls-row:last-child{border-bottom:none}.ls-popout .ls-row .ls-val{font-weight:700;color:var(--text)}
+.studentMain{flex:1;padding:24px 28px}
 
-.stc{background:#fff;border-radius:12px;border:1px solid var(--border);padding:18px 20px;display:flex;justify-content:space-between;align-items:flex-start}
-.stc .sl2{font-size:13px;color:var(--sub);margin-bottom:5px}
-.stc .sn2{font-size:26px;font-weight:700}
-.si{width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center}
-.si.bl{background:#EFF6FF;color:var(--blue)}
-.si.ye{background:#FFFBEB;color:var(--yellow)}
- .si.re{background:#FEF2F2;color:var(--red)}
-.si.mo{background:#FFF7ED;color:var(--orange)}
-.si.lo{background:var(--green-bg);color:var(--green)}
-.si.gr{background:var(--green-bg);color:var(--green)}
-.si svg{width:19px;height:19px}
+/* ── ADMIN COMMON ────────────────────────────────────────────────────── */
+.ac{max-width:1100px;margin:0 auto;padding:0}
+.ac h1{font-size:22px;font-weight:700;margin-bottom:4px}
+.ac .sub{font-size:14px;color:var(--sub);margin-bottom:24px}
 .amid{display:grid;grid-template-columns:1fr 1.4fr;gap:18px;margin-bottom:26px}
-.ap{background:#fff;border-radius:12px;border:1px solid var(--border);padding:20px}
-.pt{font-size:15px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:7px}
+.ap{background:var(--card-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);border:1px solid var(--glass-border);border-radius:var(--radius);padding:20px;box-shadow:var(--glass-shadow)}
+.pt{font-size:15px;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:7px}
 .pt svg{width:15px;height:15px;color:var(--sub)}
 .cr{display:flex;flex-direction:column;gap:10px}
 .ci{display:flex;align-items:center;gap:9px}
-.cn{font-size:13px;width:100px}
+.cn{font-size:13px;width:100px;color:var(--text)}
 .cbg{flex:1;background:var(--border);border-radius:9999px;height:6px}
-.cf2{height:100%;border-radius:9999px;background:var(--blue)}
+.cf2{height:100%;border-radius:9999px;background:linear-gradient(135deg,var(--blue),var(--indigo))}
 .cc2{font-size:12px;color:var(--sub);width:18px;text-align:right}
 .fp{display:flex;flex-direction:column;gap:11px}
 .fg2 label{font-size:12px;color:var(--sub);font-weight:500;display:block;margin-bottom:4px}
 .fg2 select{width:100%}
 .acs h2{font-size:17px;font-weight:700;margin-bottom:14px}
 .adm-sep{height:1px;background:var(--border);margin:0 0 16px 0}
-.acard{background:#fff;border-radius:12px;border:1px solid var(--border);padding:18px 20px;margin-bottom:13px}
-.acard .at{font-size:15px;font-weight:600;margin-bottom:4px}
+.acard{background:var(--card-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);border:1px solid var(--glass-border);border-radius:var(--radius);padding:18px 20px;margin-bottom:13px;box-shadow:var(--glass-shadow);transition:all .2s}
+.acard:hover{transform:translateY(-1px);box-shadow:0 12px 40px rgba(0,0,0,0.08)}
+.acard .at{font-size:15px;font-weight:700;margin-bottom:4px}
 .acard .ad{font-size:13px;color:var(--sub);margin-bottom:11px;line-height:1.5}
 .acard .atags{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:7px}
 .acard .aa{font-size:12px;color:var(--sub);margin-bottom:11px}
 .acard .aa span{font-weight:600;color:var(--text)}
 .acard .aft{display:flex;justify-content:space-between;align-items:center}
 .afl{display:flex;align-items:center;gap:9px;font-size:13px;color:var(--sub)}
-.ss{padding:6px 11px;border:1.5px solid var(--border);border-radius:7px;font-size:13px;font-family:inherit;color:var(--text);background:#fff;cursor:pointer;outline:none}
-/* TOAST */
-.toast{position:fixed;bottom:28px;right:28px;z-index:999;background:#111;color:#fff;padding:13px 18px;border-radius:10px;font-size:14px;box-shadow:0 8px 28px rgba(0,0,0,.3);display:flex;align-items:center;gap:9px;transform:translateY(80px);opacity:0;transition:all .3s;pointer-events:none}
-.toast.show{transform:translateY(0);opacity:1}
-.toast.ok{background:#166534}
-.toast svg{width:17px;height:17px;color:#86efac}
+.ss{padding:6px 11px;border:1.5px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;color:var(--text);background:rgba(255,255,255,0.5);cursor:pointer;outline:none;backdrop-filter:blur(4px);transition:all .15s}
+[data-theme="dark"] .ss{background:rgba(30,41,59,0.4)}
+.ss:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
 
-/* COMMENTS (Reddit-like) */
-.cdCommentsWrap{margin-top:14px;background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px;}
-.cdCommentsHeader{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px;}
-.cdCommentsHeader .title{font-size:13px;color:var(--sub);font-weight:900;display:flex;align-items:center;gap:8px;}
-.cdCommentsHeader .meta{font-size:11px;color:var(--sub);}
-.cdCommentComposer{display:flex;gap:10px;align-items:flex-start;margin-top:10px;flex-wrap:wrap;}
-.cdCommentComposer textarea{flex:1;min-width:220px;resize:vertical;min-height:80px;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:inherit;outline:none;transition:border .2s;}
-.cdCommentComposer textarea:focus{border-color:var(--blue)}
-.cdCommentComposer .btnRow{display:flex;gap:10px;align-items:center;justify-content:flex-end;min-width:160px;}
-.cdCommentList{display:flex;flex-direction:column;gap:10px;margin-top:8px;}
-.cdThread{border-left:2px solid var(--blue-l);padding-left:12px;margin-left:4px;}
-.cdComment{background:#fff;border:1px solid var(--border);border-radius:12px;padding:12px 12px;}
-.cdCommentTop{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
-.cdCommentAuthor{font-size:12px;font-weight:900;color:var(--text);}
-.cdCommentTime{font-size:11px;color:var(--sub);}
-.cdCommentText{font-size:13px;color:var(--sub);line-height:1.6;white-space:pre-wrap;margin-top:6px;}
-.cdCommentActions{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap;}
-.cdActionBtn{background:none;border:none;cursor:pointer;color:var(--blue);font-weight:700;font-size:12px;padding:6px 10px;border-radius:10px;}
-.cdActionBtn:hover{background:var(--bg)}
-.cdVoteBubble{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--sub);}
-.cdChildrenToggle{display:flex;align-items:center;gap:6px;}
-.cdSmallPill{font-size:11px;font-weight:800;padding:3px 9px;border-radius:9999px;background:var(--blue-l);color:var(--blue)}
-@media(max-width:860px){
-  .cdCommentComposer textarea{min-width:160px;}
-  #pg-login{flex-direction:column!important}
-  #pg-register{flex-direction:column!important}
-  .ll,.lr{width:100%}
-  .rl{width:100%}
-  .sg{grid-template-columns:repeat(2,1fr)}
-  .amid{grid-template-columns:1fr}
-  .scards{grid-template-columns:1fr}
-  .inline-form{padding:20px}
-}
-/* REGISTER */
+/* ── COMMENTS ────────────────────────────────────────────────────────── */
+.cdCommentsWrap{margin-top:14px;background:var(--card-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);border:1px solid var(--glass-border);border-radius:var(--radius);padding:14px;box-shadow:var(--glass-shadow)}
+.cdCommentsHeader{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:10px}
+.cdCommentsHeader .title{font-size:13px;color:var(--sub);font-weight:900;display:flex;align-items:center;gap:8px}
+.cdCommentsHeader .meta{font-size:11px;color:var(--sub)}
+.cdCommentComposer{display:flex;gap:10px;align-items:flex-start;margin-top:10px;flex-wrap:wrap}
+.cdCommentComposer textarea{flex:1;min-width:220px;resize:vertical;min-height:80px;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius-sm);font-size:13px;font-family:inherit;outline:none;transition:border .2s;background:rgba(255,255,255,0.4)}
+[data-theme="dark"] .cdCommentComposer textarea{background:rgba(30,41,59,0.3)}
+.cdCommentComposer textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
+.cdCommentComposer .btnRow{display:flex;gap:10px;align-items:center;justify-content:flex-end;min-width:160px}
+.cdCommentList{display:flex;flex-direction:column;gap:10px;margin-top:8px}
+.cdThread{border-left:2px solid rgba(37,99,235,0.2);padding-left:12px;margin-left:4px}
+.cdComment{background:rgba(255,255,255,0.3);backdrop-filter:blur(4px);border:1px solid var(--glass-border);border-radius:var(--radius-sm);padding:12px;transition:all .15s}
+[data-theme="dark"] .cdComment{background:rgba(30,41,59,0.3)}
+.cdCommentTop{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.cdCommentAuthor{font-size:12px;font-weight:900;color:var(--text)}
+.cdCommentTime{font-size:11px;color:var(--sub)}
+.cdCommentText{font-size:13px;color:var(--sub);line-height:1.6;white-space:pre-wrap;margin-top:6px}
+.cdCommentActions{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap}
+.cdActionBtn{background:none;border:none;cursor:pointer;color:var(--blue);font-weight:700;font-size:12px;padding:6px 10px;border-radius:10px}
+.cdActionBtn:hover{background:rgba(255,255,255,0.1)}
+.cdVoteBubble{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--sub)}
+.cdChildrenToggle{display:flex;align-items:center;gap:6px}
+.cdSmallPill{font-size:11px;font-weight:800;padding:3px 9px;border-radius:9999px;background:rgba(37,99,235,0.12);color:var(--blue)}
+
+/* ── REGISTER PAGE ───────────────────────────────────────────────────── */
 #pg-register{flex-direction:row!important}
-.rl{width:50%;background:#fff;display:flex;align-items:center;justify-content:center;padding:60px;}
+.rl{width:50%;background:var(--card-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);display:flex;align-items:center;justify-content:center;padding:60px;border-right:1px solid var(--glass-border)}
 .rbox{width:100%;max-width:420px}
 .rbox h1{font-size:26px;font-weight:700;margin-bottom:6px}
-.rsub{font-size:14px;color:var(--sub);margin-bottom:28px}
+.rsub{font-size:14px;color:var(--sub);margin-bottom:26px}
 .sep{display:flex;align-items:center;gap:12px;margin:16px 0 18px}
 .sep:before,.sep:after{content:'';height:1px;background:var(--border);flex:1}
 .sep span{font-size:12px;color:var(--sub);font-weight:600}
-.btn-google{width:100%;padding:11px 24px;background:#fff;color:#111827;border:1.5px solid #E5E7EB;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .15s}
-.btn-google:hover{background:#F9FAFB}
+.btn-google{width:100%;padding:11px 24px;background:var(--card-bg);backdrop-filter:var(--glass-blur);color:var(--text);border:1.5px solid var(--glass-border);border-radius:var(--radius-sm);font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .15s}
+.btn-google:hover{background:rgba(255,255,255,0.15)}
 .btn-google svg{width:18px;height:18px}
 .a-link{font-size:13px;color:var(--blue);font-weight:600;text-decoration:none;cursor:pointer}
 .small-note{font-size:12px;color:var(--sub);margin-top:12px;line-height:1.5}
+
+/* ── RESPONSIVE ──────────────────────────────────────────────────────── */
+@media(max-width:860px){
+  #pg-login{flex-direction:column!important}
+  #pg-register{flex-direction:column!important}
+  .ll,.lr,.rl{width:100%}
+  .lr{display:none}
+  .sg,.welcome-stats{grid-template-columns:repeat(2,1fr)}
+  .scards{grid-template-columns:1fr}
+  .amid{grid-template-columns:1fr}
+  .inline-form{padding:20px}
+  .adminSide,.studentSide{display:none;position:fixed;left:0;top:var(--nav-h);bottom:0;z-index:50;width:260px}
+  .adminSide.open,.studentSide.open{display:block}
+  .adminMain,.studentMain{padding:16px}
+  .hc{padding:16px}
+  .welcome-hero{padding:24px}
+}
 </style>
 </head>
 <body>
+<div class="bg-orb"><div class="orb"></div><div class="orb"></div><div class="orb"></div><div class="orb"></div></div>
 <!-- LOGIN -->
 <div id="pg-login" class="page active">
   <div class="ll">
@@ -373,6 +559,22 @@ select:focus{border-color:var(--blue)}
       <button class="nl" id="alink" onclick="go('admin')" style="display:none"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/></svg>Admin</button>
     </div>
     <div class="na">
+      <button class="ham-toggle" onclick="toggleSidebar()" aria-label="Menu">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="20" height="20"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <button class="ls-trigger" id="lsTrigger" onclick="toggleLivePopout(event)" title="Live Status">
+        <span class="ls-dot"></span>
+        Live
+      </button>
+      <div class="ls-popout" id="lsPopout">
+        <h4><span class="ls-dot"></span>Today's Status</h4>
+        <div class="ls-row"><span>Received today</span><span class="ls-val" id="lsReceived">—</span></div>
+        <div class="ls-row"><span>Total received</span><span class="ls-val" id="lsTotal">—</span></div>
+        <div class="ls-row" style="border-bottom:none;padding-top:12px;margin-top:8px;border-top:1px solid var(--border)"><span>User Activity</span><span class="ls-val" id="lsActive">—</span></div>
+      </div>
+      <button class="theme-toggle" id="themeToggle1" onclick="toggleTheme()" title="Toggle theme">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="16" height="16"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+      </button>
       <div class="av-wrap" style="margin-right:10px;">
         <button class="av" id="bellBtn" style="background:transparent;color:var(--sub)" onclick="toggleNotif(event)" aria-label="Notifications">
           <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="18" height="18">
@@ -381,7 +583,7 @@ select:focus{border-color:var(--blue)}
           </svg>
           <span id="notifDot" class="notifDot"></span>
         </button>
-        <div class="profile-dd" id="notifPanel" style="display:none;min-width:320px;right:0;left:auto;animation:none">
+        <div class="profile-dd" id="notifPanel" style="min-width:320px;right:0;left:auto;animation:none">
           <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;">
             <span style="font-size:13px;font-weight:700;color:var(--text);">Notifications</span>
             <div style="display:flex;align-items:center;gap:8px;">
@@ -413,17 +615,47 @@ select:focus{border-color:var(--blue)}
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="12" y2="15"/></svg>
         Track Status
       </button>
+      <button id="side_student_active" class="sideItem" onclick="go('studentActive')" style="display:flex">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        Active Cases
+      </button>
       <button id="side_student_resolved" class="sideItem" onclick="go('studentResolved')" style="display:flex">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 4 12 14.01 9 11.01"/></svg>
         Resolved
+      </button>
+      <button id="side_student_analytics" class="sideItem" onclick="go('studentAnalytics')" style="display:flex">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 20V10m-6 10V4M6 20v-6"/></svg>
+        Analytics
+      </button>
+      <button class="sideItem add-btn" onclick="openM()">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Complaint
       </button>
     </aside>
     
     <main class="studentMain">
       <div class="hc">
-        <div class="inp-bar" id="inp-bar" onclick="openM()">
+        <div class="welcome-hero">
+          <h1>Hey there, <span id="welcomeName">Student</span> 👋</h1>
+          <p>Welcome to your campus complaint dashboard. Speak up, track progress, and help make your college better.</p>
+        </div>
+        <div class="sb2" style="margin-bottom:20px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input type="text" id="hs" placeholder="Search complaints by title, description, or category..." oninput="rf()"></div>
+        <div class="inp-bar" id="inp-bar" onclick="openM()" style="margin-bottom:20px">
           <svg width="14" height="14" fill="none" stroke="#9CA3AF" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
           <span>What's your complaint? Share it anonymously...</span>
+        </div>
+        <div class="scards">
+          <div class="scard pend" onclick="filterHomeView('status','Pending')" style="cursor:pointer"><div><div class="slb">Pending</div><div class="sn" id="hp">—</div></div><div class="sico" style="color:var(--yellow)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div></div>
+          <div class="scard rev" onclick="filterHomeView('status','Under Review')" style="cursor:pointer"><div><div class="slb">Under Review</div><div class="sn" id="hr">—</div></div><div class="sico" style="color:var(--blue)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div></div>
+          <div class="scard reso" onclick="filterHomeView('status','Resolved')" style="cursor:pointer"><div><div class="slb">Resolved</div><div class="sn" id="hres">—</div></div><div class="sico" style="color:var(--green)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div></div>
+        </div>
+        <div class="fb" style="margin:16px 0">
+          <span class="flbl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="13" height="13"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>Filters:</span>
+          <select id="fs" onchange="rf()"><option value="">All Status</option><option>Pending</option><option>Under Review</option><option>Resolved</option></select>
+          <select id="fc" onchange="rf()"><option value="">All Categories</option><option>Food Services</option><option>Facilities</option><option>Library</option><option>Hostel</option><option>Security</option><option>IT Services</option><option>Transport</option><option>Administration</option></select>
+          <select id="fp" onchange="rf()"><option value="">All Priority</option><option value="High">High</option><option value="Medium">Medium</option><option value="Low">Low</option></select>
+          <span class="slbl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="13" height="13"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>Sort by:</span>
+          <select id="so" onchange="rf()"><option value="votes">Most Liked</option><option value="new">Newest</option><option value="old">Oldest</option></select>
         </div>
         <div class="inline-form" id="inline-form">
           <div class="ifh">
@@ -432,14 +664,12 @@ select:focus{border-color:var(--blue)}
           </div>
           <input type="text" id="ct" placeholder="Complaint title...">
           <textarea id="cd" placeholder="Describe your complaint in detail..."></textarea>
-
           <div class="fh" style="gap:6px;">
             <label style="font-size:13px;font-weight:500;color:var(--sub);">Attach photos (optional)</label>
             <input id="cp-photos" type="file" accept="image/*" multiple style="margin-bottom:6px;" />
             <div style="font-size:12px;color:var(--sub);line-height:1.4;">Selected: <span id="cp-photos-count">0</span></div>
             <div id="cp-photos-preview" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:4px;"></div>
           </div>
-
           <select id="cc-cat">
             <option value="">Category (auto-assigned if blank)</option>
             <option>Food Services</option>
@@ -460,14 +690,6 @@ select:focus{border-color:var(--blue)}
             <button class="btn-sub" id="cancel-upload-btn" style="display:none;background:var(--red);" onclick="cancelUpload()" type="button">Cancel</button>
           </div>
         </div>
-        <div class="fb">
-          <span class="flbl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="13" height="13"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>Filters:</span>
-          <select id="fs" onchange="rf()"><option value="">All Status</option><option>Pending</option><option>Under Review</option><option>Resolved</option></select>
-          <select id="fc" onchange="rf()"><option value="">All Categories</option><option>Food Services</option><option>Facilities</option><option>Library</option><option>Hostel</option><option>Security</option><option>IT Services</option><option>Transport</option><option>Administration</option></select>
-          <span class="slbl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="13" height="13"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>Sort by:</span>
-          <select id="so" onchange="rf()"><option value="votes">Most Liked</option><option value="new">Newest</option><option value="old">Oldest</option></select>
-        </div>
-        <div class="fh"><h2>Campus Complaints Feed</h2><span id="cnt"></span></div>
         <div id="feed"><div class="loading">Loading complaints…</div></div>
       </div>
     </main>
@@ -481,6 +703,22 @@ select:focus{border-color:var(--blue)}
       <button class="nl" id="alink2" onclick="go('admin')" style="display:none"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/></svg>Admin</button>
     </div>
     <div class="na">
+      <button class="ham-toggle" onclick="toggleSidebar()" aria-label="Menu">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="20" height="20"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <button class="ls-trigger" id="lsTrigger2" onclick="toggleLivePopout(event)" title="Live Status">
+        <span class="ls-dot"></span>
+        Live
+      </button>
+      <div class="ls-popout" id="lsPopout2">
+        <h4><span class="ls-dot"></span>Today's Status</h4>
+        <div class="ls-row"><span>Received today</span><span class="ls-val" id="lsReceived2">—</span></div>
+        <div class="ls-row"><span>Total received</span><span class="ls-val" id="lsTotal2">—</span></div>
+        <div class="ls-row" style="border-bottom:none;padding-top:12px;margin-top:8px;border-top:1px solid var(--border)"><span>User Activity</span><span class="ls-val" id="lsActive2">—</span></div>
+      </div>
+      <button class="theme-toggle" id="themeToggle2" onclick="toggleTheme()" title="Toggle theme">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="16" height="16"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+      </button>
       <div class="av-wrap" style="margin-right:10px;">
         <button class="av" id="bellBtn2" style="background:transparent;color:var(--sub)" onclick="toggleNotif(event)" aria-label="Notifications">
           <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="18" height="18">
@@ -489,7 +727,7 @@ select:focus{border-color:var(--blue)}
           </svg>
           <span id="notifDot2" class="notifDot"></span>
         </button>
-        <div class="profile-dd" id="notifPanel2" style="display:none;min-width:320px;right:0;left:auto;animation:none">
+        <div class="profile-dd" id="notifPanel2" style="min-width:320px;right:0;left:auto;animation:none">
           <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;">
             <span style="font-size:13px;font-weight:700;color:var(--text);">Notifications</span>
             <div style="display:flex;align-items:center;gap:8px;">
@@ -522,14 +760,27 @@ select:focus{border-color:var(--blue)}
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="12" y2="15"/></svg>
         Track Status
       </button>
+      <button id="side_student_active2" class="sideItem" onclick="go('studentActive')" style="display:flex">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        Active Cases
+      </button>
       <button id="side_student_resolved2" class="sideItem" onclick="go('studentResolved')" style="display:flex">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 4 12 14.01 9 11.01"/></svg>
         Resolved
+      </button>
+      <button id="side_student_analytics2" class="sideItem" onclick="go('studentAnalytics')" style="display:flex">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 20V10m-6 10V4M6 20v-6"/></svg>
+        Analytics
+      </button>
+      <button class="sideItem add-btn" onclick="openM()">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Complaint
       </button>
     </aside>
 
     <main class="studentMain">
       <div class="tc">
+
         <h1>Track Your Complaints</h1>
         <p class="sub">Monitor the status and progress of all submitted complaints</p>
         <div class="sb2"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input type="text" id="ts" placeholder="Search complaints by title, description, or category..." oninput="rt()"></div>
@@ -537,6 +788,13 @@ select:focus{border-color:var(--blue)}
           <div class="scard pend" onclick="filterTrackView('status','Pending')" style="cursor:pointer"><div><div class="slb">Pending</div><div class="sn" id="tp">—</div></div><div class="sico" style="color:var(--yellow)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div></div>
           <div class="scard rev" onclick="filterTrackView('status','Under Review')" style="cursor:pointer"><div><div class="slb">Under Review</div><div class="sn" id="tr2">—</div></div><div class="sico" style="color:var(--blue)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div></div>
           <div class="scard reso" onclick="filterTrackView('status','Resolved')" style="cursor:pointer"><div><div class="slb">Resolved</div><div class="sn" id="tres">—</div></div><div class="sico" style="color:var(--green)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div></div>
+        </div>
+        <div class="fb" style="margin:16px 0">
+          <span class="flbl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="13" height="13"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>Filters:</span>
+          <select id="tfc" onchange="rt()"><option value="">All Categories</option><option>Food Services</option><option>Facilities</option><option>Library</option><option>Hostel</option><option>Security</option><option>IT Services</option><option>Transport</option><option>Administration</option></select>
+          <select id="tfp" onchange="rt()"><option value="">All Priority</option><option value="High">High</option><option value="Medium">Medium</option><option value="Low">Low</option></select>
+          <span class="slbl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="13" height="13"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>Sort by:</span>
+          <select id="tso" onchange="rt()"><option value="new">Newest</option><option value="old">Oldest</option><option value="votes">Most Upvoted</option></select>
         </div>
         <div id="tlist"></div>
       </div>
@@ -559,6 +817,22 @@ select:focus{border-color:var(--blue)}
       <button class="nl" id="alink4" onclick="go('admin')" style="display:none"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/></svg>Admin</button>
     </div>
     <div class="na">
+      <button class="ham-toggle" onclick="toggleSidebar()" aria-label="Menu">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="20" height="20"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <button class="ls-trigger" id="lsTrigger4" onclick="toggleLivePopout(event)" title="Live Status">
+        <span class="ls-dot"></span>
+        Live
+      </button>
+      <div class="ls-popout" id="lsPopout4">
+        <h4><span class="ls-dot"></span>Today's Status</h4>
+        <div class="ls-row"><span>Received today</span><span class="ls-val" id="lsReceived4">—</span></div>
+        <div class="ls-row"><span>Total received</span><span class="ls-val" id="lsTotal4">—</span></div>
+        <div class="ls-row" style="border-bottom:none;padding-top:12px;margin-top:8px;border-top:1px solid var(--border)"><span>User Activity</span><span class="ls-val" id="lsActive4">—</span></div>
+      </div>
+      <button class="theme-toggle" id="themeToggle4" onclick="toggleTheme()" title="Toggle theme">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="16" height="16"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+      </button>
       <div class="av-wrap" style="margin-right:10px;">
         <button class="av" id="bellBtn4" style="background:transparent;color:var(--sub)" onclick="toggleNotif(event)" aria-label="Notifications">
           <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="18" height="18">
@@ -567,7 +841,7 @@ select:focus{border-color:var(--blue)}
           </svg>
           <span id="notifDot4" class="notifDot"></span>
         </button>
-        <div class="profile-dd" id="notifPanel4" style="display:none;min-width:320px;right:0;left:auto;animation:none">
+        <div class="profile-dd" id="notifPanel4" style="min-width:320px;right:0;left:auto;animation:none">
           <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;">
             <span style="font-size:13px;font-weight:700;color:var(--text);">Notifications</span>
             <div style="display:flex;align-items:center;gap:8px;">
@@ -599,9 +873,21 @@ select:focus{border-color:var(--blue)}
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="12" y2="15"/></svg>
         Track Status
       </button>
+      <button id="side_student_active3" class="sideItem" onclick="go('studentActive')" style="display:flex">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        Active Cases
+      </button>
       <button id="side_student_resolved3" class="sideItem act" onclick="go('studentResolved')" style="display:flex">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 4 12 14.01 9 11.01"/></svg>
         Resolved
+      </button>
+      <button id="side_student_analytics3" class="sideItem" onclick="go('studentAnalytics')" style="display:flex">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 20V10m-6 10V4M6 20v-6"/></svg>
+        Analytics
+      </button>
+      <button class="sideItem add-btn" onclick="openM()">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Complaint
       </button>
     </aside>
 
@@ -615,11 +901,201 @@ select:focus{border-color:var(--blue)}
             <div class="pt"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>Filters</div>
             <div class="fp" style="flex-direction:row;align-items:end">
               <div class="fg2"><label>Facilities</label><select id="srf" onchange="onStudentResolvedFilter()"><option value="">All Facilities</option><option>Food</option><option>Library</option><option>Hostel</option><option>Infrastructure</option><option>Staff</option><option>IT</option><option>Transport</option><option>Administration</option><option>Others</option></select></div>
+              <div class="fg2"><label>Priority</label><select id="srpri" onchange="onStudentResolvedFilter()"><option value="">All Priority</option><option value="High">High</option><option value="Medium">Medium</option><option value="Low">Low</option></select></div>
               <div class="fg2"><label>Sort</label><select id="srp" onchange="onStudentResolvedFilter()"><option value="new">Newest</option><option value="old">Oldest</option><option value="votes">Most Upvoted</option></select></div>
             </div>
           </div>
         </div>
         <div id="srlist"></div>
+      </div>
+    </main>
+  </div>
+</div>
+<!-- STUDENT ACTIVE -->
+<div id="pg-studentActive" class="page">
+  <nav class="nav">
+    <div class="nb"><div class="ni" style="background:transparent"><img src="/College%20Complaint%20System.png" alt="SafeVoice" style="width:52px;height:52px;object-fit:contain"></div><div><h3>SafeVoice</h3><p>College Complaint System</p></div></div>
+    <div class="nls">
+      <button class="nl" id="alink5" onclick="go('admin')" style="display:none"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/></svg>Admin</button>
+    </div>
+    <div class="na">
+      <button class="ham-toggle" onclick="toggleSidebar()" aria-label="Menu">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="20" height="20"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <button class="ls-trigger" id="lsTrigger6" onclick="toggleLivePopout(event)" title="Live Status">
+        <span class="ls-dot"></span>
+        Live
+      </button>
+      <div class="ls-popout" id="lsPopout6">
+        <h4><span class="ls-dot"></span>Today's Status</h4>
+        <div class="ls-row"><span>Received today</span><span class="ls-val" id="lsReceived6">—</span></div>
+        <div class="ls-row"><span>Total received</span><span class="ls-val" id="lsTotal6">—</span></div>
+        <div class="ls-row" style="border-bottom:none;padding-top:12px;margin-top:8px;border-top:1px solid var(--border)"><span>User Activity</span><span class="ls-val" id="lsActive6">—</span></div>
+      </div>
+      <button class="theme-toggle" id="themeToggle6" onclick="toggleTheme()" title="Toggle theme">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="16" height="16"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+      </button>
+      <div class="av-wrap" style="margin-right:10px;">
+        <button class="av" id="bellBtn6" style="background:transparent;color:var(--sub)" onclick="toggleNotif(event)" aria-label="Notifications">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="18" height="18">
+            <path d="M18 8a6 6 0 10-12 0c0 7-3 7-3 7h18s-3 0-3-7"/>
+            <path d="M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+          <span id="notifDot6" class="notifDot"></span>
+        </button>
+        <div class="profile-dd" id="notifPanel6" style="min-width:320px;right:0;left:auto;animation:none">
+          <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;">
+            <span style="font-size:13px;font-weight:700;color:var(--text);">Notifications</span>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <button style="background:none;border:none;color:var(--blue);font-weight:700;cursor:pointer;font-size:13px" onclick="markAllRead()">Mark all read</button>
+            </div>
+          </div>
+          <div id="notifList6"></div>
+        </div>
+      </div>
+      <div class="av-wrap">
+        <button class="av" id="av6" onclick="toggleDD(event)">S</button>
+        <div class="profile-dd" id="dd6">
+          <div class="dd-email" id="dd-email6">student@college.edu</div>
+          <button class="dd-item" onclick="openResetPassword()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6"/><path d="M23 11h-6"/></svg>Reset Password</button>
+          <button class="dd-item" onclick="signOut()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <div class="studentShell">
+    <aside class="studentSide">
+      <button id="side_student_home4" class="sideItem" onclick="go('home')" style="display:flex">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Home
+      </button>
+      <button id="side_student_track4" class="sideItem" onclick="go('track')" style="display:flex">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="12" y2="15"/></svg>
+        Track Status
+      </button>
+      <button id="side_student_active4" class="sideItem act" onclick="go('studentActive')" style="display:flex">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        Active Cases
+      </button>
+      <button id="side_student_resolved4" class="sideItem" onclick="go('studentResolved')" style="display:flex">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        Resolved
+      </button>
+      <button id="side_student_analytics4" class="sideItem" onclick="go('studentAnalytics')" style="display:flex">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 20V10m-6 10V4M6 20v-6"/></svg>
+        Analytics
+      </button>
+      <button class="sideItem add-btn" onclick="openM()">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Complaint
+      </button>
+    </aside>
+    <main class="studentMain">
+      <div class="hc">
+        <div style="margin:24px 0 16px"><h2 style="margin:0">Active Cases</h2><p style="font-size:13px;color:var(--sub);margin:4px 0 0">Complaints that are pending or under review</p></div>
+        <div class="fb">
+          <span class="flbl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="13" height="13"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>Filters:</span>
+          <select id="fs2" onchange="rfActive()"><option value="">All Status</option><option>Pending</option><option>Under Review</option></select>
+          <select id="fc2" onchange="rfActive()"><option value="">All Categories</option><option>Food Services</option><option>Facilities</option><option>Library</option><option>Hostel</option><option>Security</option><option>IT Services</option><option>Transport</option><option>Administration</option></select>
+          <select id="fp2" onchange="rfActive()"><option value="">All Priority</option><option value="High">High</option><option value="Medium">Medium</option><option value="Low">Low</option></select>
+          <span class="slbl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="13" height="13"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>Sort by:</span>
+          <select id="so2" onchange="rfActive()"><option value="votes">Most Liked</option><option value="new">Newest</option><option value="old">Oldest</option></select>
+        </div>
+        <div class="fh"><h2>Active Complaint Feed</h2><span id="cnt2"></span></div>
+        <div id="feed2"><div class="loading">Loading active complaints…</div></div>
+      </div>
+    </main>
+  </div>
+</div>
+<!-- STUDENT ANALYTICS -->
+<div id="pg-studentAnalytics" class="page">
+  <nav class="nav">
+    <div class="nb"><div class="ni" style="background:transparent"><img src="/College%20Complaint%20System.png" alt="SafeVoice" style="width:52px;height:52px;object-fit:contain"></div><div><h3>SafeVoice</h3><p>College Complaint System</p></div></div>
+    <div class="nls">
+      <button class="nl" id="alink7" onclick="go('admin')" style="display:none"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/></svg>Admin</button>
+    </div>
+    <div class="na">
+      <button class="ham-toggle" onclick="toggleSidebar()" aria-label="Menu">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="20" height="20"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <button class="ls-trigger" id="lsTrigger7" onclick="toggleLivePopout(event)" title="Live Status">
+        <span class="ls-dot"></span>
+        Live
+      </button>
+      <div class="ls-popout" id="lsPopout7">
+        <h4><span class="ls-dot"></span>Today's Status</h4>
+        <div class="ls-row"><span>Received today</span><span class="ls-val" id="lsReceived7">—</span></div>
+        <div class="ls-row"><span>Total received</span><span class="ls-val" id="lsTotal7">—</span></div>
+        <div class="ls-row" style="border-bottom:none;padding-top:12px;margin-top:8px;border-top:1px solid var(--border)"><span>User Activity</span><span class="ls-val" id="lsActive7">—</span></div>
+      </div>
+      <button class="theme-toggle" id="themeToggle7" onclick="toggleTheme()" title="Toggle theme">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="16" height="16"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+      </button>
+      <div class="av-wrap" style="margin-right:10px;">
+        <button class="av" id="bellBtn7" style="background:transparent;color:var(--sub)" onclick="toggleNotif(event)" aria-label="Notifications">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="18" height="18">
+            <path d="M18 8a6 6 0 10-12 0c0 7-3 7-3 7h18s-3 0-3-7"/>
+            <path d="M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+          <span id="notifDot7" class="notifDot"></span>
+        </button>
+        <div class="profile-dd" id="notifPanel7" style="min-width:320px;right:0;left:auto;animation:none">
+          <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;">
+            <span style="font-size:13px;font-weight:700;color:var(--text);">Notifications</span>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <button style="background:none;border:none;color:var(--blue);font-weight:700;cursor:pointer;font-size:13px" onclick="markAllRead()">Mark all read</button>
+            </div>
+          </div>
+          <div id="notifList7"></div>
+        </div>
+      </div>
+      <div class="av-wrap">
+        <button class="av" id="av7" onclick="toggleDD(event)">S</button>
+        <div class="profile-dd" id="dd7">
+          <div class="dd-email" id="dd-email7">student@college.edu</div>
+          <button class="dd-item" onclick="openResetPassword()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6"/><path d="M23 11h-6"/></svg>Reset Password</button>
+          <button class="dd-item" onclick="signOut()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+  <div class="studentShell">
+    <aside class="studentSide">
+      <button id="side_student_home5" class="sideItem" onclick="go('home')" style="display:flex">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Home
+      </button>
+      <button id="side_student_track5" class="sideItem" onclick="go('track')" style="display:flex">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="12" y2="15"/></svg>
+        Track Status
+      </button>
+      <button id="side_student_active5" class="sideItem" onclick="go('studentActive')" style="display:flex">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        Active Cases
+      </button>
+      <button id="side_student_resolved5" class="sideItem" onclick="go('studentResolved')" style="display:flex">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        Resolved
+      </button>
+      <button id="side_student_analytics5" class="sideItem act" onclick="go('studentAnalytics')" style="display:flex">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 20V10m-6 10V4M6 20v-6"/></svg>
+        Analytics
+      </button>
+      <button class="sideItem add-btn" onclick="openM()">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Complaint
+      </button>
+    </aside>
+    <main class="studentMain">
+      <div class="hc">
+        <div style="margin:24px 0 16px"><h2 style="margin:0">Analytics</h2><p style="font-size:13px;color:var(--sub);margin:4px 0 0">Overview of your complaint statistics</p></div>
+        <div class="fb" style="margin-bottom:20px">
+          <span class="flbl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="13" height="13"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>Filters:</span>
+          <select id="afc" onchange="loadStudentAnalytics()"><option value="">All Categories</option><option>Food Services</option><option>Facilities</option><option>Library</option><option>Hostel</option><option>Security</option><option>IT Services</option><option>Transport</option><option>Administration</option></select>
+          <select id="afp" onchange="loadStudentAnalytics()"><option value="">All Priority</option><option value="High">High</option><option value="Medium">Medium</option><option value="Low">Low</option></select>
+        </div>
+        <div class="welcome-stats" id="analyticsStats"></div>
+        <div class="ap" style="margin-top:20px"><div class="pt">Status Overview</div><div id="analyticsProgress" style="padding:16px 0"></div></div>
       </div>
     </main>
   </div>
@@ -638,7 +1114,21 @@ select:focus{border-color:var(--blue)}
     </div>
     <div class="nls"></div>
     <div class="na">
-
+      <button class="ham-toggle" onclick="toggleSidebar()" aria-label="Menu">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="20" height="20"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <button class="ls-trigger" id="lsTrigger5" onclick="toggleLivePopout(event)" title="Live Status">
+        <span class="ls-dot"></span>
+        Live
+      </button>
+      <div class="ls-popout" id="lsPopout5">
+        <h4><span class="ls-dot"></span>Today's Status</h4>
+        <div class="ls-row"><span>Received today</span><span class="ls-val" id="lsReceived5">—</span></div>
+        <div class="ls-row"><span>Total received</span><span class="ls-val" id="lsTotal5">—</span></div>
+      </div>
+      <button class="theme-toggle" id="themeToggle5" onclick="toggleTheme()" title="Toggle theme">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="16" height="16"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+      </button>
       <div class="av-wrap" style="margin-right:10px;">
         <button class="av" id="bellBtn" style="background:transparent;color:var(--sub)" onclick="toggleNotif(event)" aria-label="Notifications">
           <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="18" height="18">
@@ -647,7 +1137,7 @@ select:focus{border-color:var(--blue)}
           </svg>
           <span id="notifDot" class="notifDot"></span>
         </button>
-        <div class="profile-dd" id="notifPanel" style="display:none;min-width:320px;right:0;left:auto;animation:none">
+        <div class="profile-dd" id="notifPanel" style="min-width:320px;right:0;left:auto;animation:none">
           <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;">
             <span style="font-size:13px;font-weight:700;color:var(--text);">Notifications</span>
             <div style="display:flex;align-items:center;gap:8px;">
@@ -912,15 +1402,18 @@ async function login() {
 }
 function afterLogin() {
   const initials = currentUser.role === 'admin' ? 'A' : 'S';
-  ['av1','av2','av3','av4'].forEach(id => {
+  ['av1','av2','av3','av4','av6','av7'].forEach(id => {
     const el = document.getElementById(id); if (el) el.textContent = initials;
   });
-  ['dd-email1','dd-email2','dd-email3','dd-email4'].forEach(id => {
+  ['dd-email1','dd-email2','dd-email3','dd-email4','dd-email6','dd-email7'].forEach(id => {
     const el = document.getElementById(id); if (el) el.textContent = currentUser.email;
   });
   const isAdmin = currentUser.role === 'admin';
+  // Set welcome hero name
+  const wn = document.getElementById('welcomeName');
+  if (wn) wn.textContent = currentUser.name || (isAdmin ? 'Admin' : 'Student');
   // Show Admin navigation only for admins
-  ['alink','alink2','alink4'].forEach(id => {
+  ['alink','alink2','alink4','alink5','alink7'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = isAdmin ? 'flex' : 'none';
   });
@@ -942,6 +1435,9 @@ function afterLogin() {
   // Go to admin dashboard for admins; otherwise home for students.
   // Also set sidebar active state.
   go(isAdmin ? 'admin' : 'home');
+
+  // Live status widget (students)
+  if (!isAdmin) fetchLiveStatus();
 
 
 
@@ -1071,8 +1567,21 @@ function go(p) {
     if (shHome3) shHome3.classList.add('act');
     if (shTrack3) shTrack3.classList.remove('act');
     if (shResolved3) shResolved3.classList.remove('act');
+
+    ['side_student_active','side_student_analytics',
+     'side_student_active2','side_student_analytics2',
+     'side_student_active3','side_student_analytics3',
+     'side_student_active4','side_student_analytics4',
+     'side_student_active5','side_student_analytics5'
+    ].forEach(id => { const el = document.getElementById(id); if (el) el.classList.remove('act'); });
   }
   if (p === 'track') {
+    ['side_student_active','side_student_analytics',
+     'side_student_active2','side_student_analytics2',
+     'side_student_active3','side_student_analytics3',
+     'side_student_active4','side_student_analytics4',
+     'side_student_active5','side_student_analytics5'
+    ].forEach(id => { const el = document.getElementById(id); if (el) el.classList.remove('act'); });
     if (adminPage) adminPage.style.display = 'none';
     rt();
 
@@ -1123,6 +1632,43 @@ function go(p) {
     if (shHome3) shHome3.classList.remove('act');
     if (shTrack3) shTrack3.classList.remove('act');
     if (shResolved3) shResolved3.classList.add('act');
+
+    ['side_student_active','side_student_analytics',
+     'side_student_active2','side_student_analytics2',
+     'side_student_active3','side_student_analytics3',
+     'side_student_active4','side_student_analytics4',
+     'side_student_active5','side_student_analytics5'
+    ].forEach(id => { const el = document.getElementById(id); if (el) el.classList.remove('act'); });
+  }
+
+  if (p === 'studentActive') {
+    if (adminPage) adminPage.style.display = 'none';
+    closeM();
+    document.getElementById('fs').value = '';
+    // Show only Pending + Under Review
+    loadActiveComplaints();
+
+    ['side_student_home','side_student_track','side_student_resolved','side_student_analytics',
+     'side_student_home2','side_student_track2','side_student_resolved2','side_student_analytics2',
+     'side_student_home3','side_student_track3','side_student_resolved3','side_student_analytics3'
+    ].forEach(id => { const el = document.getElementById(id); if (el) el.classList.remove('act'); });
+    ['side_student_active','side_student_active2','side_student_active3'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.classList.add('act');
+    });
+  }
+
+  if (p === 'studentAnalytics') {
+    if (adminPage) adminPage.style.display = 'none';
+    closeM();
+    loadStudentAnalytics();
+
+    ['side_student_home','side_student_track','side_student_resolved','side_student_active',
+     'side_student_home2','side_student_track2','side_student_resolved2','side_student_active2',
+     'side_student_home3','side_student_track3','side_student_resolved3','side_student_active3'
+    ].forEach(id => { const el = document.getElementById(id); if (el) el.classList.remove('act'); });
+    ['side_student_analytics','side_student_analytics2','side_student_analytics3'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.classList.add('act');
+    });
   }
 
   if (p === 'admin') {
@@ -1218,6 +1764,7 @@ function go(p) {
 }
 function toggleDD(e) {
   e.stopPropagation();
+  document.querySelectorAll('.ls-popout.open').forEach(p => p.classList.remove('open'));
   // If any notification overlay is open, close it so it never blocks dropdowns
   const ov=document.getElementById('notifOverlay');
   if (ov && ov.classList.contains('open')) ov.classList.remove('open');
@@ -1347,7 +1894,8 @@ async function resetPassword(btnEl) {
 
 document.addEventListener('click', () => {
   document.querySelectorAll('.profile-dd').forEach(d => d.classList.remove('open'));
-  closeNotifPanel();
+  document.querySelectorAll('.ls-popout').forEach(d => d.classList.remove('open'));
+  document.querySelectorAll('[id^="notifPanel"]').forEach(p => p.classList.remove('open'));
 });
 
 // Stop overlay clicks from bubbling to the document handler.
@@ -1359,30 +1907,35 @@ if (__notifOverlayEl) {
   });
 }
 function closeNotifPanel(){
-  // There are multiple nav instances; just hide dropdown panels if present.
   document.querySelectorAll('[id^="notifPanel"]').forEach(panel => {
     if (!panel) return;
-    panel.style.display = 'none';
     panel.classList.remove('open');
   });
 }
 function toggleNotif(e) {
   e.stopPropagation();
+  document.querySelectorAll('.ls-popout.open').forEach(p => p.classList.remove('open'));
+  document.querySelectorAll('.profile-dd.open').forEach(d => d.classList.remove('open'));
   token = sessionStorage.getItem('sv_token') || null;
-  closeNotifPanel();
-
-  // Find the dropdown panel next to the clicked bell button
   const btn = e.currentTarget;
   const panel = btn.parentElement?.querySelector('.profile-dd');
   if (!panel) return;
-
   const isOpen = panel.classList.contains('open');
-  closeNotifPanel();
+  panel.classList.remove('open');
   if (!isOpen) {
-    panel.style.display = '';
     panel.classList.add('open');
     fetchNotifications();
   }
+}
+function toggleLivePopout(e) {
+  e.stopPropagation();
+  document.querySelectorAll('.profile-dd.open').forEach(d => d.classList.remove('open'));
+  const btn = e.currentTarget;
+  const popout = btn.nextElementSibling;
+  if (!popout || !popout.classList.contains('ls-popout')) return;
+  const isOpen = popout.classList.contains('open');
+  document.querySelectorAll('.ls-popout.open').forEach(p => p.classList.remove('open'));
+  if (!isOpen) popout.classList.add('open');
 }
 let notifCache = [];
 async function fetchNotifications() {
@@ -1394,6 +1947,25 @@ async function fetchNotifications() {
     console.error('fetchNotifications error:', e);
     const list = document.getElementById('notifListOverlay');
     if (list) list.innerHTML = `<div style="padding:14px 16px;color:var(--sub);font-size:13px;">Error: ${esc(e.message)}</div>`;
+  }
+}
+async function fetchLiveStatus() {
+  try {
+    const today = new Date();
+    const y = today.getFullYear();
+    const m = String(today.getMonth() + 1).padStart(2, '0');
+    const d = String(today.getDate()).padStart(2, '0');
+    const dateStr = `${y}-${m}-${d}`;
+    const data = await apiFetch('/complaints?all=1');
+    const all = data.complaints || [];
+    const todayReceived = all.filter(c => c.created_at && c.created_at.startsWith(dateStr)).length;
+    const todayResolved = all.filter(c => c.status === 'Resolved' && c.updated_at && c.updated_at.startsWith(dateStr)).length;
+    document.querySelectorAll('[id^="lsReceived"]').forEach(el => el.textContent = todayReceived);
+    document.querySelectorAll('[id^="lsTotal"]').forEach(el => el.textContent = all.length);
+    const activeData = await apiFetch('/users/active');
+    document.querySelectorAll('[id^="lsActive"]').forEach(el => el.textContent = activeData.active);
+  } catch (e) {
+    console.error('fetchLiveStatus error:', e);
   }
 }
 function syncNotifBadges() {
@@ -1441,12 +2013,14 @@ async function markAllRead() {
 }
 // ── Complaint Form ───────────────────────────────────────────────────────────
 function openM() {
-  document.getElementById('inp-bar').style.display = 'none';
+  const bar = document.getElementById('inp-bar');
+  if (bar) bar.style.display = 'none';
   document.getElementById('inline-form').classList.add('open');
 }
 function closeM() {
   document.getElementById('inline-form').classList.remove('open');
-  document.getElementById('inp-bar').style.display = 'flex';
+  const bar = document.getElementById('inp-bar');
+  if (bar) bar.style.display = 'flex';
   ['ct','cd'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
   selectedFiles = [];
   renderPhotoPreviews();
@@ -1559,26 +2133,102 @@ function cancelUpload() {
 async function rf() {
   const status   = document.getElementById('fs').value;
   const category = document.getElementById('fc').value;
+  const priority = document.getElementById('fp').value;
   const sort     = document.getElementById('so').value;
+  const search   = document.getElementById('hs')?.value || '';
   try {
     const params = new URLSearchParams();
     if (status)   params.set('status', status);
     if (category) params.set('category', category);
+    if (priority) params.set('priority', priority);
     if (sort)     params.set('sort', sort);
+    if (search)   params.set('search', search);
     const data = await apiFetch('/complaints?' + params);
-    allComplaints = data.complaints; // update cache
-    // Apply local filters for count display
+    allComplaints = data.complaints;
     const complaints = data.complaints;
-    document.getElementById('cnt').textContent =
-      complaints.length + ' complaint' + (complaints.length !== 1 ? 's' : '');
+    const cnt = document.getElementById('cnt');
+    if (cnt) cnt.textContent = complaints.length + ' complaint' + (complaints.length !== 1 ? 's' : '');
     document.getElementById('feed').innerHTML = complaints.length
       ? complaints.map(renderCard).join('')
       : '<div class="loading">No complaints found.</div>';
+    document.getElementById('hp').textContent = complaints.filter(c => c.status === 'Pending').length;
+    document.getElementById('hr').textContent = complaints.filter(c => c.status === 'Under Review').length;
+    document.getElementById('hres').textContent = complaints.filter(c => c.status === 'Resolved').length;
 
   } catch (e) {
     document.getElementById('feed').innerHTML = `<div class="loading">Error: ${e.message}</div>`;
   }
 }
+
+/* ── Active Cases (student) ────────────────────────────────────────── */
+async function loadActiveComplaints() {
+  document.getElementById('fs2').value = '';
+  document.getElementById('fc2').value = '';
+  document.getElementById('so2').value = 'new';
+  rfActive();
+}
+async function rfActive() {
+  const status   = document.getElementById('fs2').value;
+  const category = document.getElementById('fc2').value;
+  const priority = document.getElementById('fp2').value;
+  const sort     = document.getElementById('so2').value;
+  try {
+    const params = new URLSearchParams();
+    if (status)   params.set('status', status);
+    if (category) params.set('category', category);
+    if (priority) params.set('priority', priority);
+    if (sort)     params.set('sort', sort);
+    // Always filter to active only (Pending + Under Review)
+    params.set('active', '1');
+    const data = await apiFetch('/complaints?' + params);
+    const complaints = data.complaints || [];
+    document.getElementById('cnt2').textContent =
+      complaints.length + ' active complaint' + (complaints.length !== 1 ? 's' : '');
+    document.getElementById('feed2').innerHTML = complaints.length
+      ? complaints.map(renderCard).join('')
+      : '<div class="loading">No active complaints found.</div>';
+  } catch (e) {
+    document.getElementById('feed2').innerHTML = `<div class="loading">Error: ${e.message}</div>`;
+  }
+}
+
+/* ── Analytics (student) ───────────────────────────────────────────── */
+async function loadStudentAnalytics() {
+  const category = document.getElementById('afc')?.value || '';
+  const priority = document.getElementById('afp')?.value || '';
+  try {
+    const params = new URLSearchParams();
+    if (category) params.set('category', category);
+    if (priority) params.set('priority', priority);
+    params.set('all', '1');
+    const data = await apiFetch('/complaints?' + params);
+    const all = data.complaints || [];
+    const total = all.length;
+    const pending = all.filter(c => c.status === 'Pending').length;
+    const review = all.filter(c => c.status === 'Under Review').length;
+    const resolved = all.filter(c => c.status === 'Resolved').length;
+
+    document.getElementById('analyticsStats').innerHTML = `
+      <div class="stc"><div><div class="sl2">Total</div><div class="sn2">${total}</div></div><div class="si bl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg></div></div>
+      <div class="stc"><div><div class="sl2">Pending</div><div class="sn2">${pending}</div></div><div class="si ye"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div></div>
+      <div class="stc"><div><div class="sl2">Under Review</div><div class="sn2">${review}</div></div><div class="si bl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div></div>
+      <div class="stc"><div><div class="sl2">Resolved</div><div class="sn2">${resolved}</div></div><div class="si gr"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div></div>
+    `;
+
+    // Status progress bars
+    const pPct = total ? Math.round(pending/total*100) : 0;
+    const rPct = total ? Math.round(review/total*100) : 0;
+    const sPct = total ? Math.round(resolved/total*100) : 0;
+    document.getElementById('analyticsProgress').innerHTML = `
+      <div class="an-bar"><span class="an-lbl">Resolved</span><div class="an-track"><div class="an-fill" style="width:${sPct}%;background:#10B981"></div></div><span class="an-val">${sPct}%</span></div>
+      <div class="an-bar"><span class="an-lbl">Under Review</span><div class="an-track"><div class="an-fill" style="width:${rPct}%;background:#3B82F6"></div></div><span class="an-val">${rPct}%</span></div>
+      <div class="an-bar"><span class="an-lbl">Pending</span><div class="an-track"><div class="an-fill" style="width:${pPct}%;background:#F59E0B"></div></div><span class="an-val">${pPct}%</span></div>
+    `;
+  } catch (e) {
+    document.getElementById('analyticsStats').innerHTML = `<div class="loading">Error: ${e.message}</div>`;
+  }
+}
+
 function renderCard(c) {
   const firstAtt = (c.attachments && c.attachments.length) ? c.attachments[0] : null;
   const attHtml = firstAtt
@@ -1592,7 +2242,7 @@ function renderCard(c) {
     : (typeof c.comments === 'number' ? c.comments : null);
 
   return `
-    <div class="cc" data-cid="${c.id}">
+    <div class="cc" data-cid="${c.id}" data-priority="${esc(c.pri)}">
       <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;">
         <div style="flex:1;min-width:0;">
           <div class="ct">${esc(c.title)}</div>
@@ -2151,6 +2801,16 @@ function filterTrackView(type, value) {
   renderTrackList();
 }
 
+function filterHomeView(type, value) {
+  const sel = document.getElementById('fs');
+  if (sel.value === value) {
+    sel.value = '';
+  } else {
+    sel.value = value;
+  }
+  rf();
+}
+
 function renderTrackList() {
   const list = trackFilter
     ? __trackAllComplaints.filter(c => c[trackFilter.type] === trackFilter.value)
@@ -2164,7 +2824,7 @@ function renderTrackList() {
           ? c.comments_count
           : (typeof c.comments === 'number' ? c.comments : null);
         return `
-       <div class="tcard" style="cursor:pointer" onclick="openComplaintDetail(${c.id}, { complaint: __trackComplaints[${c.id}] })" data-cid="${c.id}">
+       <div class="tcard" style="cursor:pointer" onclick="openComplaintDetail(${c.id}, { complaint: __trackComplaints[${c.id}] })" data-cid="${c.id}" data-priority="${esc(c.pri)}">
         <div class="tch"><h3>${esc(c.title)}</h3><span onclick="event.stopPropagation();filterTrackView('status','${c.status}')" style="cursor:pointer">${sp(c.status)}</span></div>
         <p class="tdesc">${esc(c.desc)}</p>
         <div class="pr"><span>Status</span><span>${c.status}</span></div>
@@ -2189,10 +2849,15 @@ function renderTrackList() {
 
 async function rt() {
   const q = (document.getElementById('ts')?.value || '').toLowerCase();
+  const category = document.getElementById('tfc')?.value || '';
+  const priority = document.getElementById('tfp')?.value || '';
+  const sort = document.getElementById('tso')?.value || 'new';
   try {
     const params = new URLSearchParams();
-    params.set('sort', 'new');
+    params.set('sort', sort);
     if (q) params.set('search', q);
+    if (category) params.set('category', category);
+    if (priority) params.set('priority', priority);
     const data = await apiFetch('/complaints/my?' + params);
     const list = data.complaints;
     __trackAllComplaints = list;
@@ -2366,7 +3031,7 @@ async function ra() {
               <div class="stc" onclick="filterAdminView('pri','Medium');filterSensitiveView('pri','Medium')" style="cursor:pointer"><div><div class="sl2" style="color:var(--orange)">Medium Priority</div><div class="sn2" style="color:var(--orange)">${s.mediumPri}</div></div><div class="si mo"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div></div>
 
 
-              <div class="stc" onclick="filterAdminView('pri','Low');filterSensitiveView('pri','Low')" style="cursor:pointer"><div><div class="sl2" style="color:var(--green)">Low Priority</div><div class="sn2" style="color:var(--green)">${s.lowPri}</div></div><div class="si lo"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div></div>
+              <div class="stc" onclick="filterAdminView('pri','Low');filterSensitiveView('pri','Low')" style="cursor:pointer"><div><div class="sl2" style="color:#EAB308">Low Priority</div><div class="sn2" style="color:#EAB308">${s.lowPri}</div></div><div class="si lo"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="19" height="19"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg></div></div>
 
 `;
 
@@ -2551,10 +3216,12 @@ async function loadStudentResolvedComplaints() {
 
   try {
     const fac = document.getElementById('srf')?.value || '';
+    const pri = document.getElementById('srpri')?.value || '';
     const sort = document.getElementById('srp')?.value || 'new';
     const params = new URLSearchParams();
     if (sort) params.set('sort', sort);
     if (fac) params.set('faculty', fac);
+    if (pri) params.set('priority', pri);
     const qs = params.toString();
     const url = qs ? '/complaints/resolved/public?' + qs : '/complaints/resolved/public';
 
@@ -2578,7 +3245,7 @@ async function loadStudentResolvedComplaints() {
         html += '<div style="margin-bottom:6px;"><h2 style="font-size:15px;font-weight:700;display:flex;align-items:center;gap:8px;"><span class="pill p-hi">Sensitive</span></h2></div>';
         html += sensitive.map(function(c) {
           return (
-            '<div class="acard" data-cid="' + c.id + '">' +
+            '<div class="acard" data-cid="' + c.id + '" data-priority="' + esc(c.pri) + '">' +
               '<div class="at" style="cursor:pointer" onclick="openComplaintDetail(' + c.id + ')">' + esc(c.title) + '</div>' +
               '<div class="ad" style="cursor:pointer" onclick="openComplaintDetail(' + c.id + ')">' + esc(c.desc) + '</div>' +
               '<div class="atags">' + sp(c.status) + '<span class="pill p-cat">' + esc(c.faculty) + '</span>' + pp(c.pri) + '</div>' +
@@ -2599,7 +3266,7 @@ async function loadStudentResolvedComplaints() {
       } else {
         html += regular.map(function(c) {
           return (
-            '<div class="acard" data-cid="' + c.id + '">' +
+            '<div class="acard" data-cid="' + c.id + '" data-priority="' + esc(c.pri) + '">' +
               '<div class="at" style="cursor:pointer" onclick="openComplaintDetail(' + c.id + ')">' + esc(c.title) + '</div>' +
               '<div class="ad" style="cursor:pointer" onclick="openComplaintDetail(' + c.id + ')">' + esc(c.desc) + '</div>' +
               '<div class="atags">' + sp(c.status) + '<span class="pill p-cat">' + esc(c.faculty) + '</span>' + pp(c.pri) + '</div>' +
@@ -3204,6 +3871,35 @@ if (regPw2) regPw2.addEventListener('keydown', e => { if (e.key === 'Enter') reg
     token = null;
     sessionStorage.removeItem('sv_token');
   }
+})();
+
+/* ── Sidebar Toggle (mobile) ───────────────────────────────────────── */
+function toggleSidebar() {
+  const sides = document.querySelectorAll('.adminSide, .studentSide');
+  sides.forEach(s => s.classList.toggle('open'));
+}
+// Close sidebar on outside click
+document.addEventListener('click', function(e) {
+  if (window.innerWidth > 860) return;
+  const ham = e.target.closest('.ham-toggle');
+  const side = e.target.closest('.adminSide, .studentSide');
+  if (!ham && !side) {
+    document.querySelectorAll('.adminSide.open, .studentSide.open').forEach(s => s.classList.remove('open'));
+  }
+});
+
+/* ── Theme Toggle ──────────────────────────────────────────────────── */
+function toggleTheme() {
+  const html = document.documentElement;
+  const current = html.getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  localStorage.setItem('sv-theme', next);
+}
+// Initialize theme from localStorage
+(function() {
+  const saved = localStorage.getItem('sv-theme');
+  if (saved) document.documentElement.setAttribute('data-theme', saved);
 })();
 </script>
 </body>

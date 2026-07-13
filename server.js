@@ -16,6 +16,7 @@ const complaintsRouter = require('./routes/complaints');
 const notificationsRouter = require('./routes/notifications');
 const commentsRouter = require('./routes/comments');
 const adminRouter = require('./routes/admin');
+const usersRouter = require('./routes/users');
 
 
 
@@ -39,6 +40,7 @@ app.use('/api/complaints', complaintsRouter);
 app.use('/api/notifications', notificationsRouter);
 app.use('/api/comments', commentsRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api/users', usersRouter);
 
 
 // Health check

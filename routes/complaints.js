@@ -298,7 +298,7 @@ router.get('/my', requireAuth, async (req, res) => {
     // Student track-page currently supports `faculty`.
     // UI home filter sends `category` values (Food Services | Facilities | Library | Hostel | Security).
     // Map `category` -> DB faculty so the student track list can filter properly too.
-    const { status, faculty: facultyRaw, sort = 'new', search, category } = req.query;
+    const { status, faculty: facultyRaw, sort = 'new', search, category, priority } = req.query;
 
     let faculty = null;
     if (facultyRaw && VALID_FACULTIES.includes(facultyRaw)) {
@@ -326,10 +326,35 @@ router.get('/my', requireAuth, async (req, res) => {
       sql += ' AND faculty = ?';
       params.push(faculty);
     }
+
+    if (category && VALID_CATEGORIES.includes(category)) {
+      const catToFaculty = {
+        'Food Services': 'Food',
+        'Facilities': 'Infrastructure',
+        'Library': 'Library',
+        'Hostel': 'Hostel',
+        'Security': 'Staff',
+      };
+      const facVal = catToFaculty[category];
+      if (facVal) {
+        sql += ' AND faculty = ?';
+        params.push(facVal);
+      }
+    }
+
+    if (priority && VALID_PRIORITIES.includes(priority)) {
+      sql += ' AND priority = ?';
+      params.push(priority);
+    }
+
     if (search) {
       const like = `%${search}%`;
       sql += ' AND (title LIKE ? OR description LIKE ?)';
       params.push(like, like);
+    }
+    if (priority && VALID_PRIORITIES.includes(priority)) {
+      sql += ' AND priority = ?';
+      params.push(priority);
     }
 
     const orderMap = { votes: 'votes DESC', new: 'created_at DESC', old: 'created_at ASC' };
@@ -368,16 +393,18 @@ router.get('/my', requireAuth, async (req, res) => {
 // - faculty filter (admin) => query param `faculty` (DB column: complaints.faculty)
 router.get('/', requireAuth, async (req, res) => {
   try {
-    const { status, faculty, category, sort = 'votes', search } = req.query;
+    const { status, faculty, category, priority, sort = 'votes', search, all } = req.query;
 
     let sql = 'SELECT *, (SELECT COUNT(*) FROM comments WHERE complaint_id = complaints.id) AS comments_count FROM complaints WHERE 1=1';
     const params = [];
 
     // All users (including admins) only see non-sensitive complaints in the regular feed
     sql += ' AND is_sensitive = 0';
-    // Filter out resolved complaints (they go to resolved page)
-    sql += ' AND status != ?';
-    params.push('Resolved');
+    // Filter out resolved complaints (they go to resolved page) unless ?all=1
+    if (all !== '1') {
+      sql += ' AND status != ?';
+      params.push('Resolved');
+    }
 
     if (status && VALID_STATUSES.includes(status)) {
       sql += ' AND status = ?';
@@ -387,6 +414,11 @@ router.get('/', requireAuth, async (req, res) => {
     if (faculty && VALID_FACULTIES.includes(faculty)) {
       sql += ' AND faculty = ?';
       params.push(faculty);
+    }
+
+    if (priority && VALID_PRIORITIES.includes(priority)) {
+      sql += ' AND priority = ?';
+      params.push(priority);
     }
 
     // Home “Categories” dropdown sends query param `category` values like:
@@ -451,7 +483,7 @@ router.get('/', requireAuth, async (req, res) => {
 // GET /api/complaints/resolved/public — non-sensitive resolved for all users
 router.get('/resolved/public', requireAuth, async (req, res) => {
   try {
-    const { faculty, sort = 'new', search } = req.query;
+    const { faculty, priority, category, sort = 'new', search } = req.query;
 
     let sql = "SELECT *, (SELECT COUNT(*) FROM comments WHERE complaint_id = complaints.id) AS comments_count FROM complaints WHERE status = ? AND is_sensitive = 0";
     const params = ['Resolved'];
