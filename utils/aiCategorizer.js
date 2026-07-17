@@ -92,8 +92,8 @@ Guidelines:
 
     const candidateModels = [
       process.env.GEMINI_MODEL,
-      'gemini-2.5-flash',
-      'gemini-2.5-flash-lite',
+      'gemini-3.5-flash',
+      'gemini-2.5-pro',
     ].filter(Boolean);
 
     let lastErr;

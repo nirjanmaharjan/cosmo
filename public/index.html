@@ -445,11 +445,74 @@ select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
 .cdCommentTime{font-size:11px;color:var(--sub)}
 .cdCommentText{font-size:13px;color:var(--sub);line-height:1.6;white-space:pre-wrap;margin-top:6px}
 .cdCommentActions{display:flex;gap:8px;align-items:center;margin-top:10px;flex-wrap:wrap}
+.cdChatList{display:flex;flex-direction:column;gap:8px;margin-top:8px;max-height:300px;overflow-y:auto}
+.cdChatMsg{background:var(--card-bg);border:1px solid var(--glass-border);border-radius:var(--radius-sm);padding:10px 12px}
+.cdChatMsg.mine{background:var(--blue-l);border-color:var(--blue)}
+.cdChatMsgTop{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:4px}
+.cdChatAuthor{font-size:11px;font-weight:700;color:var(--sub)}
+.cdChatMsg.mine .cdChatAuthor{color:var(--blue)}
+.cdChatTime{font-size:10px;color:var(--sub)}
+.cdChatText{font-size:13px;color:var(--text);line-height:1.5;white-space:pre-wrap}
+/* ── FULL-PAGE CHAT ──────────────────────────────────────────────── */
+.pg-chat-wrap{display:flex;flex-direction:column;height:100vh;background:#f0f2f5}
+[data-theme="dark"] .pg-chat-wrap{background:#111318}
+.pg-chat-header{display:flex;align-items:center;gap:12px;padding:14px 20px;border-bottom:1px solid var(--border);background:var(--card-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur)}
+.pg-chat-header .back-btn{background:none;border:none;color:var(--blue);cursor:pointer;font-size:22px;line-height:1;padding:4px 8px;border-radius:8px}
+.pg-chat-header .back-btn:hover{background:rgba(37,99,235,0.1)}
+.pg-chat-header .title{font-size:15px;font-weight:700;color:var(--text)}
+.pg-chat-header .sub{font-size:12px;color:var(--sub)}
+.pg-chat-body{flex:1;display:flex;overflow:hidden}
+.pg-chat-box{width:100%;max-width:640px;margin:0;display:flex;flex-direction:column;background:var(--card-bg);border-right:1px solid var(--border)}
+.pg-chat-msgs{flex:1;overflow-y:auto;padding:16px 20px;display:flex;flex-direction:column;gap:10px}
+.pg-chat-msg{max-width:78%;padding:10px 14px;border-radius:14px;font-size:14px;line-height:1.5;white-space:pre-wrap;word-wrap:break-word}
+.pg-chat-msg.sent{background:var(--blue);color:#fff;align-self:flex-end;border-bottom-right-radius:4px}
+.pg-chat-msg.received{background:#e8f0fe;color:var(--text);align-self:flex-start;border-bottom-left-radius:4px}
+[data-theme="dark"] .pg-chat-msg.received{background:#1e2a3a}
+.pg-chat-msg .meta{font-size:10px;margin-top:4px;opacity:.7}
+.pg-chat-msg.sent .meta{color:rgba(255,255,255,.7)}
+.pg-chat-msg.received .meta{color:var(--sub)}
+.pg-chat-input-wrap{display:flex;gap:10px;padding:12px 20px;border-top:1px solid var(--border);background:var(--card-bg)}
+.pg-chat-input-wrap textarea{flex:1;resize:none;padding:10px 14px;border:1.5px solid var(--border);border-radius:12px;font-size:14px;font-family:inherit;outline:none;transition:border .2s;min-height:44px;max-height:120px}
+.pg-chat-input-wrap textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.1)}
+.pg-chat-input-wrap .send-btn{background:var(--blue);color:#fff;border:none;border-radius:12px;width:44px;height:44px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:opacity .2s}
+.pg-chat-input-wrap .send-btn:hover{opacity:.85}
+.pg-chat-input-wrap .send-btn:disabled{opacity:.4;cursor:default}
 .cdActionBtn{background:none;border:none;cursor:pointer;color:var(--blue);font-weight:700;font-size:12px;padding:6px 10px;border-radius:10px}
 .cdActionBtn:hover{background:rgba(255,255,255,0.1)}
 .cdVoteBubble{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--sub)}
 .cdChildrenToggle{display:flex;align-items:center;gap:6px}
 .cdSmallPill{font-size:11px;font-weight:800;padding:3px 9px;border-radius:9999px;background:rgba(37,99,235,0.12);color:var(--blue)}
+
+/* ── CHAT LIST PAGE ───────────────────────────────────────────── */
+.chatList-item{display:flex;align-items:center;gap:14px;padding:14px 18px;background:var(--card-bg);border-radius:var(--radius-sm);border:1px solid var(--glass-border);cursor:pointer;transition:all .15s;margin-bottom:8px}
+.chatList-item:hover{border-color:var(--blue);box-shadow:0 2px 12px rgba(37,99,235,.08)}
+.chatList-item .info{flex:1;min-width:0}
+.chatList-item .info .title{font-size:14px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chatList-item .info .meta{font-size:12px;color:var(--sub);margin-top:2px}
+.chatList-item .badge{font-size:12px;font-weight:700;padding:4px 10px;border-radius:9999px;background:var(--blue);color:#fff;flex-shrink:0}
+.chatList-item .badge.unread{background:var(--red);color:#fff}
+.chatList-item .badge.empty{background:var(--border);color:var(--sub);font-weight:400}
+.chatList-item .preview{font-size:12px;color:var(--sub);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.chatList-empty{padding:40px 20px;text-align:center;color:var(--sub);font-size:14px}
+.chatList-empty svg{width:48px;height:48px;stroke:var(--border);margin-bottom:12px}
+
+/* ── CHAT SPLIT LAYOUT ──────────────────────────────────────────── */
+.chat-split{display:flex;flex:1;overflow:hidden}
+.chat-split-list{width:340px;min-width:260px;border-right:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column;flex-shrink:0}
+.chat-split-conv{flex:1;display:flex;flex-direction:column;overflow:hidden;background:var(--card-bg);min-width:0}
+.chat-split-conv.hidden{display:none}
+.chat-split-list.expand{width:100%;border-right:none}
+.chat-split-header{display:flex;align-items:center;gap:10px;padding:12px 18px;border-bottom:1px solid var(--border);background:var(--card-bg)}
+.chat-split-header .back-btn{background:none;border:none;color:var(--blue);cursor:pointer;font-size:18px;line-height:1;padding:2px 6px;border-radius:6px;display:none}
+.chat-split-header .back-btn:hover{background:rgba(37,99,235,0.1)}
+.chat-split-header .info{min-width:0}
+.chat-split-header .info .title{font-size:14px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chat-split-header .info .sub{font-size:11px;color:var(--sub)}
+@media(max-width:768px){
+  .chat-split-list{width:100%!important;border-right:none!important}
+  .chat-split-conv:not(.hidden){position:fixed;top:0;left:0;right:0;bottom:0;z-index:100;background:var(--card-bg)}
+  .chat-split-header .back-btn{display:block}
+}
 
 /* ── REGISTER PAGE ───────────────────────────────────────────────────── */
 #pg-register{flex-direction:row!important}
@@ -627,6 +690,10 @@ select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 20V10m-6 10V4M6 20v-6"/></svg>
         Analytics
       </button>
+      <button id="side_student_chat" class="sideItem" onclick="go('chatList')" style="display:flex">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2 22l5.5-1.338A9.954 9.954 0 0012 22z"/><path d="M8 9h8M8 13h6"/></svg>
+        Chat
+      </button>
       <button class="sideItem add-btn" onclick="openM()">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Add Complaint
@@ -655,14 +722,16 @@ select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
           <select id="fc" onchange="rf()"><option value="">All Categories</option><option>Food Services</option><option>Facilities</option><option>Library</option><option>Hostel</option><option>Security</option><option>IT Services</option><option>Transport</option><option>Administration</option></select>
           <select id="fp" onchange="rf()"><option value="">All Priority</option><option value="High">High</option><option value="Medium">Medium</option><option value="Low">Low</option></select>
           <span class="slbl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="13" height="13"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>Sort by:</span>
-          <select id="so" onchange="rf()"><option value="votes">Most Liked</option><option value="new">Newest</option><option value="old">Oldest</option></select>
+          <select id="so" onchange="rf()"><option value="priority">Priority</option><option value="votes">Most Liked</option><option value="new">Newest</option><option value="old">Oldest</option></select>
         </div>
         <div class="inline-form" id="inline-form">
           <div class="ifh">
             <h3>Submit a Complaint</h3>
             <button class="ifc" onclick="closeM()">&times;</button>
           </div>
+          <div id="aiTitleLabel" style="display:none;font-size:12px;color:#888;margin-bottom:4px"><em>AI Generated Title</em></div>
           <input type="text" id="ct" placeholder="Complaint title...">
+          <div id="aiDescLabel" style="display:none;font-size:12px;color:#888;margin-bottom:4px"><em>Complaint Detail (AI Generated)</em></div>
           <textarea id="cd" placeholder="Describe your complaint in detail..."></textarea>
           <div class="fh" style="gap:6px;">
             <label style="font-size:13px;font-weight:500;color:var(--sub);">Attach photos (optional)</label>
@@ -771,6 +840,10 @@ select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
       <button id="side_student_analytics2" class="sideItem" onclick="go('studentAnalytics')" style="display:flex">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 20V10m-6 10V4M6 20v-6"/></svg>
         Analytics
+      </button>
+      <button id="side_student_chat2" class="sideItem" onclick="go('chatList')" style="display:flex">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2 22l5.5-1.338A9.954 9.954 0 0012 22z"/><path d="M8 9h8M8 13h6"/></svg>
+        Chat
       </button>
       <button class="sideItem add-btn" onclick="openM()">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -885,6 +958,10 @@ select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 20V10m-6 10V4M6 20v-6"/></svg>
         Analytics
       </button>
+      <button id="side_student_chat3" class="sideItem" onclick="go('chatList')" style="display:flex">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2 22l5.5-1.338A9.954 9.954 0 0012 22z"/><path d="M8 9h8M8 13h6"/></svg>
+        Chat
+      </button>
       <button class="sideItem add-btn" onclick="openM()">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Add Complaint
@@ -985,6 +1062,10 @@ select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 20V10m-6 10V4M6 20v-6"/></svg>
         Analytics
       </button>
+      <button id="side_student_chat4" class="sideItem" onclick="go('chatList')" style="display:flex">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2 22l5.5-1.338A9.954 9.954 0 0012 22z"/><path d="M8 9h8M8 13h6"/></svg>
+        Chat
+      </button>
       <button class="sideItem add-btn" onclick="openM()">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Add Complaint
@@ -1080,6 +1161,10 @@ select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
       <button id="side_student_analytics5" class="sideItem act" onclick="go('studentAnalytics')" style="display:flex">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 20V10m-6 10V4M6 20v-6"/></svg>
         Analytics
+      </button>
+      <button id="side_student_chat5" class="sideItem" onclick="go('chatList')" style="display:flex">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2 22l5.5-1.338A9.954 9.954 0 0012 22z"/><path d="M8 9h8M8 13h6"/></svg>
+        Chat
       </button>
       <button class="sideItem add-btn" onclick="openM()">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -1188,6 +1273,10 @@ select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
         </svg>
         Resolved
       </button>
+      <button id="side_admin_chat" class="sideItem" onclick="go('chatList')" style="display:flex">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2 22l5.5-1.338A9.954 9.954 0 0012 22z"/><path d="M8 9h8M8 13h6"/></svg>
+        Chat
+      </button>
 
 
 
@@ -1208,7 +1297,7 @@ select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
             <div class="fp">
 <div class="fg2"><label>Facilities</label><select id="at2" onchange="ra()"><option value="">All Facilities</option><option>Food</option><option>Library</option><option>Hostel</option><option>Infrastructure</option><option>Staff</option><option>IT</option><option>Transport</option><option>Administration</option><option>Others</option></select></div>
               <div class="fg2"><label>Status</label><select id="as2" onchange="ra()"><option value="">All Status</option><option>Pending</option><option>Under Review</option><option>Resolved</option></select></div>
-              <div class="fg2"><label>Sort</label><select id="ap2" onchange="ra()"><option value="votes">Most Upvoted</option><option value="new">Newest</option><option value="old">Oldest</option></select></div>
+              <div class="fg2"><label>Sort</label><select id="ap2" onchange="ra()"><option value="priority">Priority</option><option value="votes">Most Upvoted</option><option value="new">Newest</option><option value="old">Oldest</option></select></div>
             </div>
           </div>
         </div>
@@ -1246,7 +1335,7 @@ select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
           <div class="ap"><div class="pt"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>Filters</div>
             <div class="fp">
               <div class="fg2"><label>Facilities</label><select id="rt2" onchange="onResolvedFilter()"><option value="">All Facilities</option><option>Food</option><option>Library</option><option>Hostel</option><option>Infrastructure</option><option>Staff</option><option>IT</option><option>Transport</option><option>Administration</option><option>Others</option></select></div>
-              <div class="fg2"><label>Sort</label><select id="rp2" onchange="onResolvedFilter()"><option value="new">Newest</option><option value="old">Oldest</option><option value="votes">Most Upvoted</option></select></div>
+              <div class="fg2"><label>Sort</label><select id="rp2" onchange="onResolvedFilter()"><option value="priority">Priority</option><option value="new">Newest</option><option value="old">Oldest</option><option value="votes">Most Upvoted</option></select></div>
             </div>
           </div>
         </div>
@@ -1307,10 +1396,198 @@ select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
         </div>
       </div>
 
-
+      <div class="ac" id="admin-chat-page" style="display:none;max-width:100%;padding:0;flex-direction:column;flex:1;min-height:0">
+        <div class="chat-split" style="flex:1;overflow:hidden">
+          <div class="chat-split-list" id="aChatList">
+            <div style="padding:18px 18px 10px;border-bottom:1px solid var(--border);flex-shrink:0">
+              <h1 style="margin:0 0 2px;font-size:18px;font-weight:700">Chats</h1>
+              <p style="margin:0;font-size:12px;color:var(--sub)">Complaints with chat history</p>
+            </div>
+            <div style="flex:1;overflow-y:auto;padding:12px 14px" id="adminChatList"><div class="loading">Loading chats…</div></div>
+          </div>
+          <div class="chat-split-conv hidden" id="aChatConv">
+            <div class="chat-split-header">
+              <button class="back-btn" onclick="closeSplitChat()" id="aChatBack">&larr;</button>
+              <div class="info">
+                <div class="title" id="aChatTitle">Chat</div>
+                <div class="sub" id="aChatSub">Anonymous conversation</div>
+              </div>
+            </div>
+            <div class="pg-chat-msgs" id="aChatMsgs" style="padding:14px 18px">
+              <div class="loading">Loading messages…</div>
+            </div>
+            <div class="pg-chat-input-wrap" style="flex-shrink:0">
+              <textarea id="aChatInput" placeholder="Type a message…" rows="1"></textarea>
+              <button class="send-btn" onclick="sendSplitChat('a')">
+                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
 
     </main>
 
+  </div>
+</div>
+<!-- ── Chat Page ─────────────────────────────────────────────────────── -->
+<div id="pg-chat" class="page">
+  <div class="pg-chat-wrap">
+    <div class="pg-chat-header">
+      <button class="back-btn" onclick="closeChatPage()">&larr;</button>
+      <div>
+        <div class="title" id="pg_chat_title">Chat</div>
+        <div class="sub" id="pg_chat_sub">Anonymous conversation</div>
+      </div>
+      <div style="margin-left:auto;display:flex;align-items:center;gap:8px">
+        <button class="ls-trigger" id="lsTriggerChat" onclick="toggleLivePopout(event)" title="Live Status">
+          <span class="ls-dot"></span>
+          Live
+        </button>
+        <div class="ls-popout" id="lsPopoutChat">
+          <h4><span class="ls-dot"></span>Today's Status</h4>
+          <div class="ls-row"><span>Received today</span><span class="ls-val" id="lsReceivedChat">—</span></div>
+          <div class="ls-row"><span>Total received</span><span class="ls-val" id="lsTotalChat">—</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="pg-chat-body">
+      <div class="pg-chat-box">
+        <div class="pg-chat-msgs" id="pg_chat_msgs">
+          <div class="loading">Loading messages…</div>
+        </div>
+        <div class="pg-chat-input-wrap">
+          <textarea id="pg_chat_input" placeholder="Type a message…" rows="1"></textarea>
+          <button class="send-btn" onclick="sendFullChat()">
+            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ── Chat List Page (student) ────────────────────────────────────── -->
+<div id="pg-chatList" class="page">
+  <nav class="nav">
+    <div class="nb" style="gap:12px">
+      <div class="ni" style="background:transparent">
+        <img src="/College%20Complaint%20System.png" alt="SafeVoice" style="width:52px;height:52px;object-fit:contain">
+      </div>
+      <div>
+        <h3>SafeVoice</h3>
+        <p>College Complaint System</p>
+      </div>
+    </div>
+    <div class="nls">
+      <button class="nl" id="alink8" onclick="go('admin')" style="display:none"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/></svg>Admin</button>
+    </div>
+    <div class="na">
+      <button class="ham-toggle" onclick="toggleSidebar()" aria-label="Menu">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="20" height="20"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <button class="ls-trigger" id="lsTrigger8" onclick="toggleLivePopout(event)" title="Live Status">
+        <span class="ls-dot"></span>
+        Live
+      </button>
+      <div class="ls-popout" id="lsPopout8">
+        <h4><span class="ls-dot"></span>Today's Status</h4>
+        <div class="ls-row"><span>Received today</span><span class="ls-val" id="lsReceived8">—</span></div>
+        <div class="ls-row"><span>Total received</span><span class="ls-val" id="lsTotal8">—</span></div>
+        <div class="ls-row" style="border-bottom:none;padding-top:12px;margin-top:8px;border-top:1px solid var(--border)"><span>User Activity</span><span class="ls-val" id="lsActive8">—</span></div>
+      </div>
+      <button class="theme-toggle" id="themeToggle8" onclick="toggleTheme()" title="Toggle theme">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="16" height="16"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+      </button>
+      <div class="av-wrap" style="margin-right:10px;">
+        <button class="av" id="bellBtn8" style="background:transparent;color:var(--sub)" onclick="toggleNotif(event)" aria-label="Notifications">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="18" height="18">
+            <path d="M18 8a6 6 0 10-12 0c0 7-3 7-3 7h18s-3 0-3-7"/>
+            <path d="M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+          <span id="notifDot8" class="notifDot"></span>
+        </button>
+        <div class="profile-dd" id="notifPanel8" style="min-width:320px;right:0;left:auto;animation:none">
+          <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;">
+            <span style="font-size:13px;font-weight:700;color:var(--text);">Notifications</span>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <button style="background:none;border:none;color:var(--blue);font-weight:700;cursor:pointer;font-size:13px" onclick="markAllRead()">Mark all read</button>
+              <button style="background:none;border:none;color:var(--red);font-weight:700;cursor:pointer;font-size:16px;line-height:1;" onclick="closeNotifPanel()" aria-label="Close">&times;</button>
+            </div>
+          </div>
+          <div id="notifList8" style="max-height:340px;overflow:auto"></div>
+        </div>
+      </div>
+      <div class="av-wrap">
+        <button class="av" id="av8" onclick="toggleDD(event)">S</button>
+        <div class="profile-dd" id="dd8">
+          <div class="dd-email" id="dd-email8">student@college.edu</div>
+          <button class="dd-item" onclick="openResetPassword()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6"/><path d="M23 11h-6"/></svg>Reset Password</button>
+          <button class="dd-item" onclick="signOut()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out</button>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <div class="studentShell">
+    <aside class="studentSide">
+      <button id="side_chatList_home" class="sideItem" onclick="go('home')" style="display:flex">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Home
+      </button>
+      <button id="side_chatList_track" class="sideItem" onclick="go('track')" style="display:flex">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="12" y2="15"/></svg>
+        Track Status
+      </button>
+      <button id="side_chatList_active" class="sideItem" onclick="go('studentActive')" style="display:flex">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        Active Cases
+      </button>
+      <button id="side_chatList_resolved" class="sideItem" onclick="go('studentResolved')" style="display:flex">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 4 12 14.01 9 11.01"/></svg>
+        Resolved
+      </button>
+      <button id="side_chatList_analytics" class="sideItem" onclick="go('studentAnalytics')" style="display:flex">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 20V10m-6 10V4M6 20v-6"/></svg>
+        Analytics
+      </button>
+      <button id="side_chatList_chat" class="sideItem act" onclick="go('chatList')" style="display:flex">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2 22l5.5-1.338A9.954 9.954 0 0012 22z"/><path d="M8 9h8M8 13h6"/></svg>
+        Chat
+      </button>
+      <button class="sideItem add-btn" onclick="openM()">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Complaint
+      </button>
+    </aside>
+    <main class="studentMain" style="display:flex;flex-direction:column;padding:0;overflow:hidden">
+      <div class="chat-split">
+        <div class="chat-split-list" id="sChatList">
+          <div style="padding:20px 18px 12px;border-bottom:1px solid var(--border);flex-shrink:0">
+            <h1 style="margin:0 0 2px;font-size:18px;font-weight:700">Chats</h1>
+            <p style="margin:0;font-size:12px;color:var(--sub)">Complaints with chat history</p>
+          </div>
+          <div style="flex:1;overflow-y:auto;padding:12px 14px" id="chatList"><div class="loading">Loading chats…</div></div>
+        </div>
+        <div class="chat-split-conv hidden" id="sChatConv">
+          <div class="chat-split-header">
+            <button class="back-btn" onclick="closeSplitChat()" id="sChatBack">&larr;</button>
+            <div class="info">
+              <div class="title" id="sChatTitle">Chat</div>
+              <div class="sub" id="sChatSub">Anonymous conversation</div>
+            </div>
+          </div>
+          <div class="pg-chat-msgs" id="sChatMsgs" style="padding:14px 18px">
+            <div class="loading">Loading messages…</div>
+          </div>
+          <div class="pg-chat-input-wrap" style="flex-shrink:0">
+            <textarea id="sChatInput" placeholder="Type a message…" rows="1"></textarea>
+            <button class="send-btn" onclick="sendSplitChat('s')">
+              <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </main>
   </div>
 </div>
 <!-- TOAST -->
@@ -1354,6 +1631,7 @@ document.getElementById('cp-photos')?.addEventListener('change', function() {
   }
   this.value = '';
   renderPhotoPreviews();
+  if (selectedFiles.length > 0) generateImageDescription(selectedFiles[0]);
 });
 
 function renderPhotoPreviews() {
@@ -1375,6 +1653,45 @@ function renderPhotoPreviews() {
 function removePhoto(index) {
   selectedFiles.splice(index, 1);
   renderPhotoPreviews();
+  if (selectedFiles.length > 0) generateImageDescription(selectedFiles[0]);
+  else { document.getElementById('cd').value = ''; document.getElementById('ct').value = ''; document.getElementById('aiDescLabel').style.display = 'none'; document.getElementById('aiTitleLabel').style.display = 'none'; }
+}
+async function generateImageDescription(file) {
+  const cd = document.getElementById('cd');
+  const ct = document.getElementById('ct');
+  const label = document.getElementById('aiDescLabel');
+  const titleLabel = document.getElementById('aiTitleLabel');
+  cd.value = '';
+  titleLabel.style.display = 'none';
+  label.style.display = '';
+  label.style.color = '#aaa';
+  label.innerHTML = '<em>Analyzing image...</em>';
+  try {
+    const fd = new FormData();
+    fd.append('image', file);
+    const token = sessionStorage.getItem('sv_token');
+    const res = await fetch('/api/complaints/describe-image', {
+      method: 'POST',
+      headers: token ? { 'Authorization': 'Bearer ' + token } : {},
+      body: fd,
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      cd.value = 'Server error: ' + (data.error || JSON.stringify(data));
+      label.style.display = 'none';
+      return;
+    }
+    if (data.title) {
+      ct.value = data.title;
+      titleLabel.style.display = '';
+    }
+    cd.value = data.description || 'Could not generate description.';
+    label.style.color = '#888';
+    label.innerHTML = '<em>Complaint Detail (AI Generated)</em>';
+  } catch (e) {
+    cd.value = 'Failed to analyze image: ' + e.message;
+    label.style.display = 'none';
+  }
 }
 // ── Auth ─────────────────────────────────────────────────────────────────────
 async function login() {
@@ -1402,10 +1719,10 @@ async function login() {
 }
 function afterLogin() {
   const initials = currentUser.role === 'admin' ? 'A' : 'S';
-  ['av1','av2','av3','av4','av6','av7'].forEach(id => {
+  ['av1','av2','av3','av4','av6','av7','av8'].forEach(id => {
     const el = document.getElementById(id); if (el) el.textContent = initials;
   });
-  ['dd-email1','dd-email2','dd-email3','dd-email4','dd-email6','dd-email7'].forEach(id => {
+  ['dd-email1','dd-email2','dd-email3','dd-email4','dd-email6','dd-email7','dd-email8'].forEach(id => {
     const el = document.getElementById(id); if (el) el.textContent = currentUser.email;
   });
   const isAdmin = currentUser.role === 'admin';
@@ -1413,7 +1730,7 @@ function afterLogin() {
   const wn = document.getElementById('welcomeName');
   if (wn) wn.textContent = currentUser.name || (isAdmin ? 'Admin' : 'Student');
   // Show Admin navigation only for admins
-  ['alink','alink2','alink4','alink5','alink7'].forEach(id => {
+  ['alink','alink2','alink4','alink5','alink7','alink8'].forEach(id => {
     const el = document.getElementById(id);
     if (el) el.style.display = isAdmin ? 'flex' : 'none';
   });
@@ -1436,8 +1753,10 @@ function afterLogin() {
   // Also set sidebar active state.
   go(isAdmin ? 'admin' : 'home');
 
-  // Live status widget (students)
-  if (!isAdmin) fetchLiveStatus();
+  // Live status widget – fetch now and every 60s
+  fetchLiveStatus();
+  if (window.__liveTimer) clearInterval(window.__liveTimer);
+  window.__liveTimer = setInterval(fetchLiveStatus, 60000);
 
 
 
@@ -1522,6 +1841,166 @@ async function register() {
   }
 }
 
+let __chatPollTimer = null;
+let __chatId = null;
+
+function openChatPage(id) {
+  closeComplaintDetail();
+  __chatId = id;
+  go('chat');
+}
+
+function closeChatPage() {
+  if (__chatPollTimer) { clearInterval(__chatPollTimer); __chatPollTimer = null; }
+  __chatId = null;
+  go('chatList');
+}
+
+async function loadFullChat() {
+  const msgs = document.getElementById('pg_chat_msgs');
+  if (!msgs || !__chatId) return;
+  try {
+    const data = await apiFetch(`/complaints/${__chatId}/chat`);
+    if (!data.messages || !data.messages.length) {
+      msgs.innerHTML = '<div style="text-align:center;color:var(--sub);font-size:14px;padding:40px 20px;">No messages yet. Start the conversation!</div>';
+      return;
+    }
+    msgs.innerHTML = data.messages.map(m => {
+      const isMine = m.is_mine;
+      const cls = isMine ? 'sent' : 'received';
+      const who = m.is_mine ? 'You' : (m.sender_role === 'admin' ? 'Admin' : 'Student');
+      const time = m.created_at ? new Date(m.created_at).toLocaleString() : '';
+      return `<div class="pg-chat-msg ${cls}"><div>${esc(m.message)}</div><div class="meta">${who} &middot; ${time}</div></div>`;
+    }).join('');
+    msgs.scrollTop = msgs.scrollHeight;
+  } catch (e) {
+    msgs.innerHTML = '<div class="loading">Error loading chat.</div>';
+  }
+}
+
+async function sendFullChat() {
+  const input = document.getElementById('pg_chat_input');
+  const txt = input?.value?.trim();
+  if (!__chatId || !txt) return;
+  input.value = '';
+  try {
+    await apiFetch(`/complaints/${__chatId}/chat`, {
+      method: 'POST',
+      body: JSON.stringify({ message: txt })
+    });
+    await loadFullChat();
+  } catch (e) {
+    toast(e.message, false);
+  }
+}
+let __splitChatId = null;
+let __splitPollTimer = null;
+
+async function loadSplitChat(prefix) {
+  const msgs = document.getElementById(prefix + 'ChatMsgs');
+  if (!msgs || !__splitChatId) return;
+  try {
+    const data = await apiFetch(`/complaints/${__splitChatId}/chat`);
+    const title = document.getElementById(prefix + 'ChatTitle');
+    const sub = document.getElementById(prefix + 'ChatSub');
+    if (title) title.textContent = '#' + __splitChatId;
+    if (sub) sub.textContent = currentUser?.role === 'admin' ? 'Chatting as Admin' : 'Chatting as Student';
+    if (!data.messages || !data.messages.length) {
+      msgs.innerHTML = '<div style="text-align:center;color:var(--sub);font-size:14px;padding:40px 20px;">No messages yet. Start the conversation!</div>';
+      return;
+    }
+    msgs.innerHTML = data.messages.map(m => {
+      const isMine = m.is_mine;
+      const cls = isMine ? 'sent' : 'received';
+      const who = m.is_mine ? 'You' : (m.sender_role === 'admin' ? 'Admin' : 'Student');
+      const time = m.created_at ? new Date(m.created_at).toLocaleString() : '';
+      return `<div class="pg-chat-msg ${cls}"><div>${esc(m.message)}</div><div class="meta">${who} &middot; ${time}</div></div>`;
+    }).join('');
+    msgs.scrollTop = msgs.scrollHeight;
+  } catch (e) {
+    msgs.innerHTML = '<div class="loading">Error loading chat.</div>';
+  }
+}
+
+async function sendSplitChat(prefix) {
+  const input = document.getElementById(prefix + 'ChatInput');
+  const txt = input?.value?.trim();
+  if (!__splitChatId || !txt) return;
+  input.value = '';
+  try {
+    await apiFetch(`/complaints/${__splitChatId}/chat`, {
+      method: 'POST',
+      body: JSON.stringify({ message: txt })
+    });
+    await loadSplitChat(prefix);
+  } catch (e) {
+    toast(e.message, false);
+  }
+}
+
+function openSplitChat(complaintId, prefix) {
+  if (__splitPollTimer) { clearInterval(__splitPollTimer); __splitPollTimer = null; }
+  __splitChatId = complaintId;
+  document.getElementById(prefix + 'ChatConv').classList.remove('hidden');
+  document.getElementById(prefix + 'ChatList').classList.remove('expand');
+  loadSplitChat(prefix);
+  __splitPollTimer = setInterval(() => loadSplitChat(prefix), 3000);
+  document.getElementById(prefix + 'ChatInput')?.focus();
+  // Mark as read
+  markChatRead(complaintId);
+}
+
+function closeSplitChat() {
+  if (__splitPollTimer) { clearInterval(__splitPollTimer); __splitPollTimer = null; }
+  __splitChatId = null;
+  document.querySelectorAll('.chat-split-conv').forEach(el => el.classList.add('hidden'));
+  document.querySelectorAll('.chat-split-list').forEach(el => el.classList.add('expand'));
+}
+
+async function markChatRead(complaintId) {
+  try {
+    await apiFetch(`/complaints/${complaintId}/chat/read`, { method: 'POST' });
+    // Refresh the chat list to update unread badges
+    loadChatList();
+  } catch (e) {
+    // Silently fail – read status is not critical
+  }
+}
+
+async function loadChatList() {
+  const el = document.getElementById(currentUser?.role === 'admin' ? 'adminChatList' : 'chatList');
+  if (!el) return;
+  try {
+    el.innerHTML = '<div class="loading">Loading chats…</div>';
+    const data = await apiFetch('/complaints/chat-list');
+    const items = data.complaints || [];
+    if (!items.length) {
+      el.innerHTML = '<div class="chatList-empty"><svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2 22l5.5-1.338A9.954 9.954 0 0012 22z"/><path d="M8 9h8M8 13h6"/></svg><div>No chat conversations yet.</div></div>';
+      return;
+    }
+    el.innerHTML = items.map(c => {
+      const cat = c.cat || 'General';
+      const unread = c.unread_count || 0;
+      const unreadBadge = unread > 0 ? `<span class="badge unread">${unread}</span>` : '';
+      return `<div class="chatList-item" onclick="openChatListChat(${c.id})">
+        <div class="info">
+          <div class="title">${esc(c.title || 'Untitled')}</div>
+          <div class="meta">${esc(cat)} &middot; ${c.status} &middot; ${new Date(c.last_msg_at || c.created_at).toLocaleDateString()}</div>
+          ${c.last_msg ? `<div class="preview">${esc(c.last_msg.length > 80 ? c.last_msg.slice(0,80)+'…' : c.last_msg)}</div>` : ''}
+        </div>
+        ${unreadBadge}
+      </div>`;
+    }).join('');
+  } catch (e) {
+    el.innerHTML = '<div class="chatList-empty">Error loading chat list: ' + esc(e.message) + '</div>';
+  }
+}
+
+function openChatListChat(complaintId) {
+  const prefix = currentUser?.role === 'admin' ? 'a' : 's';
+  openSplitChat(complaintId, prefix);
+}
+
 
 function go(p) {
 
@@ -1530,13 +2009,14 @@ function go(p) {
   // Close only notification panels.
   // Do NOT touch bell icon visibility; each page owns its own navbar.
   closeNotifPanel();
+  closeSplitChat();
 
   const adminPage = document.getElementById('pg-admin');
   if (adminPage) adminPage.style.display = 'none';
 
   document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
   // 'adminStudents' and 'adminResolved' are sub-views inside #pg-admin, not standalone #pg-* pages.
-  if (p === 'adminStudents' || p === 'adminResolved') {
+  if (p === 'adminStudents' || p === 'adminResolved' || (p === 'chatList' && currentUser?.role === 'admin')) {
     document.getElementById('pg-admin').classList.add('active');
   } else {
     document.getElementById('pg-' + p).classList.add('active');
@@ -1547,64 +2027,33 @@ function go(p) {
     closeM();
     rf();
 
-    const shHome2 = document.getElementById('side_student_home2');
-    const shTrack2 = document.getElementById('side_student_track2');
-    const shResolved2 = document.getElementById('side_student_resolved2');
-    if (shHome2) shHome2.classList.add('act');
-    if (shTrack2) shTrack2.classList.remove('act');
-    if (shResolved2) shResolved2.classList.remove('act');
-
-    const shHome1 = document.getElementById('side_student_home');
-    const shTrack1 = document.getElementById('side_student_track');
-    const shResolved1 = document.getElementById('side_student_resolved');
-    if (shHome1) shHome1.classList.add('act');
-    if (shTrack1) shTrack1.classList.remove('act');
-    if (shResolved1) shResolved1.classList.remove('act');
-
-    const shHome3 = document.getElementById('side_student_home3');
-    const shTrack3 = document.getElementById('side_student_track3');
-    const shResolved3 = document.getElementById('side_student_resolved3');
-    if (shHome3) shHome3.classList.add('act');
-    if (shTrack3) shTrack3.classList.remove('act');
-    if (shResolved3) shResolved3.classList.remove('act');
-
-    ['side_student_active','side_student_analytics',
-     'side_student_active2','side_student_analytics2',
-     'side_student_active3','side_student_analytics3',
-     'side_student_active4','side_student_analytics4',
-     'side_student_active5','side_student_analytics5'
-    ].forEach(id => { const el = document.getElementById(id); if (el) el.classList.remove('act'); });
+    // Deactivate all sidebar items across all 5 instances
+    ['_track','_active','_resolved','_analytics','_chat'].forEach(sfx => {
+      for (let i = 1; i <= 5; i++) {
+        const el = document.getElementById('side_student' + sfx + (i === 1 ? '' : i));
+        if (el) el.classList.remove('act');
+      }
+    });
+    // Activate home on all 5 instances
+    ['side_student_home','side_student_home2','side_student_home3','side_student_home4','side_student_home5'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.classList.add('act');
+    });
   }
   if (p === 'track') {
-    ['side_student_active','side_student_analytics',
-     'side_student_active2','side_student_analytics2',
-     'side_student_active3','side_student_analytics3',
-     'side_student_active4','side_student_analytics4',
-     'side_student_active5','side_student_analytics5'
-    ].forEach(id => { const el = document.getElementById(id); if (el) el.classList.remove('act'); });
     if (adminPage) adminPage.style.display = 'none';
     rt();
 
-    const shHome2 = document.getElementById('side_student_home2');
-    const shTrack2 = document.getElementById('side_student_track2');
-    const shResolved2 = document.getElementById('side_student_resolved2');
-    if (shHome2) shHome2.classList.remove('act');
-    if (shTrack2) shTrack2.classList.add('act');
-    if (shResolved2) shResolved2.classList.remove('act');
-
-    const shHome1 = document.getElementById('side_student_home');
-    const shTrack1 = document.getElementById('side_student_track');
-    const shResolved1 = document.getElementById('side_student_resolved');
-    if (shHome1) shHome1.classList.remove('act');
-    if (shTrack1) shTrack1.classList.add('act');
-    if (shResolved1) shResolved1.classList.remove('act');
-
-    const shHome3 = document.getElementById('side_student_home3');
-    const shTrack3 = document.getElementById('side_student_track3');
-    const shResolved3 = document.getElementById('side_student_resolved3');
-    if (shHome3) shHome3.classList.remove('act');
-    if (shTrack3) shTrack3.classList.add('act');
-    if (shResolved3) shResolved3.classList.remove('act');
+    // Deactivate all sidebar items across all 5 instances
+    ['_home','_active','_resolved','_analytics','_chat'].forEach(sfx => {
+      for (let i = 1; i <= 5; i++) {
+        const el = document.getElementById('side_student' + sfx + (i === 1 ? '' : i));
+        if (el) el.classList.remove('act');
+      }
+    });
+    // Activate track on all 5 instances
+    ['side_student_track','side_student_track2','side_student_track3','side_student_track4','side_student_track5'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.classList.add('act');
+    });
   }
 
   if (p === 'studentResolved') {
@@ -1612,47 +2061,34 @@ function go(p) {
     closeM();
     loadStudentResolvedComplaints();
 
-    const shHome = document.getElementById('side_student_home');
-    const shTrack = document.getElementById('side_student_track');
-    const shResolved = document.getElementById('side_student_resolved');
-    if (shHome) shHome.classList.remove('act');
-    if (shTrack) shTrack.classList.remove('act');
-    if (shResolved) shResolved.classList.add('act');
-
-    const shHome2 = document.getElementById('side_student_home2');
-    const shTrack2 = document.getElementById('side_student_track2');
-    const shResolved2 = document.getElementById('side_student_resolved2');
-    if (shHome2) shHome2.classList.remove('act');
-    if (shTrack2) shTrack2.classList.remove('act');
-    if (shResolved2) shResolved2.classList.add('act');
-
-    const shHome3 = document.getElementById('side_student_home3');
-    const shTrack3 = document.getElementById('side_student_track3');
-    const shResolved3 = document.getElementById('side_student_resolved3');
-    if (shHome3) shHome3.classList.remove('act');
-    if (shTrack3) shTrack3.classList.remove('act');
-    if (shResolved3) shResolved3.classList.add('act');
-
-    ['side_student_active','side_student_analytics',
-     'side_student_active2','side_student_analytics2',
-     'side_student_active3','side_student_analytics3',
-     'side_student_active4','side_student_analytics4',
-     'side_student_active5','side_student_analytics5'
-    ].forEach(id => { const el = document.getElementById(id); if (el) el.classList.remove('act'); });
+    // Deactivate all sidebar items across all 5 instances
+    ['_home','_track','_active','_analytics','_chat'].forEach(sfx => {
+      for (let i = 1; i <= 5; i++) {
+        const el = document.getElementById('side_student' + sfx + (i === 1 ? '' : i));
+        if (el) el.classList.remove('act');
+      }
+    });
+    // Activate resolved on all 5 instances
+    ['side_student_resolved','side_student_resolved2','side_student_resolved3','side_student_resolved4','side_student_resolved5'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.classList.add('act');
+    });
   }
 
   if (p === 'studentActive') {
     if (adminPage) adminPage.style.display = 'none';
     closeM();
     document.getElementById('fs').value = '';
-    // Show only Pending + Under Review
     loadActiveComplaints();
 
-    ['side_student_home','side_student_track','side_student_resolved','side_student_analytics',
-     'side_student_home2','side_student_track2','side_student_resolved2','side_student_analytics2',
-     'side_student_home3','side_student_track3','side_student_resolved3','side_student_analytics3'
-    ].forEach(id => { const el = document.getElementById(id); if (el) el.classList.remove('act'); });
-    ['side_student_active','side_student_active2','side_student_active3'].forEach(id => {
+    // Deactivate all sidebar items across all 5 instances
+    ['_home','_track','_resolved','_analytics','_chat'].forEach(sfx => {
+      for (let i = 1; i <= 5; i++) {
+        const el = document.getElementById('side_student' + sfx + (i === 1 ? '' : i));
+        if (el) el.classList.remove('act');
+      }
+    });
+    // Activate active on all 5 instances
+    ['side_student_active','side_student_active2','side_student_active3','side_student_active4','side_student_active5'].forEach(id => {
       const el = document.getElementById(id); if (el) el.classList.add('act');
     });
   }
@@ -1662,11 +2098,15 @@ function go(p) {
     closeM();
     loadStudentAnalytics();
 
-    ['side_student_home','side_student_track','side_student_resolved','side_student_active',
-     'side_student_home2','side_student_track2','side_student_resolved2','side_student_active2',
-     'side_student_home3','side_student_track3','side_student_resolved3','side_student_active3'
-    ].forEach(id => { const el = document.getElementById(id); if (el) el.classList.remove('act'); });
-    ['side_student_analytics','side_student_analytics2','side_student_analytics3'].forEach(id => {
+    // Deactivate all sidebar items across all 5 instances
+    ['_home','_track','_active','_resolved','_chat'].forEach(sfx => {
+      for (let i = 1; i <= 5; i++) {
+        const el = document.getElementById('side_student' + sfx + (i === 1 ? '' : i));
+        if (el) el.classList.remove('act');
+      }
+    });
+    // Activate analytics on all 5 instances
+    ['side_student_analytics','side_student_analytics2','side_student_analytics3','side_student_analytics4','side_student_analytics5'].forEach(id => {
       const el = document.getElementById(id); if (el) el.classList.add('act');
     });
   }
@@ -1682,6 +2122,8 @@ function go(p) {
     if (sideStudents) sideStudents.classList.remove('act');
     if (sideSensitive) sideSensitive.classList.remove('act');
     if (sideResolved) sideResolved.classList.remove('act');
+    const sideChatA = document.getElementById('side_admin_chat');
+    if (sideChatA) sideChatA.classList.remove('act');
     const dash = document.getElementById('admin-dashboard-page');
     const stud = document.getElementById('admin-students-page');
     const sens = document.getElementById('admin-sensitive-page');
@@ -1712,6 +2154,8 @@ function go(p) {
     if (sideResolved) sideResolved.classList.remove('act');
     const sideSensitive = document.getElementById('side_sensitive');
     if (sideSensitive) sideSensitive.classList.remove('act');
+    const sideChatB = document.getElementById('side_admin_chat');
+    if (sideChatB) sideChatB.classList.remove('act');
     loadStudents(true);
   }
 
@@ -1733,6 +2177,8 @@ function go(p) {
     if (sideResolved) sideResolved.classList.add('act');
     const sideSensitive = document.getElementById('side_sensitive');
     if (sideSensitive) sideSensitive.classList.remove('act');
+    const sideChatC = document.getElementById('side_admin_chat');
+    if (sideChatC) sideChatC.classList.remove('act');
     // Load with resolved page's own filters
     const rf = document.getElementById('rt2')?.value;
     const rs = document.getElementById('rp2')?.value;
@@ -1756,11 +2202,65 @@ function go(p) {
     if (p2) p2.value = '';
   }
 
+  if (p === 'chat') {
+    if (adminPage) adminPage.style.display = 'none';
+    if (__chatPollTimer) clearInterval(__chatPollTimer);
+    // Load chat title
+    document.getElementById('pg_chat_title').textContent = 'Chat #' + __chatId;
+    document.getElementById('pg_chat_sub').textContent = currentUser?.role === 'admin' ? 'Chatting as Admin' : 'Chatting as Student';
+    loadFullChat();
+    __chatPollTimer = setInterval(loadFullChat, 3000);
+    markChatRead(__chatId);
+  }
+
+  if (p === 'chatList') {
+    if (currentUser?.role === 'admin') {
+      // For admin: show chat list as sub-view within the admin page
+      if (adminPage) {
+        adminPage.style.display = 'flex';
+        document.getElementById('pg-chatList').classList.remove('active');
+        const dash = document.getElementById('admin-dashboard-page');
+        const stud = document.getElementById('admin-students-page');
+        const sens = document.getElementById('admin-sensitive-page');
+        const resv = document.getElementById('admin-resolved-page');
+        const chatv = document.getElementById('admin-chat-page');
+        if (dash) dash.style.display = 'none';
+        if (stud) stud.style.display = 'none';
+        if (sens) sens.style.display = 'none';
+        if (resv) resv.style.display = 'none';
+        if (chatv) { chatv.style.display = 'flex'; closeSplitChat(); }
+      }
+      // Deactivate other admin sidebar items
+      ['side_admin','side_students','side_sensitive','side_resolved'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.classList.remove('act');
+      });
+      // Activate admin chat sidebar
+      const sideChat = document.getElementById('side_admin_chat');
+      if (sideChat) sideChat.classList.add('act');
+    } else {
+      // For student: standalone chat list page
+      if (adminPage) adminPage.style.display = 'none';
+      // Deactivate all student sidebar items
+      ['side_student_home','side_student_track','side_student_active','side_student_resolved','side_student_analytics',
+       'side_student_home2','side_student_track2','side_student_active2','side_student_resolved2','side_student_analytics2',
+       'side_student_home3','side_student_track3','side_student_active3','side_student_resolved3','side_student_analytics3',
+       'side_student_home4','side_student_track4','side_student_active4','side_student_resolved4','side_student_analytics4',
+       'side_student_home5','side_student_track5','side_student_active5','side_student_resolved5','side_student_analytics5'
+      ].forEach(id => { const el = document.getElementById(id); if (el) el.classList.remove('act'); });
+      // Activate chat sidebar items
+      ['side_student_chat','side_student_chat2','side_student_chat3','side_student_chat4','side_student_chat5'].forEach(id => {
+        const el = document.getElementById(id); if (el) el.classList.add('act');
+      });
+    }
+    loadChatList();
+  }
+
   // Re-apply unread badge state for any visible navbar instance.
   document.querySelectorAll('.notifDot').forEach(dot => {
     const unread = (notifCache || []).filter(n => !n.is_read).length;
     dot.style.display = unread > 0 ? 'block' : 'none';
   });
+  fetchLiveStatus();
 }
 function toggleDD(e) {
   e.stopPropagation();
@@ -1956,10 +2456,11 @@ async function fetchLiveStatus() {
     const m = String(today.getMonth() + 1).padStart(2, '0');
     const d = String(today.getDate()).padStart(2, '0');
     const dateStr = `${y}-${m}-${d}`;
-    const data = await apiFetch('/complaints?all=1');
+    const isAdmin = currentUser?.role === 'admin';
+    const endpoint = isAdmin ? '/complaints?all=1&sensitive=1' : '/complaints/my';
+    const data = await apiFetch(endpoint);
     const all = data.complaints || [];
     const todayReceived = all.filter(c => c.created_at && c.created_at.startsWith(dateStr)).length;
-    const todayResolved = all.filter(c => c.status === 'Resolved' && c.updated_at && c.updated_at.startsWith(dateStr)).length;
     document.querySelectorAll('[id^="lsReceived"]').forEach(el => el.textContent = todayReceived);
     document.querySelectorAll('[id^="lsTotal"]').forEach(el => el.textContent = all.length);
     const activeData = await apiFetch('/users/active');
@@ -2021,13 +2522,16 @@ function closeM() {
   document.getElementById('inline-form').classList.remove('open');
   const bar = document.getElementById('inp-bar');
   if (bar) bar.style.display = 'flex';
-  ['ct','cd'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+  document.getElementById('ct').value = '';
+  document.getElementById('cd').value = '';
+  document.getElementById('aiDescLabel').style.display = 'none';
+  document.getElementById('aiTitleLabel').style.display = 'none';
   selectedFiles = [];
   renderPhotoPreviews();
 }
 async function submitComplaint() {
   const title       = document.getElementById('ct').value.trim();
-  const description = document.getElementById('cd').value.trim();
+  let description   = document.getElementById('cd').value.trim();
   const category    = document.getElementById('cc-cat').value;
   const photoFiles  = selectedFiles;
 
@@ -2094,8 +2598,8 @@ async function submitComplaint() {
         }
       }
 
-      document.getElementById('cnt').textContent =
-        localComplaints.length + ' complaint' + (localComplaints.length !== 1 ? 's' : '');
+      const cnt = document.getElementById('cnt');
+      if (cnt) cnt.textContent = localComplaints.length + ' complaint' + (localComplaints.length !== 1 ? 's' : '');
       document.getElementById('feed').innerHTML =
         sorted.length ? sorted.map(renderCard).join('') : '<div class="loading">No complaints found.</div>';
     }
@@ -2151,9 +2655,15 @@ async function rf() {
     document.getElementById('feed').innerHTML = complaints.length
       ? complaints.map(renderCard).join('')
       : '<div class="loading">No complaints found.</div>';
-    document.getElementById('hp').textContent = complaints.filter(c => c.status === 'Pending').length;
-    document.getElementById('hr').textContent = complaints.filter(c => c.status === 'Under Review').length;
-    document.getElementById('hres').textContent = complaints.filter(c => c.status === 'Resolved').length;
+
+    // Fetch totals for stat cards (unfiltered)
+    const allData = status || category || priority || search
+      ? await apiFetch('/complaints')
+      : data;
+    const all = allData.complaints;
+    document.getElementById('hp').textContent = all.filter(c => c.status === 'Pending').length;
+    document.getElementById('hr').textContent = all.filter(c => c.status === 'Under Review').length;
+    document.getElementById('hres').textContent = all.filter(c => c.status === 'Resolved').length;
 
   } catch (e) {
     document.getElementById('feed').innerHTML = `<div class="loading">Error: ${e.message}</div>`;
@@ -2201,7 +2711,7 @@ async function loadStudentAnalytics() {
     if (category) params.set('category', category);
     if (priority) params.set('priority', priority);
     params.set('all', '1');
-    const data = await apiFetch('/complaints?' + params);
+    const data = await apiFetch('/complaints/my?' + params);
     const all = data.complaints || [];
     const total = all.length;
     const pending = all.filter(c => c.status === 'Pending').length;
@@ -2209,10 +2719,10 @@ async function loadStudentAnalytics() {
     const resolved = all.filter(c => c.status === 'Resolved').length;
 
     document.getElementById('analyticsStats').innerHTML = `
-      <div class="stc"><div><div class="sl2">Total</div><div class="sn2">${total}</div></div><div class="si bl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg></div></div>
-      <div class="stc"><div><div class="sl2">Pending</div><div class="sn2">${pending}</div></div><div class="si ye"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div></div>
-      <div class="stc"><div><div class="sl2">Under Review</div><div class="sn2">${review}</div></div><div class="si bl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div></div>
-      <div class="stc"><div><div class="sl2">Resolved</div><div class="sn2">${resolved}</div></div><div class="si gr"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div></div>
+      <div class="stc" onclick="go('track')" style="cursor:pointer"><div><div class="sl2">Total</div><div class="sn2">${total}</div></div><div class="si bl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg></div></div>
+      <div class="stc" onclick="trackFilter={type:'status',value:'Pending'};go('track')" style="cursor:pointer"><div><div class="sl2">Pending</div><div class="sn2">${pending}</div></div><div class="si ye"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div></div>
+      <div class="stc" onclick="trackFilter={type:'status',value:'Under Review'};go('track')" style="cursor:pointer"><div><div class="sl2">Under Review</div><div class="sn2">${review}</div></div><div class="si bl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div></div>
+      <div class="stc" onclick="go('studentResolved')" style="cursor:pointer"><div><div class="sl2">Resolved</div><div class="sn2">${resolved}</div></div><div class="si gr"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div></div>
     `;
 
     // Status progress bars
@@ -2314,6 +2824,7 @@ function openComplaintDetail(id, opts = {}) {
   modal.style.alignItems = 'flex-start';
   modal.style.justifyContent = 'center';
   modal.style.paddingTop = '72px';
+  modal.style.overflow = 'hidden';
 
   const card = document.createElement('div');
   card.style.width = '100%';
@@ -2333,7 +2844,7 @@ function openComplaintDetail(id, opts = {}) {
       <button onclick="closeComplaintDetail()" style="background:none;border:none;color:var(--blue);font-weight:800;cursor:pointer;font-size:13px;">Close</button>
     </div>
 
-      <div style="padding:16px;max-height:72vh;overflow:auto;">
+      <div style="padding:16px;max-height:72vh;overflow:auto;overscroll-behavior:contain;">
       <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start;">
         <div style="flex:1;min-width:320px;background:#fff;border:1px solid var(--border);border-radius:12px;padding:14px;">
           <div id="cd_basic_title" style="font-size:16px;font-weight:800;margin-bottom:6px;color:var(--text);">Loading…</div>
@@ -2361,9 +2872,6 @@ function openComplaintDetail(id, opts = {}) {
         </div>
 
         </div>
-      </div>
-
-
 
       <!-- Admin Notes removed -->
 
@@ -2404,12 +2912,47 @@ function openComplaintDetail(id, opts = {}) {
         </div>
       </div>
 
-
-    </div>
+      <!-- Anonymous Chat -->
+      <div id="cd_chat_section" class="cdCommentsWrap" style="margin-top:12px;">
+        <div class="cdCommentsHeader">
+          <div>
+            <div class="title">
+              <span style="width:28px;height:28px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:var(--green-bg);color:var(--green);">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2 22l5.5-1.338A9.954 9.954 0 0012 22z"></path>
+                  <path d="M8 9h8M8 13h6"></path>
+                </svg>
+              </span>
+              Anonymous Chat
+            </div>
+            <div class="meta" id="cd_chat_meta">Both you and admin can chat anonymously</div>
+          </div>
+          <button onclick="openChatPage(window.__cd_id)" class="btn-sub" style="padding:8px 14px;font-size:12px;white-space:nowrap;">Open Chat</button>
+        </div>
+      </div>
+      </div>
   `;
 
   modal.appendChild(card);
   document.body.appendChild(modal);
+
+  // Prevent background scrolling while modal is open
+  modal.addEventListener('wheel', e => {
+    const scrollEl = card.querySelector('[style*="overflow:auto"]');
+    if (scrollEl) {
+      const { scrollTop, scrollHeight, clientHeight } = scrollEl;
+      const atTop = scrollTop === 0;
+      const atBottom = scrollTop + clientHeight >= scrollHeight;
+      if ((atTop && e.deltaY < 0) || (atBottom && e.deltaY > 0)) {
+        e.preventDefault();
+      }
+    } else {
+      e.preventDefault();
+    }
+  }, { passive: false });
+  modal.addEventListener('touchmove', e => {
+    e.preventDefault();
+  }, { passive: false });
 
   // Store current complaint id for other handlers
   window.__cd_id = id;
@@ -2496,7 +3039,7 @@ async function cdLoadDetail(id) {
       const c = detailData.complaint;
       basicTitle.textContent = c.title;
       basicDesc.textContent  = c.desc;
-      basicTags.innerHTML = `${sp(c.status)}<span class="pill p-cat">${esc(c.cat)}</span>${pp(c.pri)}<span class="pill" style="background:var(--blue-l;color:var(--blue);">${esc(c.faculty||'')}</span>`;
+      basicTags.innerHTML = `${sp(c.status)}<span class="pill p-cat">${esc(c.cat)}</span>${pp(c.pri)}<span class="pill" style="background:var(--blue-l);color:var(--blue);">${esc(c.faculty||'')}</span>`;
       staffEl.textContent = c.staff ? `Assigned to: ${c.staff}` : '';
       badgeEl.innerHTML = c.escalated ? '<span class="pill p-hi">Escalated</span>' : '';
 
@@ -2581,8 +3124,8 @@ async function cdAddComment() {
   }
 }
 
-/**
- * Load and render comments as a Reddit-like threaded list.
+
+/** Load and render comments as a Reddit-like threaded list.
  * Backend may not exist; this function is best-effort and will not crash the modal.
  *
  * Expected (best-effort) shapes we try to support:
@@ -2648,6 +3191,7 @@ async function cdLoadComments(id, opts = {}) {
 }
 
 /**
+ * Load and render comments as a Reddit-like threaded list.
  * Home-page comments loader (Quick comments box).
  * Renders into #home_comments_{id} without opening the complaint modal.
  */
@@ -3002,7 +3546,7 @@ function renderSensitiveResolvedList() {
 async function ra() {
   const fac  = document.getElementById('at2').value;
   const stat = document.getElementById('as2').value;
-  const sort = document.getElementById('ap2').value || 'votes';
+  const sort = document.getElementById('ap2').value || 'priority';
   try {
     const [statsData, listData] = await Promise.all([
       apiFetch('/complaints/stats'),
@@ -3204,7 +3748,7 @@ async function loadResolvedComplaints(filters = {}) {
 
 function onResolvedFilter() {
   const fac = document.getElementById('rt2')?.value;
-  const sort = document.getElementById('rp2')?.value || 'new';
+  const sort = document.getElementById('rp2')?.value || 'priority';
   loadResolvedComplaints({ faculty: fac, sort: sort });
 }
 
@@ -3568,6 +4112,11 @@ function openAdminEditStudent(studentId) {
       <div style="padding:16px;">
         <div class="fp" style="gap:12px;">
           <div class="fg2" style="margin-bottom:0;">
+            <label>Email</label>
+            <input id="es_email" type="email" value="${esc(student?.email || '')}" readonly style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;outline:none;background:var(--bg);color:var(--sub);cursor:not-allowed;" />
+          </div>
+
+          <div class="fg2" style="margin-bottom:0;">
             <label>Roll</label>
             <input id="es_roll" type="text" value="${esc(student?.roll_number || '')}" style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;outline:none;" />
           </div>
@@ -3856,6 +4405,22 @@ document.addEventListener('keydown', (e) => {
     closeNotifPanel();
   }
 });
+// Enter to send in full-page chat
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && !e.shiftKey && document.activeElement?.id === 'pg_chat_input') {
+    e.preventDefault();
+    sendFullChat();
+  }
+  // Enter to send in split chat
+  if (e.key === 'Enter' && !e.shiftKey) {
+    const id = document.activeElement?.id;
+    if (id === 'sChatInput') { e.preventDefault(); sendSplitChat('s'); }
+    else if (id === 'aChatInput') { e.preventDefault(); sendSplitChat('a'); }
+  }
+  if (e.key === 'Escape' && document.getElementById('pg-chat')?.classList.contains('active')) {
+    closeChatPage();
+  }
+});
 const loginPw = document.getElementById('pw');
 if (loginPw) loginPw.addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
 const regPw2 = document.getElementById('reg-pw2');
@@ -3901,6 +4466,14 @@ function toggleTheme() {
   const saved = localStorage.getItem('sv-theme');
   if (saved) document.documentElement.setAttribute('data-theme', saved);
 })();
+
+// Auto-resize full-page and split chat textareas
+document.addEventListener('input', function(e) {
+  if (e.target?.id === 'pg_chat_input' || e.target?.id === 'sChatInput' || e.target?.id === 'aChatInput') {
+    e.target.style.height = 'auto';
+    e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
+  }
+});
 </script>
 </body>
 </html>

@@ -119,7 +119,7 @@ router.get('/admin/sensitive', requireAuth, requireAdmin, async (req, res) => {
       params.push(like, like);
     }
 
-    const orderMap = { votes: 'votes DESC', new: 'created_at DESC', old: 'created_at ASC' };
+    const orderMap = { votes: 'votes DESC', new: 'created_at DESC', old: 'created_at ASC', priority: "CASE WHEN priority='High' THEN 0 WHEN priority='Medium' THEN 1 ELSE 2 END, created_at DESC" };
     sql += ` ORDER BY ${orderMap[sort] || orderMap.votes}`;
 
     const rows = await new Promise((resolve, reject) => {
@@ -357,7 +357,7 @@ router.get('/my', requireAuth, async (req, res) => {
       params.push(priority);
     }
 
-    const orderMap = { votes: 'votes DESC', new: 'created_at DESC', old: 'created_at ASC' };
+    const orderMap = { votes: 'votes DESC', new: 'created_at DESC', old: 'created_at ASC', priority: "CASE WHEN priority='High' THEN 0 WHEN priority='Medium' THEN 1 ELSE 2 END, created_at DESC" };
     sql += ` ORDER BY ${orderMap[sort] || orderMap.votes}`;
 
     const rows = await new Promise((resolve, reject) => {
@@ -399,7 +399,12 @@ router.get('/', requireAuth, async (req, res) => {
     const params = [];
 
     // All users (including admins) only see non-sensitive complaints in the regular feed
-    sql += ' AND is_sensitive = 0';
+    // unless sensitive=1 is explicitly requested by an admin
+    if (all === '1' && req.query.sensitive === '1' && req.user.role === 'admin') {
+      // Admin loading all complaints (e.g. live status) – include sensitive
+    } else {
+      sql += ' AND is_sensitive = 0';
+    }
     // Filter out resolved complaints (they go to resolved page) unless ?all=1
     if (all !== '1') {
       sql += ' AND status != ?';
@@ -446,7 +451,7 @@ router.get('/', requireAuth, async (req, res) => {
       params.push(like, like);
     }
 
-    const orderMap = { votes: 'votes DESC', new: 'created_at DESC', old: 'created_at ASC' };
+    const orderMap = { votes: 'votes DESC', new: 'created_at DESC', old: 'created_at ASC', priority: "CASE WHEN priority='High' THEN 0 WHEN priority='Medium' THEN 1 ELSE 2 END, created_at DESC" };
     sql += ` ORDER BY ${orderMap[sort] || orderMap.votes}`;
 
     const rows = await new Promise((resolve, reject) => {
@@ -463,7 +468,7 @@ router.get('/', requireAuth, async (req, res) => {
     const votedSet = new Set(userVotes.map(v => v.complaint_id));
 
     // Defense-in-depth: filter complaints with sensitive keywords even if is_sensitive flag is 0
-    const filteredRows = rows.filter(r => !hasSensitiveKeywords(r.title, r.description));
+    const filteredRows = (all === '1' && req.query.sensitive === '1' && req.user.role === 'admin') ? rows : rows.filter(r => !hasSensitiveKeywords(r.title, r.description));
 
     const complaints = await Promise.all(
       filteredRows.map(async (r) => {
@@ -499,7 +504,7 @@ router.get('/resolved/public', requireAuth, async (req, res) => {
       params.push(like, like);
     }
 
-    const orderMap = { votes: 'votes DESC', new: 'created_at DESC', old: 'created_at ASC' };
+    const orderMap = { votes: 'votes DESC', new: 'created_at DESC', old: 'created_at ASC', priority: "CASE WHEN priority='High' THEN 0 WHEN priority='Medium' THEN 1 ELSE 2 END, created_at DESC" };
     sql += ` ORDER BY ${orderMap[sort] || orderMap.new}`;
 
     const rows = await new Promise((resolve, reject) => {
@@ -548,7 +553,7 @@ router.get('/resolved', requireAuth, requireAdmin, async (req, res) => {
       params.push(like, like);
     }
 
-    const orderMap = { votes: 'votes DESC', new: 'created_at DESC', old: 'created_at ASC' };
+    const orderMap = { votes: 'votes DESC', new: 'created_at DESC', old: 'created_at ASC', priority: "CASE WHEN priority='High' THEN 0 WHEN priority='Medium' THEN 1 ELSE 2 END, created_at DESC" };
     sql += ` ORDER BY ${orderMap[sort] || orderMap.new}`;
 
     const rows = await new Promise((resolve, reject) => {
@@ -574,6 +579,50 @@ router.get('/resolved', requireAuth, requireAdmin, async (req, res) => {
     res.json({ complaints });
   } catch (err) {
     console.error('Get resolved complaints error:', err);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+});
+
+// GET /api/complaints/chat-list — complaints with chat history
+router.get('/chat-list', requireAuth, async (req, res) => {
+  try {
+    const viewerHash = hashId(req.user.id);
+    const otherRole = req.user.role === 'admin' ? 'student' : 'admin';
+    let sql, params;
+    if (req.user.role === 'admin') {
+      sql = `SELECT DISTINCT c.id, c.title, c.description, c.status, c.created_at, c.category AS cat,
+               (SELECT COUNT(*) FROM anonymous_chat WHERE complaint_id = c.id) AS chat_count,
+               (SELECT MAX(created_at) FROM anonymous_chat WHERE complaint_id = c.id) AS last_msg_at,
+               (SELECT message FROM anonymous_chat WHERE complaint_id = c.id ORDER BY created_at DESC LIMIT 1) AS last_msg,
+               COALESCE((SELECT COUNT(*) FROM anonymous_chat ac2
+                 WHERE ac2.complaint_id = c.id
+                   AND ac2.sender_role = ?
+                   AND (cr.last_read_at IS NULL OR ac2.created_at > cr.last_read_at)), 0) AS unread_count
+             FROM complaints c
+             INNER JOIN anonymous_chat ac ON ac.complaint_id = c.id
+             LEFT JOIN chat_read_status cr ON cr.complaint_id = c.id AND cr.user_hash = ?
+             ORDER BY last_msg_at DESC`;
+      params = [otherRole, viewerHash];
+    } else {
+      sql = `SELECT DISTINCT c.id, c.title, c.description, c.status, c.created_at, c.category AS cat,
+               (SELECT COUNT(*) FROM anonymous_chat WHERE complaint_id = c.id) AS chat_count,
+               (SELECT MAX(created_at) FROM anonymous_chat WHERE complaint_id = c.id) AS last_msg_at,
+               (SELECT message FROM anonymous_chat WHERE complaint_id = c.id ORDER BY created_at DESC LIMIT 1) AS last_msg,
+               COALESCE((SELECT COUNT(*) FROM anonymous_chat ac2
+                 WHERE ac2.complaint_id = c.id
+                   AND ac2.sender_role = ?
+                   AND (cr.last_read_at IS NULL OR ac2.created_at > cr.last_read_at)), 0) AS unread_count
+             FROM complaints c
+             INNER JOIN anonymous_chat ac ON ac.complaint_id = c.id
+             LEFT JOIN chat_read_status cr ON cr.complaint_id = c.id AND cr.user_hash = ?
+             WHERE c.submitter_id = ?
+             ORDER BY last_msg_at DESC`;
+      params = [otherRole, viewerHash, viewerHash];
+    }
+    const rows = await new Promise((r, j) => db.all(sql, params, (e, rows) => e ? j(e) : r(rows || [])));
+    res.json({ complaints: rows });
+  } catch (err) {
+    console.error('Chat list error:', err);
     res.status(500).json({ error: 'Internal server error.' });
   }
 });
@@ -898,9 +947,150 @@ router.delete('/:id', requireAuth, requireAdmin, async (req, res) => {
   }
 });
 
+// POST /api/complaints/describe-image — AI describe image using Gemini (direct REST)
+router.post('/describe-image', requireAuth, upload.single('image'), async (req, res) => {
+  try {
+    if (!req.file) return res.status(400).json({ error: 'No image uploaded.' });
 
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      fs.unlink(req.file.path, () => {});
+      return res.json({ title: 'Complaint with photo', description: 'Photo attached by user.' });
+    }
+
+    const imagePath = req.file.path;
+    const imageData = fs.readFileSync(imagePath);
+    const base64 = imageData.toString('base64');
+    const mimeType = req.file.mimetype;
+
+    const model = process.env.GEMINI_MODEL || 'gemini-3.5-flash';
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+    const body = {
+      contents: [{
+        parts: [
+          { text: 'Analyze this image for a college complaint. First give a short 5-10 word title on a line starting with TITLE:, then give a 2-3 sentence description on a line starting with DESC:. Example:\nTITLE: Broken desk in library\nDESC: The wooden desk on the second floor has a large crack across the surface.' },
+          { inline_data: { mime_type: mimeType, data: base64 } }
+        ]
+      }]
+    };
+
+    const resp = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+
+    const data = await resp.json();
+
+    if (!resp.ok) {
+      console.error('[describe-image] HTTP', resp.status, JSON.stringify(data));
+      return res.status(500).json({ error: 'Gemini API error: ' + (data?.error?.message || resp.status) });
+    }
+
+    const raw = data?.candidates?.[0]?.content?.parts?.map(p => p.text).filter(Boolean).join(' ') || '';
+    let title = 'Complaint with photo';
+    let description = 'Could not generate description.';
+    const tm = raw.match(/TITLE:\s*(.+)/i);
+    const dm = raw.match(/DESC:\s*(.+)/i);
+    if (tm) title = tm[1].trim();
+    if (dm) description = dm[1].trim();
+
+    // Clean up uploaded temp file
+    fs.unlink(imagePath, () => {});
+
+    res.json({ title, description });
+  } catch (err) {
+    console.error('Describe image error:', err);
+    res.status(500).json({ error: 'Failed to analyze image.' });
+  }
+});
+
+// ── Mark chat as read ──────────────────────────────────────────────────────
+router.post('/:id/chat/read', requireAuth, async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) return res.status(400).json({ error: 'Invalid id.' });
+
+    const row = await new Promise((r, j) => db.get('SELECT * FROM complaints WHERE id = ?', [id], (e, row) => e ? j(e) : r(row)));
+    if (!row) return res.status(404).json({ error: 'Not found.' });
+
+    const viewerHash = hashId(req.user.id);
+    if (req.user.role !== 'admin' && row.submitter_id !== viewerHash) {
+      return res.status(403).json({ error: 'Access denied.' });
+    }
+
+    await new Promise((r, j) => db.run(
+      'INSERT INTO chat_read_status (user_hash, complaint_id, last_read_at) VALUES (?, ?, datetime(\'now\')) ON CONFLICT(user_hash, complaint_id) DO UPDATE SET last_read_at = datetime(\'now\')',
+      [viewerHash, id],
+      e => e ? j(e) : r()
+    ));
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Mark read error:', err);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+});
+
+// ── Anonymous Chat ───────────────────────────────────────────────────────────
+// GET /api/complaints/:id/chat — get chat messages
+router.get('/:id/chat', requireAuth, async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) return res.status(400).json({ error: 'Invalid id.' });
+
+    const row = await new Promise((r, j) => db.get('SELECT * FROM complaints WHERE id = ?', [id], (e, row) => e ? j(e) : r(row)));
+    if (!row) return res.status(404).json({ error: 'Not found.' });
+
+    const viewerHash = req.user.id ? require('../utils/anon').hashId(req.user.id) : null;
+    if (req.user.role !== 'admin' && row.submitter_id !== viewerHash) {
+      return res.status(403).json({ error: 'Access denied.' });
+    }
+
+    const msgs = await new Promise((r, j) => db.all('SELECT * FROM anonymous_chat WHERE complaint_id = ? ORDER BY created_at ASC', [id], (e, rows) => e ? j(e) : r(rows || [])));
+    res.json({ messages: msgs.map(m => ({
+      id: m.id,
+      message: m.message,
+      sender_role: m.sender_role,
+      created_at: m.created_at,
+      is_mine: (req.user.role === 'admin' && m.sender_role === 'admin') || (req.user.role !== 'admin' && m.sender_role === 'student')
+    })) });
+  } catch (err) {
+    console.error('Get chat error:', err);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+});
+
+// POST /api/complaints/:id/chat — send chat message
+router.post('/:id/chat', requireAuth, async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    if (!Number.isInteger(id) || id <= 0) return res.status(400).json({ error: 'Invalid id.' });
+
+    const { message } = req.body || {};
+    const txt = message?.trim();
+    if (!txt) return res.status(400).json({ error: 'Message is required.' });
+
+    const row = await new Promise((r, j) => db.get('SELECT * FROM complaints WHERE id = ?', [id], (e, row) => e ? j(e) : r(row)));
+    if (!row) return res.status(404).json({ error: 'Not found.' });
+
+    const viewerHash = req.user.id ? require('../utils/anon').hashId(req.user.id) : null;
+    if (req.user.role !== 'admin' && row.submitter_id !== viewerHash) {
+      return res.status(403).json({ error: 'Access denied.' });
+    }
+
+    const senderRole = req.user.role === 'admin' ? 'admin' : 'student';
+    await new Promise((r, j) => db.run('INSERT INTO anonymous_chat (complaint_id, sender_role, message) VALUES (?, ?, ?)', [id, senderRole, txt], e => e ? j(e) : r()));
+
+    res.status(201).json({ message: 'Sent.' });
+  } catch (err) {
+    console.error('Send chat error:', err);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+});
 
 module.exports = router;
+
 
 
 

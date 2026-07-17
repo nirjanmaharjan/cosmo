@@ -113,6 +113,14 @@ async function init() {
       is_read INTEGER NOT NULL DEFAULT 0,
       created_at TEXT NOT NULL DEFAULT (datetime('now'))
     );
+
+    CREATE TABLE IF NOT EXISTS anonymous_chat (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      complaint_id INTEGER NOT NULL REFERENCES complaints(id) ON DELETE CASCADE,
+      sender_role TEXT NOT NULL CHECK(sender_role IN ('student','admin')),
+      message TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    );
   `);
 
   // ── Migration: add new faculty options (IT, Transport, Administration) ──────
@@ -216,10 +224,31 @@ async function init() {
       e ? j(e) : r(row)
     )
   );
-  if (userTbl && userTbl.sql && !userTbl.sql.includes('last_active')) {
+    if (userTbl && userTbl.sql && !userTbl.sql.includes('last_active')) {
     console.log('[db] Migrating users table — adding last_active...');
     await exec("ALTER TABLE users ADD COLUMN last_active TEXT");
   }
+
+  // ── Migration: create anonymous_chat table ─────────────────────────────────
+  await exec(`
+    CREATE TABLE IF NOT EXISTS anonymous_chat (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      complaint_id INTEGER NOT NULL REFERENCES complaints(id) ON DELETE CASCADE,
+      sender_role TEXT NOT NULL CHECK(sender_role IN ('student','admin')),
+      message TEXT NOT NULL,
+      created_at TEXT NOT NULL DEFAULT (datetime('now'))
+    )
+  `);
+
+  // ── Migration: create chat_read_status table ───────────────────────────────
+  await exec(`
+    CREATE TABLE IF NOT EXISTS chat_read_status (
+      user_hash TEXT NOT NULL,
+      complaint_id INTEGER NOT NULL,
+      last_read_at TEXT NOT NULL DEFAULT (datetime('now')),
+      PRIMARY KEY (user_hash, complaint_id)
+    )
+  `);
 
   await seed();
 }
