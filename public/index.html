@@ -1286,7 +1286,7 @@ select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
 
 
     </aside>
-    <main class="adminMain">
+    <main class="adminMain" id="adminMain">
       <div class="ac" id="admin-dashboard-page">
         <h1>Admin Dashboard</h1>
         <p class="sub">Manage and monitor all campus complaints</p>
@@ -1396,7 +1396,7 @@ select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
         </div>
       </div>
 
-      <div class="ac" id="admin-chat-page" style="display:none;max-width:100%;padding:0;flex-direction:column;flex:1;min-height:0">
+      <div id="admin-chat-page" style="display:none;max-width:100%;padding:0;flex-direction:column;flex:1;min-height:0">
         <div class="chat-split" style="flex:1;overflow:hidden">
           <div class="chat-split-list" id="aChatList">
             <div style="padding:18px 18px 10px;border-bottom:1px solid var(--border);flex-shrink:0">
@@ -2132,6 +2132,8 @@ function go(p) {
     if (stud) stud.style.display = 'none';
     if (sens) sens.style.display = 'none';
     if (resv) resv.style.display = 'none';
+    const am2 = document.getElementById('adminMain');
+    if (am2) { am2.style.padding = ''; am2.style.overflow = ''; am2.style.display = ''; am2.style.flexDirection = ''; }
   }
 
 
@@ -2157,6 +2159,8 @@ function go(p) {
     const sideChatB = document.getElementById('side_admin_chat');
     if (sideChatB) sideChatB.classList.remove('act');
     loadStudents(true);
+    const am3 = document.getElementById('adminMain');
+    if (am3) { am3.style.padding = ''; am3.style.overflow = ''; am3.style.display = ''; am3.style.flexDirection = ''; }
   }
 
   if (p === 'adminResolved') {
@@ -2183,6 +2187,8 @@ function go(p) {
     const rf = document.getElementById('rt2')?.value;
     const rs = document.getElementById('rp2')?.value;
     loadResolvedComplaints({ faculty: rf, sort: rs });
+    const am4 = document.getElementById('adminMain');
+    if (am4) { am4.style.padding = ''; am4.style.overflow = ''; am4.style.display = ''; am4.style.flexDirection = ''; }
   }
 
 
@@ -2230,6 +2236,8 @@ function go(p) {
         if (resv) resv.style.display = 'none';
         if (chatv) { chatv.style.display = 'flex'; closeSplitChat(); }
       }
+      const am = document.getElementById('adminMain');
+      if (am) { am.style.padding = '0'; am.style.overflow = 'hidden'; am.style.display = 'flex'; am.style.flexDirection = 'column'; }
       // Deactivate other admin sidebar items
       ['side_admin','side_students','side_sensitive','side_resolved'].forEach(id => {
         const el = document.getElementById(id); if (el) el.classList.remove('act');
