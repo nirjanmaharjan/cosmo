@@ -412,6 +412,35 @@ select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
 .fg2 label{font-size:12px;color:var(--sub);font-weight:500;display:block;margin-bottom:4px}
 .fg2 select{width:100%}
 .acs h2{font-size:17px;font-weight:700;margin-bottom:14px}
+
+/* ── AI RISK DASHBOARD ───────────────────────────────────────────────── */
+.risk-badge{display:inline-block;padding:2px 10px;border-radius:9999px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+.risk-badge.low{background:#d1fae5;color:#065f46}
+.risk-badge.medium{background:#fef3c7;color:#92400e}
+.risk-badge.high{background:#fee2e2;color:#991b1b}
+.risk-badge.critical{background:#fce4ec;color:#b71c1c}
+.ai-risk-card{background:var(--card-bg);backdrop-filter:var(--glass-blur);border:1px solid var(--glass-border);border-radius:var(--radius);padding:16px;box-shadow:var(--glass-shadow)}
+.ai-risk-score{font-size:36px;font-weight:800;line-height:1}
+.ai-risk-label{font-size:12px;color:var(--sub);margin-top:4px}
+.ai-insight-card{border-left:3px solid var(--blue);padding:12px 14px;margin-bottom:10px;background:var(--card-bg);border-radius:0 var(--radius) var(--radius) 0}
+.ai-insight-card.critical{border-left-color:#dc2626}
+.ai-insight-card.high{border-left-color:#f59e0b}
+.ai-insight-card.medium{border-left-color:#3b82f6}
+.ai-insight-card.low{border-left-color:#6b7280}
+.ai-insight-card .title{font-size:13px;font-weight:700;margin-bottom:3px}
+.ai-insight-card .desc{font-size:12px;color:var(--sub);margin-bottom:4px}
+.ai-insight-card .action{font-size:11px;color:var(--blue);font-style:italic}
+.dept-risk-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px}
+.dept-risk-row:last-child{border-bottom:none}
+.dept-risk-row .name{flex:1;font-weight:600}
+.dept-risk-row .bar-wrap{flex:2;height:8px;background:var(--border);border-radius:9999px;overflow:hidden}
+.dept-risk-row .bar-fill{height:100%;border-radius:9999px;transition:width .6s}
+.repeat-group{padding:10px 14px;margin-bottom:8px;background:var(--card-bg);border:1px solid var(--glass-border);border-radius:var(--radius)}
+.repeat-group .rg-title{font-size:13px;font-weight:700;margin-bottom:2px}
+.repeat-group .rg-meta{font-size:11px;color:var(--sub)}
+.report-section{margin-bottom:14px}
+.report-section h3{font-size:14px;font-weight:700;margin-bottom:6px;color:var(--text)}
+.report-section p{font-size:13px;color:var(--sub);line-height:1.5}
 .adm-sep{height:1px;background:var(--border);margin:0 0 16px 0}
 .acard{background:var(--card-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);border:1px solid var(--glass-border);border-radius:var(--radius);padding:18px 20px;margin-bottom:13px;box-shadow:var(--glass-shadow);transition:all .2s}
 .acard:hover{transform:translateY(-1px);box-shadow:0 12px 40px rgba(0,0,0,0.08)}
@@ -715,6 +744,9 @@ select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
           <div class="scard pend" onclick="filterHomeView('status','Pending')" style="cursor:pointer"><div><div class="slb">Pending</div><div class="sn" id="hp">—</div></div><div class="sico" style="color:var(--yellow)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div></div>
           <div class="scard rev" onclick="filterHomeView('status','Under Review')" style="cursor:pointer"><div><div class="slb">Under Review</div><div class="sn" id="hr">—</div></div><div class="sico" style="color:var(--blue)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div></div>
           <div class="scard reso" onclick="filterHomeView('status','Resolved')" style="cursor:pointer"><div><div class="slb">Resolved</div><div class="sn" id="hres">—</div></div><div class="sico" style="color:var(--green)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div></div>
+        </div>
+        <div id="aiRiskBackBar" style="display:none;margin:0 0 12px">
+          <button class="btn-back" onclick="goBackFromAiRisk()" style="background:none;border:none;color:var(--blue);cursor:pointer;font-size:13px;font-weight:600;display:flex;align-items:center;gap:5px;padding:6px 0"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Back to AI Risk Dashboard</button>
         </div>
         <div class="fb" style="margin:16px 0">
           <span class="flbl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="13" height="13"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>Filters:</span>
@@ -1277,6 +1309,10 @@ select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2 22l5.5-1.338A9.954 9.954 0 0012 22z"/><path d="M8 9h8M8 13h6"/></svg>
         Chat
       </button>
+      <button id="side_airisk" class="sideItem" onclick="go('airisk')" style="display:flex">
+        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/><path d="M12 8a4 4 0 100 8 4 4 0 000-8z" opacity=".4"/></svg>
+        AI Risk
+      </button>
 
 
 
@@ -1422,6 +1458,67 @@ select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
                 <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
               </button>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ac" id="admin-airisk-page" style="display:none">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:6px">
+          <div>
+            <h1 style="margin:0 0 2px">AI Risk Dashboard</h1>
+            <p class="sub" style="margin:0">AI-powered campus risk analysis and predictions</p>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn-sub" onclick="refreshAiRisk()" id="aiRiskRefreshBtn" style="padding:9px 16px;font-size:13px">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align:middle;margin-right:5px"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 11-2.12-9.36L23 10"/></svg>
+              Refresh
+            </button>
+            <button class="btn-sub" onclick="generateAiReport()" id="aiReportBtn" style="padding:9px 16px;font-size:13px">
+              <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="vertical-align:middle;margin-right:5px"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+              Generate AI Report
+            </button>
+          </div>
+        </div>
+        <p class="sub" id="aiRiskTimestamp" style="margin:0 0 16px;font-size:12px"></p>
+
+        <!-- Risk Overview Cards -->
+        <div class="sg" id="aiRiskOverview"></div>
+
+        <!-- Main Grid: AI Insights + AI Recommendations -->
+        <div class="amid">
+          <div class="ap">
+            <div class="pt"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>AI Insights</div>
+            <div id="aiInsightsContainer"><div class="loading">Loading insights...</div></div>
+          </div>
+          <div class="ap">
+            <div class="pt"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>AI Recommendations</div>
+            <div id="aiRecommendations"><div class="loading">Loading recommendations...</div></div>
+          </div>
+        </div>
+
+        <!-- High-Risk Departments + Repeat Offenders -->
+        <div class="amid" style="margin-bottom:18px">
+          <div class="ap">
+            <div class="pt"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg>High-Risk Departments</div>
+            <div id="aiHighRiskDepts"><div class="loading">Loading...</div></div>
+          </div>
+          <div class="ap">
+            <div class="pt"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg>Repeat Complaint Detection</div>
+            <div id="aiRepeatOffenders"><div class="loading">Loading...</div></div>
+          </div>
+        </div>
+
+        <!-- Trend Charts -->
+        <div class="ap" style="margin-bottom:18px">
+          <div class="pt"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>Complaint Trends (Last 12 Months)</div>
+          <canvas id="aiTrendChart" style="max-height:320px;width:100%"></canvas>
+        </div>
+
+        <!-- Report Output -->
+        <div id="aiReportOutput" style="display:none;margin-bottom:18px">
+          <div class="ap">
+            <div class="pt"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>AI Risk Report</div>
+            <div id="aiReportContent"></div>
           </div>
         </div>
       </div>
@@ -1593,10 +1690,14 @@ select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
 <!-- TOAST -->
 <div class="toast" id="toast"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg><span id="tmsg">Done!</span></div>
 <!-- Overlay root (shared across all pages) -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script>
 // ── Config ───────────────────────────────────────────────────────────────────
 // Use same-origin API (works regardless of port / deployment)
 const API = '/api';
+
+// ── HTML escape helper ─────────────────────────────────────────────────
+function esc(s) { return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
 // ── State ────────────────────────────────────────────────────────────────────
 let token    = sessionStorage.getItem('sv_token') || null;
@@ -1748,6 +1849,8 @@ function afterLogin() {
   if (sideSensitive) sideSensitive.style.display = isAdmin ? 'flex' : 'none';
   const sideResolved = document.getElementById('side_resolved');
   if (sideResolved) sideResolved.style.display = isAdmin ? 'flex' : 'none';
+  const sideAirisk = document.getElementById('side_airisk');
+  if (sideAirisk) sideAirisk.style.display = isAdmin ? 'flex' : 'none';
 
   // Go to admin dashboard for admins; otherwise home for students.
   // Also set sidebar active state.
@@ -2001,6 +2104,310 @@ function openChatListChat(complaintId) {
   openSplitChat(complaintId, prefix);
 }
 
+/* ── AI Risk Dashboard ─────────────────────────────────────────────── */
+let aiRiskData = null;
+let aiTrendChartInstance = null;
+
+async function loadAiRiskDashboard() {
+  const page = document.getElementById('admin-airisk-page');
+  if (!page || page.style.display === 'none') return;
+  try {
+    document.querySelectorAll('#aiRiskOverview, #aiInsightsContainer, #aiTrendChart, #aiHighRiskDepts, #aiRepeatOffenders, #aiRecommendations').forEach(el => {
+      if (el && !el.tagName || el.tagName !== 'CANVAS') {
+        if (el.id !== 'aiTrendChart') el.innerHTML = '<div class="loading">Loading...</div>';
+      }
+    });
+    const ts = document.getElementById('aiRiskTimestamp');
+    if (ts) ts.textContent = 'Analyzing complaint data...';
+    aiRiskData = await apiFetch('/admin/ai-risk-dashboard');
+    renderAiRiskDashboard();
+  } catch (e) {
+    document.querySelectorAll('#aiRiskOverview, #aiInsightsContainer, #aiHighRiskDepts, #aiRepeatOffenders, #aiRecommendations').forEach(el => {
+      if (el) el.innerHTML = '<div style="color:var(--red);padding:14px;text-align:center">Failed to load AI risk data: ' + esc(e.message) + '</div>';
+    });
+    const ts = document.getElementById('aiRiskTimestamp');
+    if (ts) ts.textContent = 'Error loading data';
+  }
+}
+
+function renderAiRiskDashboard() {
+  if (!aiRiskData) return;
+  const ts = document.getElementById('aiRiskTimestamp');
+  if (ts) ts.textContent = 'Last updated: ' + new Date(aiRiskData.computedAt).toLocaleString() + (aiRiskData.ai ? ' (AI-enhanced)' : ' (statistical only)');
+  renderAiRiskOverview();
+  renderInsights();
+  renderTrendChart();
+  renderHighRiskDepts();
+  renderRepeatOffenders();
+  renderRecommendations();
+}
+
+function renderAiRiskOverview() {
+  const el = document.getElementById('aiRiskOverview');
+  if (!el) return;
+  const ai = aiRiskData.ai;
+  const s = aiRiskData.stats;
+  const riskScore = ai?.overallRiskScore ?? Math.round((s.pending + s.sensitive) / Math.max(s.total, 1) * 100);
+  const riskLevel = ai?.overallRiskLevel ?? (riskScore > 60 ? 'High' : riskScore > 30 ? 'Medium' : 'Low');
+  const rlClass = riskLevel.toLowerCase();
+  const cards = [
+    { label: 'Overall Risk Score', value: riskScore + '/100', sub: riskLevel, cls: 'risk-badge ' + rlClass },
+    { label: 'Total Complaints', value: s.total, sub: s.resolved + ' resolved', cls: '' },
+    { label: 'Pending / Under Review', value: s.pending + s.underReview, sub: s.sensitive + ' sensitive', cls: '' },
+    { label: 'Resolution Rate', value: s.resolutionRate + '%', sub: s.total > 0 ? s.resolved + '/' + s.total + ' resolved' : 'No data', cls: '' },
+  ];
+  el.innerHTML = cards.map(c => '<div class="ai-risk-card" style="text-align:center;padding:20px 12px"><div class="ai-risk-score">' + esc(c.value) + '</div><div class="ai-risk-label">' + esc(c.label) + '</div>' + (c.cls ? '<span class="' + c.cls + '" style="margin-top:6px;display:inline-block">' + esc(c.sub) + '</span>' : '<div style="font-size:11px;color:var(--sub);margin-top:6px">' + esc(c.sub) + '</div>') + '</div>').join('');
+}
+
+function renderInsights() {
+  const el = document.getElementById('aiInsightsContainer');
+  if (!el) return;
+  const insights = aiRiskData.ai?.insights;
+  if (insights && insights.length) {
+    el.innerHTML = insights.map(ins => '<div class="ai-insight-card ' + (ins.severity || 'medium').toLowerCase() + '"><div class="title">' + esc(ins.title) + (ins.change ? ' <span style="font-weight:400;color:var(--sub)">' + esc(ins.change) + '</span>' : '') + '</div><div class="desc">' + esc(ins.description) + '</div>' + (ins.recommendedAction ? '<div class="action">Action: ' + esc(ins.recommendedAction) + '</div>' : '') + '</div>').join('');
+    return;
+  }
+  // Fallback: generate local insights from stats
+  const s = aiRiskData.stats;
+  const localInsights = [];
+  const sortedCats = Object.entries(s.categoryDist || {}).sort((a, b) => b[1] - a[1]);
+  if (sortedCats.length) {
+    const top = sortedCats[0];
+    localInsights.push({ title: top[0] + ' has the most complaints', description: top[1] + ' complaints reported in this category.', severity: top[1] > 10 ? 'High' : 'Medium', change: top[1] + ' total' });
+  }
+  if (s.pending > s.resolved) {
+    localInsights.push({ title: 'Pending complaints exceed resolved ones', description: s.pending + ' pending vs ' + s.resolved + ' resolved. Resolution backlog needs attention.', severity: 'High', change: '+' + (s.pending - s.resolved) });
+  } else if (s.resolutionRate > 70) {
+    localInsights.push({ title: 'Good resolution rate', description: s.resolutionRate + '% of complaints are resolved. Campus response is effective.', severity: 'Low', change: s.resolutionRate + '%' });
+  }
+  if (s.sensitive > 0) {
+    localInsights.push({ title: 'Sensitive complaints present', description: s.sensitive + ' complaints marked as sensitive require admin-only handling.', severity: s.sensitive > 5 ? 'Critical' : 'High', change: s.sensitive + ' reports' });
+  }
+  const highPct = s.total > 0 ? Math.round((s.pending + s.underReview) / s.total * 100) : 0;
+  if (highPct > 50) {
+    localInsights.push({ title: 'Over half of complaints are unresolved', description: highPct + '% of complaints are still pending or under review.', severity: 'High', change: highPct + '% unresolved' });
+  }
+  if (s.monthlyTrend && s.monthlyTrend.length >= 2) {
+    const last = s.monthlyTrend[s.monthlyTrend.length - 1];
+    const prev = s.monthlyTrend[s.monthlyTrend.length - 2];
+    if (last && prev) {
+      const diff = last.count - prev.count;
+      if (diff > 0) {
+        localInsights.push({ title: 'Complaints rising month-over-month', description: last.month + ' saw ' + diff + ' more complaints than ' + prev.month + '. Investigate root causes.', severity: 'High', change: '+' + diff });
+      } else if (diff < 0) {
+        localInsights.push({ title: 'Complaints decreasing month-over-month', description: last.month + ' saw ' + Math.abs(diff) + ' fewer complaints than ' + prev.month + '. Positive trend.', severity: 'Low', change: diff + '' });
+      }
+    }
+  }
+  const sortedDepts = Object.entries(s.departmentRisks || {}).sort((a, b) => b[1].count - a[1].count);
+  if (sortedDepts.length && sortedDepts[0][1].count > 3) {
+    const topDept = sortedDepts[0];
+    localInsights.push({ title: topDept[0] + ' is the most reported department', description: topDept[1].count + ' complaints filed against ' + topDept[0] + '.', severity: topDept[1].high > 2 ? 'Critical' : 'High', change: topDept[1].count + ' total' });
+  }
+  if (!localInsights.length) {
+    el.innerHTML = '<div style="padding:14px;color:var(--sub);text-align:center">Not enough data to generate insights.</div>';
+    return;
+  }
+  el.innerHTML = localInsights.map(ins => '<div class="ai-insight-card ' + (ins.severity || 'medium').toLowerCase() + '"><div class="title">' + esc(ins.title) + (ins.change ? ' <span style="font-weight:400;color:var(--sub)">' + esc(ins.change) + '</span>' : '') + '</div><div class="desc">' + esc(ins.description) + '</div></div>').join('');
+}
+
+function renderTrendChart() {
+  if (typeof Chart === 'undefined') return;
+  const canvas = document.getElementById('aiTrendChart');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  if (aiTrendChartInstance) { aiTrendChartInstance.destroy(); aiTrendChartInstance = null; }
+  const trend = aiRiskData.stats.monthlyTrend || [];
+  // Build a map of month -> count
+  const map = {};
+  trend.forEach(t => { map[t.month] = t.count; });
+  // Generate last 12 calendar months
+  const labels = [];
+  const counts = [];
+  const now = new Date();
+  for (let i = 11; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const m = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0');
+    labels.push(m);
+    counts.push(map[m] || 0);
+  }
+  aiTrendChartInstance = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: 'Complaints',
+        data: counts,
+        borderColor: '#3b82f6',
+        backgroundColor: 'rgba(59,130,246,0.1)',
+        fill: true,
+        tension: 0.3,
+        pointRadius: 3,
+        pointBackgroundColor: '#3b82f6',
+        borderWidth: 2,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { ticks: { maxTicksLimit: 12, font: { size: 10 }, maxRotation: 45, minRotation: 0 } },
+        y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 10 } } }
+      }
+    }
+  });
+}
+
+function renderHighRiskDepts() {
+  const el = document.getElementById('aiHighRiskDepts');
+  if (!el) return;
+  const depts = aiRiskData.ai?.departmentRisks;
+  if (depts && depts.length) {
+    const sorted = [...depts].sort((a, b) => b.riskScore - a.riskScore);
+    el.innerHTML = sorted.map(d => {
+      const barColor = d.riskLevel === 'Critical' ? '#dc2626' : d.riskLevel === 'High' ? '#f59e0b' : d.riskLevel === 'Medium' ? '#3b82f6' : '#6b7280';
+      return '<div class="dept-risk-row"><span class="name" style="cursor:pointer;color:var(--blue)" onclick="filterHomeByDepartment(\'' + d.department.replace(/'/g, "\\'") + '\')">' + esc(d.department) + '</span><span class="risk-badge ' + (d.riskLevel || 'medium').toLowerCase() + '" style="margin-left:auto;flex-shrink:0">' + (d.riskLevel || 'Medium') + '</span></div>';
+    }).join('');
+    return;
+  }
+  const stats = aiRiskData.stats;
+  const deptList = Object.entries(stats.departmentRisks || {}).map(([name, d]) => {
+    const score = Math.min(100, Math.round((d.high * 50 + d.pending * 30 + d.sensitive * 20) / Math.max(d.count, 1)));
+    const level = score > 60 ? 'Critical' : score > 40 ? 'High' : score > 20 ? 'Medium' : 'Low';
+    return { department: name, riskScore: score, riskLevel: level };
+  }).sort((a, b) => b.riskScore - a.riskScore);
+  if (!deptList.length) { el.innerHTML = '<div style="padding:14px;color:var(--sub);text-align:center">No department data.</div>'; return; }
+  el.innerHTML = deptList.map(d => {
+    const barColor = d.riskLevel === 'Critical' ? '#dc2626' : d.riskLevel === 'High' ? '#f59e0b' : d.riskLevel === 'Medium' ? '#3b82f6' : '#6b7280';
+    return '<div class="dept-risk-row"><span class="name" style="cursor:pointer;color:var(--blue)" onclick="filterHomeByDepartment(\'' + d.department.replace(/'/g, "\\'") + '\')">' + esc(d.department) + '</span><span class="risk-badge ' + d.riskLevel.toLowerCase() + '" style="margin-left:auto;flex-shrink:0">' + d.riskLevel + '</span></div>';
+  }).join('');
+}
+
+function renderRepeatOffenders() {
+  const el = document.getElementById('aiRepeatOffenders');
+  if (!el) return;
+  const repeats = aiRiskData.repeatComplaints;
+  if (!repeats || !repeats.length) {
+    el.innerHTML = '<div style="padding:14px;color:var(--sub);text-align:center">No repeated complaints detected.</div>';
+    return;
+  }
+  const aiBully = aiRiskData.ai?.bullyingRiskAssessment;
+  const aiRepeat = aiRiskData.ai?.repeatOffenderInsights;
+  let html = '';
+  if (aiBully) html += '<div class="ai-insight-card high" style="margin-bottom:10px"><div class="title">Bullying Risk Assessment</div><div class="desc">' + esc(aiBully) + '</div></div>';
+  if (aiRepeat) html += '<div class="ai-insight-card medium" style="margin-bottom:10px"><div class="title">Repeat Pattern Analysis</div><div class="desc">' + esc(aiRepeat) + '</div></div>';
+  html += repeats.slice(0, 10).map(g => '<div class="repeat-group"><div class="rg-title">' + g.length + ' similar reports' + (g[0].department ? ' in ' + esc(g[0].department) : '') + '</div><div class="rg-meta">First: ' + new Date(g[0].created_at).toLocaleDateString() + ' &middot; Latest: ' + new Date(g[g.length - 1].created_at).toLocaleDateString() + '</div></div>').join('');
+  if (repeats.length > 10) html += '<div style="font-size:11px;color:var(--sub);text-align:center;padding-top:6px">Showing 10 of ' + repeats.length + ' groups</div>';
+  el.innerHTML = html;
+}
+
+function renderRecommendations() {
+  const el = document.getElementById('aiRecommendations');
+  if (!el) return;
+  const recs = aiRiskData.ai?.recommendations;
+  if (recs && recs.length) {
+    el.innerHTML = recs.map(r => '<div class="ai-insight-card ' + (r.priority || 'medium').toLowerCase() + '"><div class="title">[' + (r.area || 'General') + '] ' + esc(r.action) + ' <span class="risk-badge ' + (r.priority || 'medium').toLowerCase() + '" style="margin-left:6px;vertical-align:middle">' + (r.priority || 'Medium') + '</span></div><div class="desc">' + esc(r.reason) + '</div></div>').join('');
+    return;
+  }
+  // Fallback: generate local recommendations from stats
+  const s = aiRiskData.stats;
+  const localRecs = [];
+  const sortedDepts = Object.entries(s.departmentRisks || {}).sort((a, b) => b[1].count - a[1].count);
+  sortedDepts.forEach(([name, d]) => {
+    const score = Math.min(100, Math.round((d.high * 50 + d.pending * 30 + d.sensitive * 20) / Math.max(d.count, 1)));
+    const level = score > 60 ? 'Critical' : score > 40 ? 'High' : score > 20 ? 'Medium' : 'Low';
+    if (score > 40) {
+      localRecs.push({ area: name, priority: level, action: 'Review and address complaints in ' + name, reason: d.count + ' complaints (' + d.high + ' high priority, ' + d.pending + ' pending).' });
+    }
+  });
+  if (s.sensitive > 3) {
+    localRecs.push({ area: 'Sensitive Complaints', priority: 'Critical', action: 'Escalate sensitive complaint handling', reason: s.sensitive + ' sensitive complaints require immediate admin attention.' });
+  }
+  if (s.pending > s.resolved && s.total > 5) {
+    localRecs.push({ area: 'Resolution Process', priority: 'High', action: 'Improve complaint resolution rate', reason: 'Only ' + s.resolutionRate + '% resolved. Focus on clearing the ' + s.pending + ' pending complaints.' });
+  }
+  if (s.total > 0 && s.sensitive > 0) {
+    localRecs.push({ area: 'Reporting', priority: 'Medium', action: 'Generate weekly sensitive complaint report', reason: s.sensitive + ' sensitive cases need tracking to ensure proper handling.' });
+  }
+  if (Object.keys(s.facultyDist || {}).length > 3) {
+    localRecs.push({ area: 'Department Coordination', priority: 'Medium', action: 'Coordinate with department heads on complaint trends', reason: 'Complaints span ' + Object.keys(s.facultyDist).length + ' faculties. Regular cross-department reviews recommended.' });
+  }
+  if (!localRecs.length) {
+    el.innerHTML = '<div style="padding:14px;color:var(--sub);text-align:center">Not enough data to generate recommendations.</div>';
+    return;
+  }
+  el.innerHTML = localRecs.map(r => '<div class="ai-insight-card ' + (r.priority || 'medium').toLowerCase() + '"><div class="title">[' + (r.area || 'General') + '] ' + esc(r.action) + ' <span class="risk-badge ' + (r.priority || 'medium').toLowerCase() + '" style="margin-left:6px;vertical-align:middle">' + (r.priority || 'Medium') + '</span></div><div class="desc">' + esc(r.reason) + '</div></div>').join('');
+}
+
+async function generateAiReport() {
+  const btn = document.getElementById('aiReportBtn');
+  const output = document.getElementById('aiReportOutput');
+  const content = document.getElementById('aiReportContent');
+  if (!btn || !output || !content) return;
+  btn.disabled = true;
+  btn.textContent = 'Generating...';
+  output.style.display = 'block';
+  content.innerHTML = '<div class="loading">Generating AI report...</div>';
+  try {
+    const data = await apiFetch('/admin/ai-report', { method: 'POST' });
+    const report = data.report;
+    const s = data.stats || aiRiskData?.stats;
+    if (report && report.executiveSummary) {
+      let html = '<div class="report-section"><h3>Executive Summary</h3><p>' + esc(report.executiveSummary) + '</p></div>';
+      if (report.topRisks && report.topRisks.length) {
+        html += '<div class="report-section"><h3>Top Risks</h3>' + report.topRisks.map(r => '<div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:13px"><span class="risk-badge ' + (r.severity || 'medium').toLowerCase() + '">' + (r.severity || 'Medium') + '</span> ' + esc(r.risk) + '</div>').join('') + '</div>';
+      }
+      if (report.keyMetrics) {
+        html += '<div class="report-section"><h3>Key Metrics</h3><p style="font-size:13px">Total Complaints: ' + report.keyMetrics.totalComplaints + '<br>Resolution Rate: ' + (report.keyMetrics.resolutionRate || 'N/A') + '<br>Critical Departments: ' + (report.keyMetrics.criticalDepartments || []).join(', ') + '</p></div>';
+      }
+      if (report.recommendedPriorities && report.recommendedPriorities.length) {
+        html += '<div class="report-section"><h3>Recommended Priorities</h3><ul style="font-size:13px;color:var(--sub);padding-left:18px;margin:0">' + report.recommendedPriorities.map(p => '<li style="margin-bottom:4px">' + esc(p) + '</li>').join('') + '</ul></div>';
+      }
+      content.innerHTML = html;
+    } else {
+      // Local report from stats
+      let html = '<div class="report-section"><h3>Campus Safety Report</h3><p style="font-size:13px">Generated on ' + new Date().toLocaleString() + (data.ai ? '' : ' (statistical analysis)') + '</p></div>';
+      html += '<div class="report-section"><h3>Overview</h3><p style="font-size:13px">' + 'Total complaints: ' + s.total + '. Resolved: ' + s.resolved + ' (' + s.resolutionRate + '%). Pending: ' + s.pending + '. Under review: ' + s.underReview + '. Sensitive: ' + s.sensitive + '.</p></div>';
+      const sortedCats = Object.entries(s.categoryDist || {}).sort((a, b) => b[1] - a[1]);
+      if (sortedCats.length) {
+        html += '<div class="report-section"><h3>Category Breakdown</h3><p style="font-size:13px">' + sortedCats.map(([cat, n]) => esc(cat) + ': ' + n).join(' &middot; ') + '</p></div>';
+      }
+      const sortedDepts = Object.entries(s.departmentRisks || {}).sort((a, b) => b[1].count - a[1].count);
+      if (sortedDepts.length) {
+        const critical = sortedDepts.filter(([, d]) => { const score = Math.min(100, Math.round((d.high * 50 + d.pending * 30 + d.sensitive * 20) / Math.max(d.count, 1))); return score > 40; }).map(([n]) => n);
+        html += '<div class="report-section"><h3>High-Risk Departments</h3><p style="font-size:13px">' + (critical.length ? critical.map(c => esc(c)).join(', ') : 'None identified.') + '</p></div>';
+      }
+      if (s.monthlyTrend && s.monthlyTrend.length >= 2) {
+        const last = s.monthlyTrend[s.monthlyTrend.length - 1];
+        const prev = s.monthlyTrend[s.monthlyTrend.length - 2];
+        html += '<div class="report-section"><h3>Trend</h3><p style="font-size:13px">' + (last.count > prev.count ? 'Complaints increased from ' + prev.count + ' to ' + last.count + ' between ' + prev.month + ' and ' + last.month + '.' : 'Complaints decreased from ' + prev.count + ' to ' + last.count + ' between ' + prev.month + ' and ' + last.month + '.') + '</p></div>';
+      }
+      html += '<div class="report-section"><h3>Recommended Actions</h3><ul style="font-size:13px;color:var(--sub);padding-left:18px;margin:0">';
+      if (s.pending > s.resolved) html += '<li style="margin-bottom:4px">Prioritize resolving pending complaints (' + s.pending + ' pending). Current resolution rate is ' + s.resolutionRate + '%.</li>';
+      if (s.sensitive > 3) html += '<li style="margin-bottom:4px">Escalate and track ' + s.sensitive + ' sensitive complaints with dedicated admin oversight.</li>';
+      if (sortedDepts.length && sortedDepts[0][1].count > 3) html += '<li style="margin-bottom:4px">Investigate ' + esc(sortedDepts[0][0]) + ' which has the highest complaint volume (' + sortedDepts[0][1].count + ' complaints).</li>';
+      html += '<li style="margin-bottom:4px">Schedule regular cross-department reviews to address recurring issues.</li></ul></div>';
+      content.innerHTML = html;
+      output.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  } catch (e) {
+    content.innerHTML = '<div style="color:var(--red);padding:14px">Error generating report: ' + esc(e.message) + '</div>';
+    output.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Generate AI Report';
+  }
+}
+
+async function refreshAiRisk() {
+  aiRiskData = null;
+  if (aiTrendChartInstance) { aiTrendChartInstance.destroy(); aiTrendChartInstance = null; }
+  try {
+    await apiFetch('/admin/ai-clear-cache', { method: 'POST' });
+  } catch (e) { /* ignore */ }
+  loadAiRiskDashboard();
+}
 
 function go(p) {
 
@@ -2016,7 +2423,7 @@ function go(p) {
 
   document.querySelectorAll('.page').forEach(x => x.classList.remove('active'));
   // 'adminStudents' and 'adminResolved' are sub-views inside #pg-admin, not standalone #pg-* pages.
-  if (p === 'adminStudents' || p === 'adminResolved' || (p === 'chatList' && currentUser?.role === 'admin')) {
+  if (p === 'adminStudents' || p === 'adminResolved' || p === 'airisk' || (p === 'chatList' && currentUser?.role === 'admin')) {
     document.getElementById('pg-admin').classList.add('active');
   } else {
     document.getElementById('pg-' + p).classList.add('active');
@@ -2124,14 +2531,18 @@ function go(p) {
     if (sideResolved) sideResolved.classList.remove('act');
     const sideChatA = document.getElementById('side_admin_chat');
     if (sideChatA) sideChatA.classList.remove('act');
+    const sideAiriskA = document.getElementById('side_airisk');
+    if (sideAiriskA) sideAiriskA.classList.remove('act');
     const dash = document.getElementById('admin-dashboard-page');
     const stud = document.getElementById('admin-students-page');
     const sens = document.getElementById('admin-sensitive-page');
     const resv = document.getElementById('admin-resolved-page');
+    const airiskPage = document.getElementById('admin-airisk-page');
     if (dash) dash.style.display = 'block';
     if (stud) stud.style.display = 'none';
     if (sens) sens.style.display = 'none';
     if (resv) resv.style.display = 'none';
+    if (airiskPage) airiskPage.style.display = 'none';
     const am2 = document.getElementById('adminMain');
     if (am2) { am2.style.padding = ''; am2.style.overflow = ''; am2.style.display = ''; am2.style.flexDirection = ''; }
   }
@@ -2144,10 +2555,12 @@ function go(p) {
     const stud = document.getElementById('admin-students-page');
     const sens = document.getElementById('admin-sensitive-page');
     const resv = document.getElementById('admin-resolved-page');
+    const airiskPage2 = document.getElementById('admin-airisk-page');
     if (dash) dash.style.display = 'none';
     if (stud) stud.style.display = 'block';
     if (sens) sens.style.display = 'none';
     if (resv) resv.style.display = 'none';
+    if (airiskPage2) airiskPage2.style.display = 'none';
     const sideAdmin = document.getElementById('side_admin');
     const sideStudents = document.getElementById('side_students');
     const sideResolved = document.getElementById('side_resolved');
@@ -2158,6 +2571,8 @@ function go(p) {
     if (sideSensitive) sideSensitive.classList.remove('act');
     const sideChatB = document.getElementById('side_admin_chat');
     if (sideChatB) sideChatB.classList.remove('act');
+    const sideAiriskB = document.getElementById('side_airisk');
+    if (sideAiriskB) sideAiriskB.classList.remove('act');
     loadStudents(true);
     const am3 = document.getElementById('adminMain');
     if (am3) { am3.style.padding = ''; am3.style.overflow = ''; am3.style.display = ''; am3.style.flexDirection = ''; }
@@ -2169,10 +2584,12 @@ function go(p) {
     const stud = document.getElementById('admin-students-page');
     const sens = document.getElementById('admin-sensitive-page');
     const resv = document.getElementById('admin-resolved-page');
+    const airiskPage3 = document.getElementById('admin-airisk-page');
     if (dash) dash.style.display = 'none';
     if (stud) stud.style.display = 'none';
     if (sens) sens.style.display = 'none';
     if (resv) resv.style.display = 'block';
+    if (airiskPage3) airiskPage3.style.display = 'none';
     const sideAdmin = document.getElementById('side_admin');
     const sideStudents = document.getElementById('side_students');
     const sideResolved = document.getElementById('side_resolved');
@@ -2183,6 +2600,8 @@ function go(p) {
     if (sideSensitive) sideSensitive.classList.remove('act');
     const sideChatC = document.getElementById('side_admin_chat');
     if (sideChatC) sideChatC.classList.remove('act');
+    const sideAiriskC = document.getElementById('side_airisk');
+    if (sideAiriskC) sideAiriskC.classList.remove('act');
     // Load with resolved page's own filters
     const rf = document.getElementById('rt2')?.value;
     const rs = document.getElementById('rp2')?.value;
@@ -2230,16 +2649,18 @@ function go(p) {
         const sens = document.getElementById('admin-sensitive-page');
         const resv = document.getElementById('admin-resolved-page');
         const chatv = document.getElementById('admin-chat-page');
+        const airiskPage4 = document.getElementById('admin-airisk-page');
         if (dash) dash.style.display = 'none';
         if (stud) stud.style.display = 'none';
         if (sens) sens.style.display = 'none';
         if (resv) resv.style.display = 'none';
+        if (airiskPage4) airiskPage4.style.display = 'none';
         if (chatv) { chatv.style.display = 'flex'; closeSplitChat(); }
       }
       const am = document.getElementById('adminMain');
       if (am) { am.style.padding = '0'; am.style.overflow = 'hidden'; am.style.display = 'flex'; am.style.flexDirection = 'column'; }
       // Deactivate other admin sidebar items
-      ['side_admin','side_students','side_sensitive','side_resolved'].forEach(id => {
+      ['side_admin','side_students','side_sensitive','side_resolved','side_airisk'].forEach(id => {
         const el = document.getElementById(id); if (el) el.classList.remove('act');
       });
       // Activate admin chat sidebar
@@ -2261,6 +2682,25 @@ function go(p) {
       });
     }
     loadChatList();
+  }
+
+  if (p === 'airisk') {
+    if (adminPage) adminPage.style.display = 'flex';
+    ['admin-dashboard-page','admin-students-page','admin-sensitive-page','admin-resolved-page','admin-chat-page'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.style.display = 'none';
+    });
+    const page = document.getElementById('admin-airisk-page');
+    if (page) page.style.display = 'block';
+    // Deactivate other admin sidebar items
+    ['side_admin','side_students','side_resolved','side_admin_chat'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.classList.remove('act');
+    });
+    // Activate AI Risk sidebar
+    const sideAi = document.getElementById('side_airisk');
+    if (sideAi) sideAi.classList.add('act');
+    const am5 = document.getElementById('adminMain');
+    if (am5) { am5.style.padding = ''; am5.style.overflow = ''; am5.style.display = ''; am5.style.flexDirection = ''; }
+    loadAiRiskDashboard();
   }
 
   // Re-apply unread badge state for any visible navbar instance.
@@ -2772,7 +3212,7 @@ function renderCard(c) {
       <div class="cd">${esc(c.desc)}</div>
       ${attHtml}
       <div class="ctags" style="margin-top:${firstAtt ? '10px' : '0'};">${sp(c.status)}<span class="pill p-cat">${esc(c.cat)}</span>${pp(c.pri)}</div>
-      <div class="ca">Assigned to: <span>${esc(c.dept)}</span></div>
+
       <hr class="cdiv">
       <div class="cf">
         <button class="vb ${c.voted ? 'voted' : ''}" onclick="event.stopPropagation();vote(${c.id})" id="vbtn-${c.id}">
@@ -3023,7 +3463,7 @@ async function cdLoadDetail(id) {
         basicTitle.textContent = localComplaint.title;
         basicDesc.textContent  = localComplaint.desc;
         basicTags.innerHTML = `${sp(localComplaint.status)}<span class="pill p-cat">${esc(localComplaint.cat)}</span>${pp(localComplaint.pri)}<span class="pill" style="background:var(--blue-l);color:var(--blue);">${esc(localComplaint.faculty||'')}</span>`;
-        staffEl.textContent = localComplaint.staff ? `Assigned to: ${localComplaint.staff}` : '';
+        staffEl.textContent = '';
         badgeEl.innerHTML = localComplaint.escalated ? '<span class="pill p-hi">Escalated</span>' : '';
         const photosEl = document.getElementById('cd_photos');
         if (photosEl) photosEl.innerHTML = '<div style="font-size:13px;color:var(--sub);">No photos available.</div>';
@@ -3048,7 +3488,7 @@ async function cdLoadDetail(id) {
       basicTitle.textContent = c.title;
       basicDesc.textContent  = c.desc;
       basicTags.innerHTML = `${sp(c.status)}<span class="pill p-cat">${esc(c.cat)}</span>${pp(c.pri)}<span class="pill" style="background:var(--blue-l);color:var(--blue);">${esc(c.faculty||'')}</span>`;
-      staffEl.textContent = c.staff ? `Assigned to: ${c.staff}` : '';
+      staffEl.textContent = '';
       badgeEl.innerHTML = c.escalated ? '<span class="pill p-hi">Escalated</span>' : '';
 
       const photosWrap = document.getElementById('cd_photos');
@@ -3353,6 +3793,21 @@ function filterTrackView(type, value) {
   renderTrackList();
 }
 
+function filterHomeByDepartment(dept) {
+  go('admin');
+  const bar = document.getElementById('aiRiskBackBar');
+  if (bar) bar.style.display = 'block';
+  var at2 = document.getElementById('at2');
+  if (at2) at2.value = dept;
+  ra();
+}
+
+function goBackFromAiRisk() {
+  go('airisk');
+  const bar = document.getElementById('aiRiskBackBar');
+  if (bar) bar.style.display = 'none';
+}
+
 function filterHomeView(type, value) {
   const sel = document.getElementById('fs');
   if (sel.value === value) {
@@ -3445,8 +3900,7 @@ function renderAdminList() {
           <div class="at" style="cursor:pointer" onclick="openComplaintDetail(${c.id})">${esc(c.title)}</div>
           <div class="ad" style="cursor:pointer" onclick="openComplaintDetail(${c.id})">${esc(c.desc)}</div>
           <div class="atags"><span onclick="event.stopPropagation();filterAdminView('status','${c.status}')" style="cursor:pointer">${sp(c.status)}</span><span class="pill p-cat">${esc(c.faculty)}</span><span onclick="event.stopPropagation();filterAdminView('pri','${c.pri}')" style="cursor:pointer">${pp(c.pri)}</span></div>
-          <div class="aa">Assigned to: <span>${esc(c.dept)}</span></div>
-          <div class="aft">
+          <div class="aft" style="margin-top:10px">
             <div class="afl">${c.votes} upvotes &nbsp; ${ta(c.days)}</div>
           <div style="display:flex;align-items:center;gap:10px;">
             <button class="btn-sub" style="padding:9px 14px;border-radius:10px;white-space:nowrap;background:transparent;color:var(--blue);border:1px solid var(--border);" onclick="event.stopPropagation();openComplaintDetail(${c.id})" type="button">${c.comments_count || 0} comment${(c.comments_count || 0) === 1 ? '' : 's'}</button>
@@ -3490,8 +3944,7 @@ function renderSensitiveList() {
           <div class="at" style="cursor:pointer" onclick="openComplaintDetail(${c.id})">${esc(c.title)}</div>
           <div class="ad" style="cursor:pointer" onclick="openComplaintDetail(${c.id})">${esc(c.desc)}</div>
           <div class="atags"><span onclick="event.stopPropagation();filterSensitiveView('status','${c.status}')" style="cursor:pointer">${sp(c.status)}</span><span class="pill p-cat">${esc(c.faculty)}</span><span onclick="event.stopPropagation();filterSensitiveView('pri','${c.pri}')" style="cursor:pointer">${pp(c.pri)}</span></div>
-          <div class="aa">Assigned to: <span>${esc(c.dept)}</span></div>
-          <div class="aft">
+          <div class="aft" style="margin-top:10px">
             <div class="afl">${c.votes} upvotes &nbsp; ${ta(c.days)}</div>
             <div style="display:flex;align-items:center;gap:10px;">
                <button class="btn-sub" style="padding:9px 14px;border-radius:10px;white-space:nowrap;background:transparent;color:var(--blue);border:1px solid var(--border);" onclick="event.stopPropagation();openComplaintDetail(${c.id})" type="button">${c.comments_count || 0} comment${(c.comments_count || 0) === 1 ? '' : 's'}</button>
@@ -3538,7 +3991,7 @@ function renderSensitiveResolvedList() {
         '<div class="at" style="cursor:pointer" onclick="openComplaintDetail(' + c.id + ')">' + esc(c.title) + '</div>' +
         '<div class="ad" style="cursor:pointer" onclick="openComplaintDetail(' + c.id + ')">' + esc(c.desc) + '</div>' +
         '<div class="atags"><span onclick="event.stopPropagation();filterSensitiveResolvedView(\'status\',\'' + c.status + '\')" style="cursor:pointer">' + sp(c.status) + '</span><span class="pill p-cat">' + esc(c.faculty) + '</span><span onclick="event.stopPropagation();filterSensitiveResolvedView(\'pri\',\'' + c.pri + '\')" style="cursor:pointer">' + pp(c.pri) + '</span></div>' +
-        '<div class="aa">Assigned to: <span>' + esc(c.dept) + '</span></div>' +
+        '' +
         '<div class="aft">' +
           '<div class="afl">' + c.votes + ' upvotes &nbsp; ' + ta(c.days) + '</div>' +
           '<div style="display:flex;align-items:center;gap:10px;">' +
@@ -3628,9 +4081,6 @@ async function updStatus(id, status) {
   }
 }
 // ── Rendering helpers ────────────────────────────────────────────────────────
-function esc(s = '') {
-  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-}
 function sp(s) {
   if (s === 'Pending')      return `<span class="pill p-pend">Pending</span>`;
   if (s === 'Under Review') return `<span class="pill p-rev">Under Review</span>`;
@@ -3734,7 +4184,7 @@ async function loadResolvedComplaints(filters = {}) {
             '<div class="at" style="cursor:pointer" onclick="openComplaintDetail(' + c.id + ')">' + esc(c.title) + '</div>' +
             '<div class="ad" style="cursor:pointer" onclick="openComplaintDetail(' + c.id + ')">' + esc(c.desc) + '</div>' +
             '<div class="atags">' + sp(c.status) + '<span class="pill p-cat">' + esc(c.faculty) + '</span>' + pp(c.pri) + '</div>' +
-            '<div class="aa">Assigned to: <span>' + esc(c.dept) + '</span></div>' +
+            '' +
             '<div class="aft">' +
               '<div class="afl">' + c.votes + ' upvotes &nbsp; ' + ta(c.days) + '</div>' +
               '<div style="display:flex;align-items:center;gap:10px;">' +
@@ -3801,7 +4251,7 @@ async function loadStudentResolvedComplaints() {
               '<div class="at" style="cursor:pointer" onclick="openComplaintDetail(' + c.id + ')">' + esc(c.title) + '</div>' +
               '<div class="ad" style="cursor:pointer" onclick="openComplaintDetail(' + c.id + ')">' + esc(c.desc) + '</div>' +
               '<div class="atags">' + sp(c.status) + '<span class="pill p-cat">' + esc(c.faculty) + '</span>' + pp(c.pri) + '</div>' +
-              '<div class="aa">Assigned to: <span>' + esc(c.dept) + '</span></div>' +
+              '' +
               '<div class="aft">' +
                 '<div class="afl">' + c.votes + ' upvotes &nbsp; ' + ta(c.days) + '</div>' +
                 '<div style="display:flex;align-items:center;gap:10px;">' +
@@ -3822,7 +4272,7 @@ async function loadStudentResolvedComplaints() {
               '<div class="at" style="cursor:pointer" onclick="openComplaintDetail(' + c.id + ')">' + esc(c.title) + '</div>' +
               '<div class="ad" style="cursor:pointer" onclick="openComplaintDetail(' + c.id + ')">' + esc(c.desc) + '</div>' +
               '<div class="atags">' + sp(c.status) + '<span class="pill p-cat">' + esc(c.faculty) + '</span>' + pp(c.pri) + '</div>' +
-              '<div class="aa">Assigned to: <span>' + esc(c.dept) + '</span></div>' +
+              '' +
               '<div class="aft">' +
                 '<div class="afl">' + c.votes + ' upvotes &nbsp; ' + ta(c.days) + '</div>' +
                 '<div style="display:flex;align-items:center;gap:10px;">' +

@@ -274,12 +274,12 @@ async function seed() {
   const student = await get("SELECT id FROM users WHERE email = 'student@college.edu'");
 
   const complaints = [
-    ['Mess food quality has deteriorated', 'Food quality issue', 'Under Review', 'Food', 'Food Services', 'High', 0, 67, 66],
-    ['AC not working in Block A classrooms', 'AC issue', 'Under Review', 'Infrastructure', 'Facilities Management', 'High', 0, 45, 66],
-    ['Library closes too early on weekends', 'Timing issue', 'Pending', 'Library', 'Library Services', 'Medium', 0, 32, 33],
-    ['Parking lot lighting issues', 'Safety issue', 'Pending', 'Infrastructure', 'Campus Security', 'High', 0, 19, 20],
-    ['Hostel hot water not working', 'Water issue', 'Pending', 'Hostel', 'Hostel Management', 'Medium', 0, 28, 25],
-    ['Wi-Fi in library reading room', 'Network issue', 'Resolved', 'Library', 'IT Services', 'Low', 0, 41, 100]
+    ['Mess food quality has deteriorated', 'Food quality issue', 'Under Review', 'Food', 'Food Services', 'High', 0, 'Dining Services', 67, 66],
+    ['AC not working in Block A classrooms', 'AC issue', 'Under Review', 'Infrastructure', 'Facilities Management', 'High', 0, 'Facilities Management', 45, 66],
+    ['Library closes too early on weekends', 'Timing issue', 'Pending', 'Library', 'Library Services', 'Medium', 0, 'Library Services', 32, 33],
+    ['Parking lot lighting issues', 'Safety issue', 'Pending', 'Infrastructure', 'Campus Security', 'High', 0, 'Campus Security', 19, 20],
+    ['Hostel hot water not working', 'Water issue', 'Pending', 'Hostel', 'Hostel Management', 'Medium', 0, 'Hostel Management', 28, 25],
+    ['Wi-Fi in library reading room', 'Network issue', 'Resolved', 'Library', 'IT Services', 'Low', 0, 'IT Services', 41, 100]
   ];
 
   for (const c of complaints) {

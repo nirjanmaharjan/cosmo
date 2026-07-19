@@ -2,6 +2,7 @@ const express = require('express');
 const db = require('../db');
 const { requireAuth, requireAdmin } = require('../middleware/auth');
 const bcrypt = require('bcryptjs');
+const { getRiskDashboard, generateAiReport, clearCache } = require('../services/geminiRiskAnalysis');
 
 const router = express.Router();
 
@@ -289,7 +290,33 @@ router.delete(
   }
 );
 
+// GET /api/admin/ai-risk-dashboard
+router.get('/ai-risk-dashboard', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const data = await getRiskDashboard();
+    res.json(data);
+  } catch (err) {
+    console.error('AI risk dashboard error:', err);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+});
+
+// POST /api/admin/ai-report
+router.post('/ai-report', requireAuth, requireAdmin, async (req, res) => {
+  try {
+    const data = await generateAiReport();
+    res.json(data);
+  } catch (err) {
+    console.error('AI report error:', err);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+});
+
+// POST /api/admin/ai-clear-cache
+router.post('/ai-clear-cache', requireAuth, requireAdmin, async (req, res) => {
+  clearCache();
+  res.json({ message: 'Cache cleared.' });
+});
+
 module.exports = router;
-
-
 
