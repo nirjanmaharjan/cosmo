@@ -47,6 +47,56 @@ router.post('/password-reset', requireAuth, async (req, res) => {
   }
 });
 
+// ── POST /api/auth/forgot-password ────────────────────────────────────────
+// Unauthenticated — allows user to reset password from the login page.
+router.post('/forgot-password', async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({ error: 'Email and new password are required.' });
+    }
+    if (typeof password !== 'string' || password.length < 8) {
+      return res.status(400).json({ error: 'Password must be at least 8 characters.' });
+    }
+    if (!/[0-9]/.test(password)) {
+      return res.status(400).json({ error: 'Password must contain at least one number.' });
+    }
+    if (!/[^a-zA-Z0-9]/.test(password)) {
+      return res.status(400).json({ error: 'Password must contain at least one special character.' });
+    }
+
+    const user = await new Promise((resolve, reject) => {
+      db.get('SELECT id FROM users WHERE email = ?', [email.trim()], (err, row) => {
+        if (err) reject(err);
+        else resolve(row);
+      });
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: 'No account found with that email.' });
+    }
+
+    const hashed = bcrypt.hashSync(password, 10);
+
+    await new Promise((resolve, reject) => {
+      db.run(
+        'UPDATE users SET password = ? WHERE id = ?',
+        [hashed, user.id],
+        function (err) {
+          if (err) reject(err);
+          else resolve(this);
+        }
+      );
+    });
+
+    return res.json({ message: 'Password has been reset. You can now sign in.' });
+  } catch (err) {
+    console.error('Forgot password error:', err);
+    res.status(500).json({ error: 'Internal server error.' });
+  }
+});
+
 
 // ── POST /api/auth/login ─────────────────────────────────────────────────────
 router.post('/login', async (req, res) => {
@@ -73,7 +123,7 @@ router.post('/login', async (req, res) => {
 
     return res.json({
       token,
-      user: { id: user.id, email: user.email, role: user.role }
+      user: { id: user.id, email: user.email, role: user.role, name: user.name }
     });
   } catch (err) {
     console.error('Login error:', err);
@@ -137,7 +187,7 @@ router.post('/register', async (req, res) => {
 router.get('/me', requireAuth, async (req, res) => {
   try {
     const user = await new Promise((resolve, reject) => {
-      db.get('SELECT id, email, role, created_at FROM users WHERE id = ?', [req.user.id], (err, row) => {
+      db.get('SELECT id, email, role, name, created_at FROM users WHERE id = ?', [req.user.id], (err, row) => {
         if (err) reject(err);
         else resolve(row);
       });

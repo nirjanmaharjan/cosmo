@@ -10,6 +10,7 @@ const { requireAuth, requireAdmin } = require('../middleware/auth');
 
 const { categorizeComplaint, hasSensitiveKeywords } = require('../utils/aiCategorizer');
 const { hashId } = require('../utils/anon');
+const { clearCache: clearAiCache } = require('../services/geminiRiskAnalysis');
 
 const router = express.Router();
 
@@ -781,6 +782,7 @@ router.post('/', requireAuth, upload.array('photos', 10), async (req, res) => {
     });
 
     const attachments = await fetchAttachments(info.lastID);
+    clearAiCache();
     res.status(201).json({ complaint: format(row, new Set(), attachments) });
   } catch (err) {
     console.error('Create complaint error:', err);
@@ -822,6 +824,7 @@ router.patch('/:id/status', requireAuth, requireAdmin, async (req, res) => {
       });
     });
 
+    clearAiCache();
     res.json({ complaint: format(row) });
   } catch (err) {
     console.error('Update status error:', err);
@@ -940,6 +943,7 @@ router.delete('/:id', requireAuth, requireAdmin, async (req, res) => {
     });
 
     if (info.changes === 0) return res.status(404).json({ error: 'Complaint not found.' });
+    clearAiCache();
     res.json({ message: 'Complaint deleted.' });
   } catch (err) {
     console.error('Delete complaint error:', err);
@@ -955,7 +959,7 @@ router.post('/describe-image', requireAuth, upload.single('image'), async (req, 
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
       fs.unlink(req.file.path, () => {});
-      return res.json({ title: 'Complaint with photo', description: 'Photo attached by user.' });
+      return res.json({ title: 'Complaint with photo', description: 'Photo attached by user. Please describe the issue in the text fields above.' });
     }
 
     const imagePath = req.file.path;
@@ -963,7 +967,7 @@ router.post('/describe-image', requireAuth, upload.single('image'), async (req, 
     const base64 = imageData.toString('base64');
     const mimeType = req.file.mimetype;
 
-    const model = process.env.GEMINI_MODEL || 'gemini-3.5-flash';
+    const model = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
     const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
     const body = {
@@ -985,7 +989,8 @@ router.post('/describe-image', requireAuth, upload.single('image'), async (req, 
 
     if (!resp.ok) {
       console.error('[describe-image] HTTP', resp.status, JSON.stringify(data));
-      return res.status(500).json({ error: 'Gemini API error: ' + (data?.error?.message || resp.status) });
+      fs.unlink(imagePath, () => {});
+      return res.json({ title: 'Complaint with photo', description: 'Photo attached by user. Please describe the issue in the text fields above.' });
     }
 
     const raw = data?.candidates?.[0]?.content?.parts?.map(p => p.text).filter(Boolean).join(' ') || '';

@@ -351,6 +351,9 @@ select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
 .scard.pend .slb,.scard.pend .sn{color:var(--yellow)}
 .scard.rev .slb,.scard.rev .sn{color:var(--blue)}
 .scard.reso .slb,.scard.reso .sn{color:var(--green)}
+.scard.total{border-color:rgba(139,92,246,0.2);background:rgba(245,243,255,0.4)}
+[data-theme="dark"] .scard.total{background:rgba(139,92,246,0.08)}
+.scard.total .slb,.scard.total .sn{color:var(--purple,#8b5cf6)}
 .sico{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,0.3);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center}
 .sico svg{width:20px;height:20px;opacity:0.7}
 .tcard{background:var(--card-bg);backdrop-filter:var(--glass-blur);-webkit-backdrop-filter:var(--glass-blur);border:1px solid var(--glass-border);border-radius:var(--radius);padding:20px 24px;margin-bottom:14px;box-shadow:var(--glass-shadow);transition:all .2s;position:relative;overflow:hidden}
@@ -619,10 +622,13 @@ select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
         <div class="iw">
           <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
           <input type="password" id="pw" placeholder="••••••••" value="password">
+          <span onclick="togglePw('pw')" style="cursor:pointer;position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--sub);">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="18" height="18"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </span>
         </div>
       </div>
-      <div class="rrow">
-        <label><input type="checkbox"> Remember me</label>
+      <div style="display:flex;justify-content:flex-end;margin-bottom:20px;">
+        <a href="#" onclick="openResetPasswordFromLogin();return false;" style="font-size:13px;color:var(--blue);font-weight:600;text-decoration:none;">Forgot Password?</a>
       </div>
 
       <button class="btn-blue" id="login-btn" onclick="login()">Sign In</button>
@@ -697,7 +703,7 @@ select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
         <button class="av" id="av1" onclick="toggleDD(event)">S</button>
         <div class="profile-dd" id="dd1">
           <div class="dd-email" id="dd-email1">student@college.edu</div>
-          <button class="dd-item" onclick="openResetPassword()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6"/><path d="M23 11h-6"/></svg>Reset Password</button>
+          <button class="dd-item" onclick="openResetPassword()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>Reset Password</button>
           <button class="dd-item" onclick="signOut()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out</button>
         </div>
       </div>
@@ -713,10 +719,6 @@ select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
       <button id="side_student_track" class="sideItem" onclick="go('track')" style="display:flex">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="12" y2="15"/></svg>
         Track Status
-      </button>
-      <button id="side_student_active" class="sideItem" onclick="go('studentActive')" style="display:flex">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        Active Cases
       </button>
       <button id="side_student_resolved" class="sideItem" onclick="go('studentResolved')" style="display:flex">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 4 12 14.01 9 11.01"/></svg>
@@ -739,7 +741,7 @@ select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
     <main class="studentMain">
       <div class="hc">
         <div class="welcome-hero">
-          <h1>Hey there, <span id="welcomeName">Student</span> 👋</h1>
+          <h1>Hey there, <span id="welcomeName">Student</span></h1>
           <p>Welcome to your campus complaint dashboard. Speak up, track progress, and help make your college better.</p>
         </div>
         <div class="sb2" style="margin-bottom:20px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input type="text" id="hs" placeholder="Search complaints by title, description, or category..." oninput="rf()"></div>
@@ -750,15 +752,15 @@ select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
         <div class="scards">
           <div class="scard pend" onclick="filterHomeView('status','Pending')" style="cursor:pointer"><div><div class="slb">Pending</div><div class="sn" id="hp">—</div></div><div class="sico" style="color:var(--yellow)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div></div>
           <div class="scard rev" onclick="filterHomeView('status','Under Review')" style="cursor:pointer"><div><div class="slb">Under Review</div><div class="sn" id="hr">—</div></div><div class="sico" style="color:var(--blue)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div></div>
-          <div class="scard reso" onclick="filterHomeView('status','Resolved')" style="cursor:pointer"><div><div class="slb">Resolved</div><div class="sn" id="hres">—</div></div><div class="sico" style="color:var(--green)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div></div>
+          <div class="scard total" onclick="filterHomeView('status','')" style="cursor:pointer"><div><div class="slb">Total</div><div class="sn" id="htot">—</div></div><div class="sico" style="color:var(--purple,#8b5cf6)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div></div>
         </div>
         <div id="aiRiskBackBar" style="display:none;margin:0 0 12px">
           <button class="btn-back" onclick="goBackFromAiRisk()" style="background:none;border:none;color:var(--blue);cursor:pointer;font-size:13px;font-weight:600;display:flex;align-items:center;gap:5px;padding:6px 0"><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>Back to AI Risk Dashboard</button>
         </div>
         <div class="fb" style="margin:16px 0">
           <span class="flbl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="13" height="13"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>Filters:</span>
-          <select id="fs" onchange="rf()"><option value="">All Status</option><option>Pending</option><option>Under Review</option><option>Resolved</option></select>
-          <select id="fc" onchange="rf()"><option value="">All Categories</option><option>Food Services</option><option>Facilities</option><option>Library</option><option>Hostel</option><option>Security</option><option>IT Services</option><option>Transport</option><option>Administration</option></select>
+          <select id="fs" onchange="rf()"><option value="">All Status</option><option>Pending</option><option>Under Review</option></select>
+          <select id="fc" onchange="rf()"><option value="">All Categories</option><option>Food Services</option><option>Facilities</option><option>Library</option><option>Hostel</option><option>Security</option><option>IT Services</option><option>Transport</option><option>Administration</option><option>Others</option></select>
           <select id="fp" onchange="rf()"><option value="">All Priority</option><option value="High">High</option><option value="Medium">Medium</option><option value="Low">Low</option></select>
           <span class="slbl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="13" height="13"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>Sort by:</span>
           <select id="so" onchange="rf()"><option value="priority">Priority</option><option value="votes">Most Liked</option><option value="new">Newest</option><option value="old">Oldest</option></select>
@@ -850,7 +852,7 @@ select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
         <button class="av" id="av2" onclick="toggleDD(event)">S</button>
         <div class="profile-dd" id="dd2">
           <div class="dd-email" id="dd-email2">student@college.edu</div>
-          <button class="dd-item" onclick="openResetPassword()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6"/><path d="M23 11h-6"/></svg>Reset Password</button>
+          <button class="dd-item" onclick="openResetPassword()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>Reset Password</button>
           <button class="dd-item" onclick="signOut()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out</button>
         </div>
       </div>
@@ -867,10 +869,6 @@ select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
       <button id="side_student_track2" class="sideItem act" onclick="go('track')" style="display:flex">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="12" y2="15"/></svg>
         Track Status
-      </button>
-      <button id="side_student_active2" class="sideItem" onclick="go('studentActive')" style="display:flex">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        Active Cases
       </button>
       <button id="side_student_resolved2" class="sideItem" onclick="go('studentResolved')" style="display:flex">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 4 12 14.01 9 11.01"/></svg>
@@ -899,11 +897,11 @@ select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
         <div class="scards">
           <div class="scard pend" onclick="filterTrackView('status','Pending')" style="cursor:pointer"><div><div class="slb">Pending</div><div class="sn" id="tp">—</div></div><div class="sico" style="color:var(--yellow)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div></div>
           <div class="scard rev" onclick="filterTrackView('status','Under Review')" style="cursor:pointer"><div><div class="slb">Under Review</div><div class="sn" id="tr2">—</div></div><div class="sico" style="color:var(--blue)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div></div>
-          <div class="scard reso" onclick="filterTrackView('status','Resolved')" style="cursor:pointer"><div><div class="slb">Resolved</div><div class="sn" id="tres">—</div></div><div class="sico" style="color:var(--green)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div></div>
+          <div class="scard total" onclick="filterTrackView('status','')" style="cursor:pointer"><div><div class="slb">Total</div><div class="sn" id="ttot">—</div></div><div class="sico" style="color:var(--purple,#8b5cf6)"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H6a4 4 0 00-4-4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/></svg></div></div>
         </div>
         <div class="fb" style="margin:16px 0">
           <span class="flbl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="13" height="13"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>Filters:</span>
-          <select id="tfc" onchange="rt()"><option value="">All Categories</option><option>Food Services</option><option>Facilities</option><option>Library</option><option>Hostel</option><option>Security</option><option>IT Services</option><option>Transport</option><option>Administration</option></select>
+          <select id="tfc" onchange="rt()"><option value="">All Categories</option><option>Food Services</option><option>Facilities</option><option>Library</option><option>Hostel</option><option>Security</option><option>IT Services</option><option>Transport</option><option>Administration</option><option>Others</option></select>
           <select id="tfp" onchange="rt()"><option value="">All Priority</option><option value="High">High</option><option value="Medium">Medium</option><option value="Low">Low</option></select>
           <span class="slbl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="13" height="13"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>Sort by:</span>
           <select id="tso" onchange="rt()"><option value="new">Newest</option><option value="old">Oldest</option><option value="votes">Most Upvoted</option></select>
@@ -968,7 +966,7 @@ select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
         <button class="av" id="av4" onclick="toggleDD(event)">S</button>
         <div class="profile-dd" id="dd4">
           <div class="dd-email" id="dd-email4">student@college.edu</div>
-          <button class="dd-item" onclick="openResetPassword()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6"/><path d="M23 11h-6"/></svg>Reset Password</button>
+          <button class="dd-item" onclick="openResetPassword()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>Reset Password</button>
           <button class="dd-item" onclick="signOut()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out</button>
         </div>
       </div>
@@ -984,10 +982,6 @@ select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
       <button id="side_student_track3" class="sideItem" onclick="go('track')" style="display:flex">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="12" y2="15"/></svg>
         Track Status
-      </button>
-      <button id="side_student_active3" class="sideItem" onclick="go('studentActive')" style="display:flex">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        Active Cases
       </button>
       <button id="side_student_resolved3" class="sideItem act" onclick="go('studentResolved')" style="display:flex">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 4 12 14.01 9 11.01"/></svg>
@@ -1028,105 +1022,6 @@ select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
   </div>
 </div>
 <!-- STUDENT ACTIVE -->
-<div id="pg-studentActive" class="page">
-  <nav class="nav">
-    <div class="nb"><div class="ni" style="background:transparent"><img src="/College%20Complaint%20System.png" alt="SafeVoice" style="width:52px;height:52px;object-fit:contain"></div><div><h3>SafeVoice</h3><p>College Complaint System</p></div></div>
-    <div class="nls">
-      <button class="nl" id="alink5" onclick="go('admin')" style="display:none"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 10-16 0"/></svg>Admin</button>
-    </div>
-    <div class="na">
-      <button class="ham-toggle" onclick="toggleSidebar()" aria-label="Menu">
-        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="20" height="20"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-      </button>
-      <button class="ls-trigger" id="lsTrigger6" onclick="toggleLivePopout(event)" title="Live Status">
-        <span class="ls-dot"></span>
-        Live
-      </button>
-      <div class="ls-popout" id="lsPopout6">
-        <h4><span class="ls-dot"></span>Today's Status</h4>
-        <div class="ls-row"><span>Received today</span><span class="ls-val" id="lsReceived6">—</span></div>
-        <div class="ls-row"><span>Total received</span><span class="ls-val" id="lsTotal6">—</span></div>
-        <div class="ls-row" style="border-bottom:none;padding-top:12px;margin-top:8px;border-top:1px solid var(--border)"><span>User Activity</span><span class="ls-val" id="lsActive6">—</span></div>
-      </div>
-      <button class="theme-toggle" id="themeToggle6" onclick="toggleTheme()" title="Toggle theme">
-        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="16" height="16"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
-      </button>
-      <div class="av-wrap" style="margin-right:10px;">
-        <button class="av" id="bellBtn6" style="background:transparent;color:var(--sub)" onclick="toggleNotif(event)" aria-label="Notifications">
-          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="18" height="18">
-            <path d="M18 8a6 6 0 10-12 0c0 7-3 7-3 7h18s-3 0-3-7"/>
-            <path d="M13.73 21a2 2 0 01-3.46 0"/>
-          </svg>
-          <span id="notifDot6" class="notifDot"></span>
-        </button>
-        <div class="profile-dd" id="notifPanel6" style="min-width:320px;right:0;left:auto;animation:none">
-          <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:10px;">
-            <span style="font-size:13px;font-weight:700;color:var(--text);">Notifications</span>
-            <div style="display:flex;align-items:center;gap:8px;">
-              <button style="background:none;border:none;color:var(--blue);font-weight:700;cursor:pointer;font-size:13px" onclick="markAllRead()">Mark all read</button>
-            </div>
-          </div>
-          <div id="notifList6"></div>
-        </div>
-      </div>
-      <div class="av-wrap">
-        <button class="av" id="av6" onclick="toggleDD(event)">S</button>
-        <div class="profile-dd" id="dd6">
-          <div class="dd-email" id="dd-email6">student@college.edu</div>
-          <button class="dd-item" onclick="openResetPassword()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6"/><path d="M23 11h-6"/></svg>Reset Password</button>
-          <button class="dd-item" onclick="signOut()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out</button>
-        </div>
-      </div>
-    </div>
-  </nav>
-  <div class="studentShell">
-    <aside class="studentSide">
-      <button id="side_student_home4" class="sideItem" onclick="go('home')" style="display:flex">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-        Home
-      </button>
-      <button id="side_student_track4" class="sideItem" onclick="go('track')" style="display:flex">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="12" y2="15"/></svg>
-        Track Status
-      </button>
-      <button id="side_student_active4" class="sideItem act" onclick="go('studentActive')" style="display:flex">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        Active Cases
-      </button>
-      <button id="side_student_resolved4" class="sideItem" onclick="go('studentResolved')" style="display:flex">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 4 12 14.01 9 11.01"/></svg>
-        Resolved
-      </button>
-      <button id="side_student_analytics4" class="sideItem" onclick="go('studentAnalytics')" style="display:flex">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M18 20V10m-6 10V4M6 20v-6"/></svg>
-        Analytics
-      </button>
-      <button id="side_student_chat4" class="sideItem" onclick="go('chatList')" style="display:flex">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2 22l5.5-1.338A9.954 9.954 0 0012 22z"/><path d="M8 9h8M8 13h6"/></svg>
-        Chat
-      </button>
-      <button class="sideItem add-btn" onclick="openM()">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Add Complaint
-      </button>
-    </aside>
-    <main class="studentMain">
-      <div class="hc">
-        <div style="margin:24px 0 16px"><h2 style="margin:0">Active Cases</h2><p style="font-size:13px;color:var(--sub);margin:4px 0 0">Complaints that are pending or under review</p></div>
-        <div class="fb">
-          <span class="flbl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="13" height="13"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>Filters:</span>
-          <select id="fs2" onchange="rfActive()"><option value="">All Status</option><option>Pending</option><option>Under Review</option></select>
-          <select id="fc2" onchange="rfActive()"><option value="">All Categories</option><option>Food Services</option><option>Facilities</option><option>Library</option><option>Hostel</option><option>Security</option><option>IT Services</option><option>Transport</option><option>Administration</option></select>
-          <select id="fp2" onchange="rfActive()"><option value="">All Priority</option><option value="High">High</option><option value="Medium">Medium</option><option value="Low">Low</option></select>
-          <span class="slbl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="13" height="13"><path d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>Sort by:</span>
-          <select id="so2" onchange="rfActive()"><option value="votes">Most Liked</option><option value="new">Newest</option><option value="old">Oldest</option></select>
-        </div>
-        <div class="fh"><h2>Active Complaint Feed</h2><span id="cnt2"></span></div>
-        <div id="feed2"><div class="loading">Loading active complaints…</div></div>
-      </div>
-    </main>
-  </div>
-</div>
 <!-- STUDENT ANALYTICS -->
 <div id="pg-studentAnalytics" class="page">
   <nav class="nav">
@@ -1173,7 +1068,7 @@ select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
         <button class="av" id="av7" onclick="toggleDD(event)">S</button>
         <div class="profile-dd" id="dd7">
           <div class="dd-email" id="dd-email7">student@college.edu</div>
-          <button class="dd-item" onclick="openResetPassword()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6"/><path d="M23 11h-6"/></svg>Reset Password</button>
+          <button class="dd-item" onclick="openResetPassword()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>Reset Password</button>
           <button class="dd-item" onclick="signOut()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out</button>
         </div>
       </div>
@@ -1188,10 +1083,6 @@ select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
       <button id="side_student_track5" class="sideItem" onclick="go('track')" style="display:flex">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="12" y2="15"/></svg>
         Track Status
-      </button>
-      <button id="side_student_active5" class="sideItem" onclick="go('studentActive')" style="display:flex">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        Active Cases
       </button>
       <button id="side_student_resolved5" class="sideItem" onclick="go('studentResolved')" style="display:flex">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 4 12 14.01 9 11.01"/></svg>
@@ -1215,7 +1106,7 @@ select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
         <div style="margin:24px 0 16px"><h2 style="margin:0">Analytics</h2><p style="font-size:13px;color:var(--sub);margin:4px 0 0">Overview of your complaint statistics</p></div>
         <div class="fb" style="margin-bottom:20px">
           <span class="flbl"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="13" height="13"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>Filters:</span>
-          <select id="afc" onchange="loadStudentAnalytics()"><option value="">All Categories</option><option>Food Services</option><option>Facilities</option><option>Library</option><option>Hostel</option><option>Security</option><option>IT Services</option><option>Transport</option><option>Administration</option></select>
+          <select id="afc" onchange="loadStudentAnalytics()"><option value="">All Categories</option><option>Food Services</option><option>Facilities</option><option>Library</option><option>Hostel</option><option>Security</option><option>IT Services</option><option>Transport</option><option>Administration</option><option>Others</option></select>
           <select id="afp" onchange="loadStudentAnalytics()"><option value="">All Priority</option><option value="High">High</option><option value="Medium">Medium</option><option value="Low">Low</option></select>
         </div>
         <div class="welcome-stats" id="analyticsStats"></div>
@@ -1277,7 +1168,7 @@ select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
         <div class="profile-dd" id="dd3">
 
           <div class="dd-email" id="dd-email3">admin@college.edu</div>
-          <button class="dd-item" onclick="openResetPassword()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6"/><path d="M23 11h-6"/></svg>Reset Password</button>
+          <button class="dd-item" onclick="openResetPassword()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>Reset Password</button>
           <button class="dd-item" onclick="signOut()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out</button>
         </div>
       </div>
@@ -1333,6 +1224,7 @@ select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
       <div class="ac" id="admin-dashboard-page">
         <h1>Admin Dashboard</h1>
         <p class="sub">Manage and monitor all campus complaints</p>
+        <div class="sb2" style="margin-bottom:14px"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg><input type="text" id="as" placeholder="Search complaints by title, description, or category..." oninput="ra()"></div>
         <div class="sg" id="astats"></div>
         <div class="amid">
           <div class="ap"><div class="pt"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>Category Breakdown</div><div class="cr" id="catb"></div></div>
@@ -1620,7 +1512,7 @@ select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
         <button class="av" id="av8" onclick="toggleDD(event)">S</button>
         <div class="profile-dd" id="dd8">
           <div class="dd-email" id="dd-email8">student@college.edu</div>
-          <button class="dd-item" onclick="openResetPassword()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="8.5" cy="7" r="4"/><path d="M20 8v6"/><path d="M23 11h-6"/></svg>Reset Password</button>
+          <button class="dd-item" onclick="openResetPassword()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>Reset Password</button>
           <button class="dd-item" onclick="signOut()"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>Sign Out</button>
         </div>
       </div>
@@ -1636,10 +1528,6 @@ select:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,0.1)}
       <button id="side_chatList_track" class="sideItem" onclick="go('track')" style="display:flex">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="9" y1="7" x2="15" y2="7"/><line x1="9" y1="11" x2="15" y2="11"/><line x1="9" y1="15" x2="12" y2="15"/></svg>
         Track Status
-      </button>
-      <button id="side_chatList_active" class="sideItem" onclick="go('studentActive')" style="display:flex">
-        <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        Active Cases
       </button>
       <button id="side_chatList_resolved" class="sideItem" onclick="go('studentResolved')" style="display:flex">
         <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 4 12 14.01 9 11.01"/></svg>
@@ -1883,36 +1771,86 @@ function signOut() {
   toast('Signed out successfully.');
 }
 function showRegister() {
-  toast('Sign up is disabled. Please sign in.');
+  go('login');
 }
 
 function openResetPasswordFromLogin() {
-  // The backend reset endpoint is authenticated (requires JWT), so on the login page we can only reset
-  // for users who are already signed in (token present).
-  const existingToken = sessionStorage.getItem('sv_token');
-  if (!existingToken) {
-    toast('Please sign in first to reset your password.');
-    return;
-  }
+  const existing = document.getElementById('forgotPwModal');
+  if (existing) existing.remove();
 
-  if (!currentUser) {
-    // Best-effort: fetch current user, then open modal.
-    apiFetch('/auth/me')
-      .then(data => {
-        currentUser = data.user;
-        openResetPassword();
-      })
-      .catch(() => {
-        // Token invalid/expired.
-        sessionStorage.removeItem('sv_token');
-        token = null;
-        currentUser = null;
-        toast('Please sign in again to reset your password.', false);
-      });
-    return;
-  }
+  const modal = document.createElement('div');
+  modal.id = 'forgotPwModal';
+  modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:2000;display:flex;align-items:center;justify-content:center;';
 
-  openResetPassword();
+  modal.innerHTML = `
+    <div style="width:100%;max-width:420px;background:#fff;border-radius:16px;border:1px solid var(--border);box-shadow:0 16px 60px rgba(0,0,0,.25);overflow:hidden;margin:16px;">
+      <div style="padding:14px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div style="font-size:13px;font-weight:900;color:var(--text);">Reset Password</div>
+          <div style="font-size:11px;color:var(--sub);margin-top:2px;">Enter your email and new password</div>
+        </div>
+        <button onclick="document.getElementById('forgotPwModal').remove()" style="background:none;border:none;color:var(--blue);font-weight:900;cursor:pointer;font-size:13px;">Close</button>
+      </div>
+      <div style="padding:16px;">
+        <div class="fg" style="margin-bottom:14px;">
+          <label style="display:block;font-size:13px;font-weight:500;margin-bottom:6px;color:var(--sub);">Email Address</label>
+          <div class="iw">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:15px;height:15px;position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--sub)"><path d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
+            <input type="email" id="fp-email" placeholder="you@college.edu" style="padding:10px 12px 10px 36px;width:100%;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;outline:none;" />
+          </div>
+        </div>
+        <div class="fg" style="margin-bottom:14px;">
+          <label style="display:block;font-size:13px;font-weight:500;margin-bottom:6px;color:var(--sub);">New Password</label>
+          <div class="iw">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:15px;height:15px;position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--sub)"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            <input type="password" id="fp-pw" placeholder="Min 8 chars, 1 number, 1 special" style="padding:10px 12px 10px 36px;width:100%;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;outline:none;" />
+            <span onclick="togglePw('fp-pw')" style="cursor:pointer;position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--sub);">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="18" height="18"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </span>
+          </div>
+        </div>
+        <div class="fg" style="margin-bottom:14px;">
+          <label style="display:block;font-size:13px;font-weight:500;margin-bottom:6px;color:var(--sub);">Confirm Password</label>
+          <div class="iw">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:15px;height:15px;position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--sub)"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            <input type="password" id="fp-pw2" placeholder="Re-enter new password" style="padding:10px 12px 10px 36px;width:100%;border:1.5px solid var(--border);border-radius:8px;font-size:14px;font-family:inherit;outline:none;" />
+            <span onclick="togglePw('fp-pw2')" style="cursor:pointer;position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--sub);">
+              <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="18" height="18"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+            </span>
+          </div>
+        </div>
+        <button class="btn-blue" id="fp-btn" onclick="submitForgotPassword()" style="margin-top:4px;">Reset Password</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+}
+
+async function submitForgotPassword() {
+  const email = document.getElementById('fp-email')?.value?.trim() || '';
+  const pw1 = document.getElementById('fp-pw')?.value || '';
+  const pw2 = document.getElementById('fp-pw2')?.value || '';
+  if (!email) { toast('Please enter your email.', false); return; }
+  if (pw1.length < 8) { toast('Password must be at least 8 characters.', false); return; }
+  if (!/[0-9]/.test(pw1)) { toast('Password must contain at least one number.', false); return; }
+  if (!/[^a-zA-Z0-9]/.test(pw1)) { toast('Password must contain at least one special character.', false); return; }
+  if (pw1 !== pw2) { toast('Passwords do not match.', false); return; }
+  const btn = document.getElementById('fp-btn');
+  btn.disabled = true;
+  btn.textContent = 'Resetting\u2026';
+  try {
+    await apiFetch('/auth/forgot-password', {
+      method: 'POST',
+      body: JSON.stringify({ email, password: pw1 })
+    });
+    document.getElementById('forgotPwModal')?.remove();
+    toast('Password has been reset. You can now sign in.');
+  } catch (e) {
+    toast(e.message, false);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Reset Password';
+  }
 }
 
 
@@ -2361,6 +2299,7 @@ async function generateAiReport() {
         html += '<div class="report-section"><h3>Recommended Priorities</h3><ul style="font-size:13px;color:var(--sub);padding-left:18px;margin:0">' + report.recommendedPriorities.map(p => '<li style="margin-bottom:4px">' + esc(p) + '</li>').join('') + '</ul></div>';
       }
       content.innerHTML = html;
+      output.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } else {
       // Local report from stats
       let html = '<div class="report-section"><h3>Campus Safety Report</h3><p style="font-size:13px">Generated on ' + new Date().toLocaleString() + (data.ai ? '' : ' (statistical analysis)') + '</p></div>';
@@ -2431,7 +2370,7 @@ function go(p) {
     rf();
 
     // Deactivate all sidebar items across all 5 instances
-    ['_track','_active','_resolved','_analytics','_chat'].forEach(sfx => {
+    ['_track','_resolved','_analytics','_chat'].forEach(sfx => {
       for (let i = 1; i <= 5; i++) {
         const el = document.getElementById('side_student' + sfx + (i === 1 ? '' : i));
         if (el) el.classList.remove('act');
@@ -2447,7 +2386,7 @@ function go(p) {
     rt();
 
     // Deactivate all sidebar items across all 5 instances
-    ['_home','_active','_resolved','_analytics','_chat'].forEach(sfx => {
+    ['_home','_resolved','_analytics','_chat'].forEach(sfx => {
       for (let i = 1; i <= 5; i++) {
         const el = document.getElementById('side_student' + sfx + (i === 1 ? '' : i));
         if (el) el.classList.remove('act');
@@ -2465,7 +2404,7 @@ function go(p) {
     loadStudentResolvedComplaints();
 
     // Deactivate all sidebar items across all 5 instances
-    ['_home','_track','_active','_analytics','_chat'].forEach(sfx => {
+    ['_home','_track','_analytics','_chat'].forEach(sfx => {
       for (let i = 1; i <= 5; i++) {
         const el = document.getElementById('side_student' + sfx + (i === 1 ? '' : i));
         if (el) el.classList.remove('act');
@@ -2477,32 +2416,13 @@ function go(p) {
     });
   }
 
-  if (p === 'studentActive') {
-    if (adminPage) adminPage.style.display = 'none';
-    closeM();
-    document.getElementById('fs').value = '';
-    loadActiveComplaints();
-
-    // Deactivate all sidebar items across all 5 instances
-    ['_home','_track','_resolved','_analytics','_chat'].forEach(sfx => {
-      for (let i = 1; i <= 5; i++) {
-        const el = document.getElementById('side_student' + sfx + (i === 1 ? '' : i));
-        if (el) el.classList.remove('act');
-      }
-    });
-    // Activate active on all 5 instances
-    ['side_student_active','side_student_active2','side_student_active3','side_student_active4','side_student_active5'].forEach(id => {
-      const el = document.getElementById(id); if (el) el.classList.add('act');
-    });
-  }
-
   if (p === 'studentAnalytics') {
     if (adminPage) adminPage.style.display = 'none';
     closeM();
     loadStudentAnalytics();
 
     // Deactivate all sidebar items across all 5 instances
-    ['_home','_track','_active','_resolved','_chat'].forEach(sfx => {
+    ['_home','_track','_resolved','_chat'].forEach(sfx => {
       for (let i = 1; i <= 5; i++) {
         const el = document.getElementById('side_student' + sfx + (i === 1 ? '' : i));
         if (el) el.classList.remove('act');
@@ -2666,11 +2586,11 @@ function go(p) {
       // For student: standalone chat list page
       if (adminPage) adminPage.style.display = 'none';
       // Deactivate all student sidebar items
-      ['side_student_home','side_student_track','side_student_active','side_student_resolved','side_student_analytics',
-       'side_student_home2','side_student_track2','side_student_active2','side_student_resolved2','side_student_analytics2',
-       'side_student_home3','side_student_track3','side_student_active3','side_student_resolved3','side_student_analytics3',
-       'side_student_home4','side_student_track4','side_student_active4','side_student_resolved4','side_student_analytics4',
-       'side_student_home5','side_student_track5','side_student_active5','side_student_resolved5','side_student_analytics5'
+      ['side_student_home','side_student_track','side_student_resolved','side_student_analytics',
+       'side_student_home2','side_student_track2','side_student_resolved2','side_student_analytics2',
+       'side_student_home3','side_student_track3','side_student_resolved3','side_student_analytics3',
+       'side_student_home4','side_student_track4','side_student_resolved4','side_student_analytics4',
+       'side_student_home5','side_student_track5','side_student_resolved5','side_student_analytics5'
       ].forEach(id => { const el = document.getElementById(id); if (el) el.classList.remove('act'); });
       // Activate chat sidebar items
       ['side_student_chat','side_student_chat2','side_student_chat3','side_student_chat4','side_student_chat5'].forEach(id => {
@@ -2901,7 +2821,7 @@ async function fetchLiveStatus() {
     const d = String(today.getDate()).padStart(2, '0');
     const dateStr = `${y}-${m}-${d}`;
     const isAdmin = currentUser?.role === 'admin';
-    const endpoint = isAdmin ? '/complaints?all=1&sensitive=1' : '/complaints/my';
+    const endpoint = '/complaints?all=1' + (isAdmin ? '&sensitive=1' : '');
     const data = await apiFetch(endpoint);
     const all = data.complaints || [];
     const todayReceived = all.filter(c => c.created_at && c.created_at.startsWith(dateStr)).length;
@@ -2958,6 +2878,18 @@ async function markAllRead() {
 }
 // ── Complaint Form ───────────────────────────────────────────────────────────
 function openM() {
+  const home = document.getElementById('pg-home');
+  if (home && home.style.display === 'none') {
+    go('home');
+    setTimeout(() => {
+      const bar = document.getElementById('inp-bar');
+      if (bar) bar.style.display = 'none';
+      const form = document.getElementById('inline-form');
+      form.classList.add('open');
+      setTimeout(() => form.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+    }, 100);
+    return;
+  }
   const bar = document.getElementById('inp-bar');
   if (bar) bar.style.display = 'none';
   const form = document.getElementById('inline-form');
@@ -3058,6 +2990,8 @@ async function submitComplaint() {
       toast('Complaint submitted successfully!');
     }
 
+    go('home');
+    setTimeout(() => openComplaintDetail(data.complaint.id), 300);
 
   } catch (e) {
     if (e.name === 'AbortError') {
@@ -3109,42 +3043,10 @@ async function rf() {
     const all = allData.complaints;
     document.getElementById('hp').textContent = all.filter(c => c.status === 'Pending').length;
     document.getElementById('hr').textContent = all.filter(c => c.status === 'Under Review').length;
-    document.getElementById('hres').textContent = all.filter(c => c.status === 'Resolved').length;
+    document.getElementById('htot').textContent = all.length;
 
   } catch (e) {
     document.getElementById('feed').innerHTML = `<div class="loading">Error: ${e.message}</div>`;
-  }
-}
-
-/* ── Active Cases (student) ────────────────────────────────────────── */
-async function loadActiveComplaints() {
-  document.getElementById('fs2').value = '';
-  document.getElementById('fc2').value = '';
-  document.getElementById('so2').value = 'new';
-  rfActive();
-}
-async function rfActive() {
-  const status   = document.getElementById('fs2').value;
-  const category = document.getElementById('fc2').value;
-  const priority = document.getElementById('fp2').value;
-  const sort     = document.getElementById('so2').value;
-  try {
-    const params = new URLSearchParams();
-    if (status)   params.set('status', status);
-    if (category) params.set('category', category);
-    if (priority) params.set('priority', priority);
-    if (sort)     params.set('sort', sort);
-    // Always filter to active only (Pending + Under Review)
-    params.set('active', '1');
-    const data = await apiFetch('/complaints?' + params);
-    const complaints = data.complaints || [];
-    document.getElementById('cnt2').textContent =
-      complaints.length + ' active complaint' + (complaints.length !== 1 ? 's' : '');
-    document.getElementById('feed2').innerHTML = complaints.length
-      ? complaints.map(renderCard).join('')
-      : '<div class="loading">No active complaints found.</div>';
-  } catch (e) {
-    document.getElementById('feed2').innerHTML = `<div class="loading">Error: ${e.message}</div>`;
   }
 }
 
@@ -3198,7 +3100,7 @@ function renderCard(c) {
     : (typeof c.comments === 'number' ? c.comments : null);
 
   return `
-    <div class="cc" data-cid="${c.id}" data-priority="${esc(c.pri)}">
+    <div class="cc" data-cid="${c.id}" data-priority="${esc(c.pri)}" onclick="openComplaintDetail(${c.id}, {complaint: allComplaints.find(x=>x.id===${c.id})})" style="cursor:pointer;">
       <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start;">
         <div style="flex:1;min-width:0;">
           <div class="ct">${esc(c.title)}</div>
@@ -3832,7 +3734,6 @@ function renderTrackList() {
        <div class="tcard" style="cursor:pointer" onclick="openComplaintDetail(${c.id}, { complaint: __trackComplaints[${c.id}] })" data-cid="${c.id}" data-priority="${esc(c.pri)}">
         <div class="tch"><h3>${esc(c.title)}</h3><span onclick="event.stopPropagation();filterTrackView('status','${c.status}')" style="cursor:pointer">${sp(c.status)}</span></div>
         <p class="tdesc">${esc(c.desc)}</p>
-        <div class="pr"><span>Status</span><span>${c.status}</span></div>
         <div class="tm">
           <span class="mi">Category: <span class="mv">${esc(c.cat)}</span></span>
           <span class="mi">Priority: <span class="${priCls(c.pri)}">${esc(c.pri)}</span></span>
@@ -3870,7 +3771,7 @@ async function rt() {
     list.forEach(c => { window.__trackComplaints[c.id] = c; });
     document.getElementById('tp').textContent   = list.filter(c => c.status === 'Pending').length;
     document.getElementById('tr2').textContent  = list.filter(c => c.status === 'Under Review').length;
-    document.getElementById('tres').textContent = list.filter(c => c.status === 'Resolved').length;
+    document.getElementById('ttot').textContent = list.length;
     renderTrackList();
   } catch (e) {
     document.getElementById('tlist').innerHTML = `<div class="loading">Error: ${e.message}</div>`;
@@ -4006,20 +3907,22 @@ async function ra() {
   const fac  = document.getElementById('at2').value;
   const stat = document.getElementById('as2').value;
   const sort = document.getElementById('ap2').value || 'priority';
+  const search = (document.getElementById('as')?.value || '').trim();
   try {
+    const params = new URLSearchParams(
+      Object.fromEntries(
+        [['faculty', fac], ['status', stat], ['sort', sort], ['search', search]].filter(([, v]) => v)
+      )
+    );
     const [statsData, listData] = await Promise.all([
       apiFetch('/complaints/stats'),
-      apiFetch('/complaints?' + new URLSearchParams(
-        Object.fromEntries(
-          [['faculty', fac], ['status', stat], ['sort', sort]].filter(([, v]) => v)
-        )
-      )),
+      apiFetch('/complaints?' + params),
     ]);
 
     // Apply same filters + sorting to Sensitive Complaints section too.
     // (Use admin-only endpoint; it already supports faculty/status/sort/search)
     try {
-      await loadSensitiveComplaints({ faculty: fac, status: stat, sort });
+      await loadSensitiveComplaints({ faculty: fac, status: stat, sort, search });
     } catch (_) {
       // non-fatal
     }
@@ -4113,6 +4016,7 @@ async function loadSensitiveComplaints(filters = {}) {
     if (filters?.faculty) params.set('faculty', filters.faculty);
     if (filters?.status) params.set('status', filters.status);
     if (filters?.sort) params.set('sort', filters.sort);
+    if (filters?.search) params.set('search', filters.search);
 
     const qs = params.toString();
     const url = qs ? `/complaints/admin/sensitive?${qs}` : '/complaints/admin/sensitive';
@@ -4405,7 +4309,6 @@ async function loadStudents(initial = false) {
               <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px;">${esc(s.name)}</div>
               <div class="ad" style="margin:0;">Roll: <span style="font-weight:700;color:var(--text);">${esc(s.roll_number)}</span></div>
             </div>
-            <button class="btn-sub" style="padding:9px 14px;border-radius:10px;" onclick="openAdminResetStudentPassword(${s.id})">Reset Password</button>
           </div>
           <div class="tm" style="justify-content:flex-start;gap:14px;">
             <span class="mi">Class: <span class="mv">${esc(s.class_name || '')}</span></span>
@@ -4592,16 +4495,6 @@ function openAdminEditStudent(studentId) {
             <input id="es_degree" type="text" value="${esc(student?.degree_faculty || '')}" style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;outline:none;" />
           </div>
 
-          <div class="fg2" style="margin-bottom:0;">
-            <label>Reset Password</label>
-            <div style="position:relative;">
-              <input id="es_reset_pw" type="password" placeholder="Min 8 chars, 1 number, 1 special" style="width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;font-family:inherit;outline:none;box-sizing:border-box;" />
-              <span onclick="togglePw('es_reset_pw')" style="cursor:pointer;position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--sub);">
-                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" width="18" height="18"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
-              </span>
-            </div>
-          </div>
-
           <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:6px;">
             <button onclick="closeAdminEditStudent()" class="ss">Cancel</button>
             <button class="btn-sub" style="padding:11px 18px;" onclick="confirmAdminEditStudent(${studentId}, this)">Save</button>
@@ -4624,7 +4517,6 @@ async function confirmAdminEditStudent(studentId, btnEl) {
   const class_name = document.getElementById('es_class')?.value?.trim() || '';
   const section = document.getElementById('es_section')?.value?.trim() || '';
   const degree_faculty = document.getElementById('es_degree')?.value?.trim() || '';
-  const reset_pw = document.getElementById('es_reset_pw')?.value?.trim() || '';
 
   if (!roll_number) { toast('Roll is required.', false); return; }
   if (!class_name) { toast('Class is required.', false); return; }
@@ -4634,7 +4526,6 @@ async function confirmAdminEditStudent(studentId, btnEl) {
   try {
     if (btnEl) { btnEl.disabled = true; btnEl.textContent = 'Saving…'; }
 
-    // Update profile (PUT)
     await apiFetch(`/admin/students/${studentId}`, {
       method: 'PUT',
       body: JSON.stringify({
@@ -4644,17 +4535,6 @@ async function confirmAdminEditStudent(studentId, btnEl) {
         degree_faculty,
       })
     });
-
-    // Optional reset password (POST)
-    if (reset_pw) {
-      if (reset_pw.length < 8) { toast('Password must be at least 8 characters.', false); return; }
-      if (!/[0-9]/.test(reset_pw)) { toast('Password must contain at least one number.', false); return; }
-      if (!/[^a-zA-Z0-9]/.test(reset_pw)) { toast('Password must contain at least one special character.', false); return; }
-      await apiFetch(`/admin/students/${studentId}/reset-password`, {
-        method: 'POST',
-        body: JSON.stringify({ password: reset_pw })
-      });
-    }
 
     toast('Student updated successfully!');
     closeAdminEditStudent();
