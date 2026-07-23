@@ -260,10 +260,21 @@ async function seed() {
 
   const hash = (pwd) => bcrypt.hashSync(pwd, 10);
 
-  await run(
-    'INSERT INTO users (email, password, role, name, roll_number, class_name, section, degree_faculty) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-    ['student@college.edu', hash('password'), 'student', 'student', 'R001', 'B.Tech', 'A', 'Engineering']
-  );
+  const studentsData = [
+    ['riya@college.edu', hash('password'), 'student', 'Riya Sharma', 'R001', 'B.Tech CSE', 'A', 'Engineering'],
+    ['arjun@college.edu', hash('password'), 'student', 'Arjun Patel', 'R002', 'B.Tech CSE', 'B', 'Engineering'],
+    ['priya@college.edu', hash('password'), 'student', 'Priya Singh', 'R003', 'BBA', 'A', 'Management'],
+    ['rahul@college.edu', hash('password'), 'student', 'Rahul Verma', 'R004', 'B.Sc Physics', 'A', 'Science'],
+    ['ananya@college.edu', hash('password'), 'student', 'Ananya Gupta', 'R005', 'BA English', 'B', 'Arts'],
+    ['vikram@college.edu', hash('password'), 'student', 'Vikram Joshi', 'R006', 'B.Tech ECE', 'A', 'Engineering'],
+  ];
+
+  for (const s of studentsData) {
+    await run(
+      'INSERT INTO users (email, password, role, name, roll_number, class_name, section, degree_faculty) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+      s
+    );
+  }
 
   await run(
     'INSERT INTO users (email, password, role) VALUES (?, ?, ?)',
@@ -271,23 +282,94 @@ async function seed() {
   );
 
   const { hashId } = require('./utils/anon');
-  const student = await get("SELECT id FROM users WHERE email = 'student@college.edu'");
+  const allStudents = await new Promise((resolve, reject) => {
+    db.all("SELECT id FROM users WHERE role = 'student'", (err, rows) => {
+      if (err) reject(err);
+      else resolve(rows);
+    });
+  });
+
+  // Helper to create a date string months/days ago
+  function dateAgo(months, days) {
+    const d = new Date();
+    d.setMonth(d.getMonth() - months);
+    d.setDate(d.getDate() - days);
+    return d.toISOString().replace('T', ' ').slice(0, 19);
+  }
+
+  function pickStudent() {
+    return hashId(allStudents[Math.floor(Math.random() * allStudents.length)].id);
+  }
 
   const complaints = [
-    ['Mess food quality has deteriorated', 'Food quality issue', 'Under Review', 'Food', 'Food Services', 'High', 0, 'Dining Services', 67, 66],
-    ['AC not working in Block A classrooms', 'AC issue', 'Under Review', 'Infrastructure', 'Facilities Management', 'High', 0, 'Facilities Management', 45, 66],
-    ['Library closes too early on weekends', 'Timing issue', 'Pending', 'Library', 'Library Services', 'Medium', 0, 'Library Services', 32, 33],
-    ['Parking lot lighting issues', 'Safety issue', 'Pending', 'Infrastructure', 'Campus Security', 'High', 0, 'Campus Security', 19, 20],
-    ['Hostel hot water not working', 'Water issue', 'Pending', 'Hostel', 'Hostel Management', 'Medium', 0, 'Hostel Management', 28, 25],
-    ['Wi-Fi in library reading room', 'Network issue', 'Resolved', 'Library', 'IT Services', 'Low', 0, 'IT Services', 41, 100]
+    // ── Food (6) ──
+    ['Mess food quality has deteriorated','Food quality is very poor and unhygienic','Under Review','Food','Food Services','High',0,'Dining Services',67,66,8,2],
+    ['Canteen prices increased suddenly','No notice about price hike in canteen items','Pending','Food','Food Services','Medium',0,'Dining Services',23,10,7,5],
+    ['Spoiled food served in hostel mess','Found insects in dal served for dinner','Pending','Food','Food Services','High',1,'Dining Services',89,15,6,3],
+    ['Canteen hygiene needs improvement','Dirty tables and unwashed utensils','Resolved','Food','Food Services','Medium',0,'Dining Services',45,100,3,10],
+    ['Vegetarian options very limited','Only 2 veg items in a week','Pending','Food','Food Services','Low',0,'Dining Services',12,10,5,7],
+    ['Water dispenser not working in canteen','No drinking water available near dining area','Under Review','Food','Food Services','Medium',0,'Dining Services',34,40,4,1],
+
+    // ── Library (5) ──
+    ['Library closes too early on weekends','Weekend timings are inconvenient for students','Pending','Library','Library Services','Medium',0,'Library Services',32,10,1,4],
+    ['Not enough copies of reference books','Only 2 copies for 200 students batch','Under Review','Library','Library Services','High',0,'Library Services',78,30,3,6],
+    ['Silence zone not enforced','Groups of students talking loudly','Pending','Library','Library Services','Low',0,'Library Services',56,10,5,2],
+    ['Digital library subscription needed','Journals and papers not accessible online','Resolved','Library','Library Services','Medium',0,'IT Services',41,100,2,9],
+    ['Book return process too slow','Waiting 15 min just to return a book','Pending','Library','Library Services','Low',0,'Library Services',18,10,6,8],
+
+    // ── Hostel (6) ──
+    ['Hostel hot water not working','No hot water in winters for past week','Pending','Hostel','Hostel Management','High',0,'Hostel Management',28,25,1,3],
+    ['Hostel room window broken','Window glass shattered since 2 weeks','Pending','Hostel','Hostel Management','Medium',0,'Hostel Management',67,10,4,1],
+    ['Ragging incident in boys hostel','Senior students harassing freshers','Under Review','Hostel','Hostel Management','High',1,'Hostel Management',95,50,6,5],
+    ['Hostel wifi extremely slow','Cannot even load web pages at night','Resolved','Hostel','Hostel Management','Medium',0,'Hostel Management',44,100,2,7],
+    ['No drinking water on 3rd floor','Water cooler broken for a month','Pending','Hostel','Hostel Management','Medium',0,'Hostel Management',31,10,5,9],
+    ['Hostel gate closing too early','10pm curfew is impractical for interns','Under Review','Hostel','Hostel Management','Low',0,'Hostel Management',22,60,3,11],
+
+    // ── Infrastructure (6) ──
+    ['AC not working in Block A classrooms','Temperature reaches 35C inside','Under Review','Infrastructure','Facilities Management','High',0,'Facilities Management',45,66,1,2],
+    ['Parking lot lighting issues','Poor lighting creates safety concerns','Pending','Infrastructure','Campus Security','High',0,'Campus Security',19,20,2,6],
+    ['Broken bench in main auditorium','Several seats are damaged','Pending','Infrastructure','Facilities Management','Low',0,'Facilities Management',15,10,4,4],
+    ['CCTV cameras not working in parking','No surveillance in parking area','Under Review','Infrastructure','Campus Security','High',1,'Campus Security',73,45,6,1],
+    ['Lift in Block B not operational','Stuck since 3 weeks','Resolved','Infrastructure','Facilities Management','Medium',0,'Facilities Management',58,100,3,8],
+    ['Water logging near admin block','Stagnant water causing mosquito breeding','Pending','Infrastructure','Facilities Management','Medium',0,'Facilities Management',38,10,5,10],
+
+    // ── Staff (3) ──
+    ['Faculty member uses abusive language','Unprofessional behaviour in classroom','Pending','Staff','Staff','High',1,'HR Services',91,10,1,9],
+    ['Not enough lab assistants','Labs often left unattended','Under Review','Staff','Staff','Medium',0,'HR Services',34,50,4,7],
+    ['Attendance system needs improvement','Manual attendance takes 15 min of lecture','Resolved','Staff','Staff','Low',0,'HR Services',27,100,2,5],
+
+    // ── IT (4) ──
+    ['Wi-Fi frequently disconnects','Network drops every 10 minutes','Pending','IT','IT Services','High',0,'IT Services',82,10,3,2],
+    ['Campus app login not working','App crashes on login screen','Under Review','IT','IT Services','Medium',0,'IT Services',55,35,6,4],
+    ['Slow internet in computer lab','Lab machines have 2G-like speeds','Resolved','IT','IT Services','Medium',0,'IT Services',63,100,1,11],
+    ['Email server down for 2 days','Official communication disrupted','Pending','IT','IT Services','High',0,'IT Services',47,10,4,6],
+
+    // ── Transport (3) ──
+    ['Bus driver overspeeds regularly','Students feel unsafe in college bus','Pending','Transport','Transport','High',1,'Transport Department',96,10,2,3],
+    ['Bus timing not updated on app','Schedule mismatch causing delays','Under Review','Transport','Transport','Medium',0,'Transport Department',39,55,5,8],
+    ['No night shuttle for hostel students','Hostellers have no transport for emergencies','Pending','Transport','Transport','Medium',0,'Transport Department',72,10,6,1],
+
+    // ── Administration (3) ──
+    ['Scholarship disbursement delayed','Pending since 4 months','Under Review','Administration','Administration','High',0,'Administration',61,70,3,12],
+    ['Exam form submission glitch','Portal closed early without notice','Resolved','Administration','Administration','Medium',0,'Administration',43,100,1,10],
+    ['Fee receipt not generated','Paid fees but no receipt for 2 weeks','Pending','Administration','Administration','Low',0,'Administration',25,10,4,7],
   ];
 
   for (const c of complaints) {
+    // c = [title, desc, status, faculty, category, priority, is_sensitive, department, votes, progress, studentIdx, monthsAgo]
+    const title = c[0], desc = c[1], status = c[2], faculty = c[3], category = c[4],
+         priority = c[5], is_sensitive = c[6], department = c[7], votes = c[8],
+         progress = c[9], studentIdx = c[10], monthsAgo = c[11];
+    const submitterHash = hashId(allStudents[studentIdx % allStudents.length].id);
+    const daysOffset = Math.floor(Math.random() * 25);
+    const createdAt = dateAgo(monthsAgo, daysOffset);
+    const updatedAgo = Math.max(0, monthsAgo - Math.floor(Math.random() * 2));
+    const updatedAt = dateAgo(updatedAgo, Math.floor(Math.random() * 10));
     await run(
       `INSERT INTO complaints
         (title, description, status, faculty, category, priority, is_sensitive, department, votes, progress, submitter_id, created_at, updated_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))`,
-      [...c, hashId(student.id)]
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [title, desc, status, faculty, category, priority, is_sensitive, department, votes, progress, submitterHash, createdAt, updatedAt]
     );
   }
 
